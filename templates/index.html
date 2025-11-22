@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrightMind | Mental Health Resources</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body>
+    <div class="noise"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <header class="hero">
+        <nav class="nav">
+            <div class="logo">BrightMind</div>
+            <div class="nav-actions">
+                <button class="pill" id="filter-reset" aria-label="Reset filters">Reset Filters</button>
+                <button class="pill pill-outline" id="dark-toggle" aria-label="Toggle contrast mode">Glow Mode</button>
+            </div>
+        </nav>
+        <div class="hero-grid">
+            <div class="hero-copy">
+                <p class="eyebrow">Here for you, 24/7</p>
+                <h1>A vibrant hub of mental health support.</h1>
+                <p class="lede">Explore immediate crisis help, therapy directories, calming tools, and guides for you and your support circle. Every link is handpicked to feel safe, practical, and hopeful.</p>
+                <div class="cta-row">
+                    <a class="btn" href="#resources">Browse Resources</a>
+                    <a class="btn ghost" href="#how-to-use">How to use this hub</a>
+                </div>
+                <div class="trust">Curated with care • Human-reviewed • Free to explore</div>
+            </div>
+            <div class="hero-panel">
+                <div class="glass-card">
+                    <p class="mini">Feeling overwhelmed?</p>
+                    <h2>Find calm in three breaths</h2>
+                    <ol class="breath">
+                        <li>Inhale for 4 seconds</li>
+                        <li>Hold for 4 seconds</li>
+                        <li>Exhale for 6 seconds</li>
+                    </ol>
+                    <p class="mini">Ground yourself, then choose a resource.</p>
+                </div>
+                <div class="glass-card gradient-card">
+                    <p class="mini">Quick exits</p>
+                    <div class="chips">
+                        <span class="chip">Crisis lines</span>
+                        <span class="chip">Therapy</span>
+                        <span class="chip">Peer support</span>
+                        <span class="chip">Guides</span>
+                    </div>
+                    <p class="mini">Tap to jump into a section that feels right for you.</p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <section id="how-to-use" class="panel">
+            <div class="panel-header">
+                <p class="eyebrow">Navigate with ease</p>
+                <h2>Choose what you need right now.</h2>
+                <p class="lede">Filter by tags like “urgent”, “mindfulness”, or “community.” Each card opens trustworthy support—no distractions or ads.</p>
+                <div class="tag-row" id="tag-row">
+                    <button class="tag" data-tag="urgent">urgent</button>
+                    <button class="tag" data-tag="therapy">therapy</button>
+                    <button class="tag" data-tag="mindfulness">mindfulness</button>
+                    <button class="tag" data-tag="community">community</button>
+                    <button class="tag" data-tag="education">education</button>
+                    <button class="tag" data-tag="apps">apps</button>
+                    <button class="tag" data-tag="family">family</button>
+                </div>
+            </div>
+        </section>
+
+        <section id="resources" class="resource-grid">
+            {% for res in resources %}
+            <article class="resource-card" data-tags="{{ res.tags|join(' ') }}">
+                <div class="card-header">
+                    <div class="dot"></div>
+                    <h3>{{ res.title }}</h3>
+                </div>
+                <p class="body">{{ res.description }}</p>
+                <div class="links">
+                    {% for link in res.links %}
+                    <a href="{{ link.url }}" target="_blank" rel="noopener" class="link">{{ link.label }}</a>
+                    {% endfor %}
+                </div>
+                <div class="chip-row">
+                    {% for tag in res.tags %}
+                    <span class="chip">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </article>
+            {% endfor %}
+        </section>
+
+        <section class="panel gradient-panel">
+            <div class="panel-header">
+                <p class="eyebrow">Staying safe</p>
+                <h2>Save these steps for tough moments.</h2>
+                <p class="lede">If you or someone you love is in danger, call local emergency services or the nearest crisis line. You deserve immediate support.</p>
+            </div>
+            <div class="steps">
+                <div class="step">
+                    <span class="step-number">1</span>
+                    <div>
+                        <h4>Pause & breathe</h4>
+                        <p class="body">Notice five things you can see. Feel your feet on the ground. Take one slow inhale and exhale.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">2</span>
+                    <div>
+                        <h4>Call or text a crisis line</h4>
+                        <p class="body">People are ready to listen without judgment. Your feelings matter.</p>
+                    </div>
+                </div>
+                <div class="step">
+                    <span class="step-number">3</span>
+                    <div>
+                        <h4>Share your plan</h4>
+                        <p class="body">Tell a friend, family member, or clinician you trust what you’re experiencing.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <footer class="footer">
+        <div>
+            <h3>BrightMind</h3>
+            <p class="body">Curated global resources to meet you where you are. Save this page for the moments you need to feel held.</p>
+        </div>
+        <div class="footer-links">
+            <a href="#resources">Explore</a>
+            <a href="#how-to-use">Filters</a>
+            <a href="mailto:hello@brightmind.local">Contact</a>
+        </div>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>
