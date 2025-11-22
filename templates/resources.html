@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid compact">
+    <div class="hero-copy">
+        <p class="eyebrow">Resource Library</p>
+        <h1>Curated links for support, learning, and care.</h1>
+        <p class="lede">Every resource is reviewed for clarity, accessibility, and respect. Browse by section or use the tags below to jump straight to what you need.</p>
+        <div class="cta-row">
+            <a class="btn" href="#resources">Start exploring</a>
+            <button class="pill" id="filter-reset" aria-label="Reset filters">Reset Filters</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="panel">
+    <div class="tag-row" id="tag-row">
+        <button class="tag" data-tag="urgent">urgent</button>
+        <button class="tag" data-tag="therapy">therapy</button>
+        <button class="tag" data-tag="mindfulness">mindfulness</button>
+        <button class="tag" data-tag="community">community</button>
+        <button class="tag" data-tag="education">education</button>
+        <button class="tag" data-tag="apps">apps</button>
+        <button class="tag" data-tag="family">family</button>
+    </div>
+</section>
+
+<section id="resources" class="resource-grid">
+    {% for res in resources %}
+    <article class="resource-card" data-tags="{{ res.tags|join(' ') }}">
+        <div class="card-header">
+            <div class="dot"></div>
+            <h3>{{ res.title }}</h3>
+        </div>
+        <p class="body">{{ res.description }}</p>
+        <div class="links">
+            {% for link in res.links %}
+            <a href="{{ link.url }}" target="_blank" rel="noopener" class="link">{{ link.label }}</a>
+            {% endfor %}
+        </div>
+        <div class="chip-row">
+            {% for tag in res.tags %}
+            <span class="chip">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}

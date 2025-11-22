@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>BrightMind | Mental Health Resources</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/styles.css" />
+</head>
+<body class="glow">
+    <div class="noise"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <header class="hero">
+        <nav class="nav glassy">
+            <div class="logo">BrightMind</div>
+            <div class="nav-links">
+                <a href="{{ url_for('index') }}" class="nav-link">Home</a>
+                <a href="{{ url_for('resources') }}" class="nav-link">Resource Library</a>
+                <a href="{{ url_for('calming_tools') }}" class="nav-link">Calming Tools</a>
+                <a href="{{ url_for('community') }}" class="nav-link">Community</a>
+                <a href="#contact" class="nav-link">Contact</a>
+            </div>
+            <a class="pill nav-pill" href="{{ url_for('resources') }}">Browse Resources</a>
+        </nav>
+        {% block hero %}{% endblock %}
+    </header>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <footer class="footer" id="contact">
+        <div>
+            <h3>BrightMind</h3>
+            <p class="body">Curated global resources to meet you where you are. Save this page for the moments you need to feel held.</p>
+        </div>
+        <div class="footer-links">
+            <a href="{{ url_for('resources') }}">Explore</a>
+            <a href="{{ url_for('calming_tools') }}">Find calm</a>
+            <a href="mailto:hello@brightmind.local">Contact</a>
+        </div>
+    </footer>
+
+    <script src="/static/script.js"></script>
+</body>
+</html>

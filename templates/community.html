@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid compact">
+    <div class="hero-copy">
+        <p class="eyebrow">Community care</p>
+        <h1>Spaces, stories, and swaps to feel less alone.</h1>
+        <p class="lede">Join gentle gatherings, read hope-filled stories, and share resources that help you or someone you care about. This page keeps growing with your contributions.</p>
+        <div class="cta-row">
+            <a class="btn" href="#community">See highlights</a>
+            <a class="btn ghost" href="mailto:hello@brightmind.local">Share a resource</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section id="community" class="resource-grid">
+    {% for highlight in highlights %}
+    <article class="resource-card">
+        <div class="card-header">
+            <div class="dot"></div>
+            <h3>{{ highlight.title }}</h3>
+        </div>
+        <p class="body">{{ highlight.description }}</p>
+    </article>
+    {% endfor %}
+</section>
+
+<section class="panel gradient-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Invite your voice</p>
+        <h2>Tell us what helps you feel supported.</h2>
+        <p class="lede">Email a short note, link, or practice that you’d like to see featured. We’ll add it to the mix and credit the community.</p>
+    </div>
+</section>
+{% endblock %}
