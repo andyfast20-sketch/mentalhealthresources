@@ -1,7 +1,6 @@
 const tags = Array.from(document.querySelectorAll('.tag'));
 const cards = Array.from(document.querySelectorAll('.resource-card'));
 const resetBtn = document.getElementById('filter-reset');
-const darkToggle = document.getElementById('dark-toggle');
 
 function applyFilter(tag) {
   cards.forEach((card) => {
@@ -27,11 +26,6 @@ tags.forEach((tagBtn) => {
 });
 
 resetBtn?.addEventListener('click', resetFilters);
-
-darkToggle?.addEventListener('click', () => {
-  document.body.classList.toggle('glow');
-  darkToggle.textContent = document.body.classList.contains('glow') ? 'Night Mode' : 'Glow Mode';
-});
 
 // Smooth scroll for in-page anchors
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {

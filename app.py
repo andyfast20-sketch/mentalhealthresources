@@ -85,9 +85,73 @@ RESOURCES = [
     },
 ]
 
+CALMING_TOOLS = [
+    {
+        "title": "Five Senses Reset",
+        "description": "A grounding practice to notice sight, sound, touch, scent, and taste in the room around you.",
+        "steps": [
+            "Name five things you can see.",
+            "Notice four things you can touch.",
+            "Listen for three sounds.",
+            "Identify two scents near you.",
+            "Take one slow sip of water or a mindful breath.",
+        ],
+    },
+    {
+        "title": "Box Breathing",
+        "description": "Steady your nervous system with a balanced inhale, hold, and exhale.",
+        "steps": [
+            "Inhale through your nose for four counts.",
+            "Hold gently for four counts.",
+            "Exhale through your mouth for four counts.",
+            "Pause for four counts before the next breath.",
+        ],
+    },
+    {
+        "title": "Tension & Release",
+        "description": "Relax each muscle group with a short squeeze and soften sequence.",
+        "steps": [
+            "Start at your hands: squeeze for five seconds, then release.",
+            "Move to shoulders, face, and legs with the same pattern.",
+            "Notice the warmth and heaviness after each release.",
+        ],
+    },
+]
+
+COMMUNITY_HIGHLIGHTS = [
+    {
+        "title": "Peer Circles",
+        "description": "Weekly online spaces where you can share, listen, or simply sit with others who understand.",
+    },
+    {
+        "title": "Story Spotlights",
+        "description": "Gentle, anonymous stories from people who found support and kept going—proof that healing is possible.",
+    },
+    {
+        "title": "Resource Swaps",
+        "description": "A living list where the community adds podcasts, books, and practices that help them feel grounded.",
+    },
+]
+
+
 @app.route("/")
 def index():
-    return render_template("index.html", resources=RESOURCES)
+    return render_template("home.html", resources=RESOURCES)
+
+
+@app.route("/resources")
+def resources():
+    return render_template("resources.html", resources=RESOURCES)
+
+
+@app.route("/calming-tools")
+def calming_tools():
+    return render_template("calming_tools.html", tools=CALMING_TOOLS)
+
+
+@app.route("/community")
+def community():
+    return render_template("community.html", highlights=COMMUNITY_HIGHLIGHTS)
 
 
 if __name__ == "__main__":

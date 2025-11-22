@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Here for you, 24/7</p>
+        <h1>A vibrant hub of mental health support.</h1>
+        <p class="lede">Explore immediate crisis help, therapy directories, calming tools, and guides for you and your support circle. Every link is handpicked to feel safe, practical, and hopeful.</p>
+        <div class="cta-row">
+            <a class="btn" href="{{ url_for('resources') }}">Browse Resources</a>
+            <a class="btn ghost" href="{{ url_for('calming_tools') }}">Find calm now</a>
+        </div>
+        <div class="trust">Curated with care • Human-reviewed • Free to explore</div>
+    </div>
+    <div class="hero-panel hero-image">
+        <img src="https://images.unsplash.com/flagged/photo-1551426938-51a1d23fd511?auto=format&fit=crop&w=900&q=80" alt="AI-generated calm abstract portrait with gentle gradients" />
+        <div class="caption">AI-generated art chosen to blend softly with the glow aesthetic.</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section id="how-to-use" class="panel">
+    <div class="panel-header">
+        <p class="eyebrow">Navigate with ease</p>
+        <h2>Choose what you need right now.</h2>
+        <p class="lede">Filter by tags like “urgent”, “mindfulness”, or “community.” Each card opens trustworthy support—no distractions or ads.</p>
+        <div class="tag-row" id="tag-row">
+            <button class="tag" data-tag="urgent">urgent</button>
+            <button class="tag" data-tag="therapy">therapy</button>
+            <button class="tag" data-tag="mindfulness">mindfulness</button>
+            <button class="tag" data-tag="community">community</button>
+            <button class="tag" data-tag="education">education</button>
+            <button class="tag" data-tag="apps">apps</button>
+            <button class="tag" data-tag="family">family</button>
+        </div>
+    </div>
+</section>
+
+<section id="resources" class="resource-grid">
+    {% for res in resources %}
+    <article class="resource-card" data-tags="{{ res.tags|join(' ') }}">
+        <div class="card-header">
+            <div class="dot"></div>
+            <h3>{{ res.title }}</h3>
+        </div>
+        <p class="body">{{ res.description }}</p>
+        <div class="links">
+            {% for link in res.links %}
+            <a href="{{ link.url }}" target="_blank" rel="noopener" class="link">{{ link.label }}</a>
+            {% endfor %}
+        </div>
+        <div class="chip-row">
+            {% for tag in res.tags %}
+            <span class="chip">{{ tag }}</span>
+            {% endfor %}
+        </div>
+    </article>
+    {% endfor %}
+</section>
+
+<section class="panel gradient-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Staying safe</p>
+        <h2>Save these steps for tough moments.</h2>
+        <p class="lede">If you or someone you love is in danger, call local emergency services or the nearest crisis line. You deserve immediate support.</p>
+    </div>
+    <div class="steps">
+        <div class="step">
+            <span class="step-number">1</span>
+            <div>
+                <h4>Pause & breathe</h4>
+                <p class="body">Notice five things you can see. Feel your feet on the ground. Take one slow inhale and exhale.</p>
+            </div>
+        </div>
+        <div class="step">
+            <span class="step-number">2</span>
+            <div>
+                <h4>Call or text a crisis line</h4>
+                <p class="body">People are ready to listen without judgment. Your feelings matter.</p>
+            </div>
+        </div>
+        <div class="step">
+            <span class="step-number">3</span>
+            <div>
+                <h4>Share your plan</h4>
+                <p class="body">Tell a friend, family member, or clinician you trust what you’re experiencing.</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

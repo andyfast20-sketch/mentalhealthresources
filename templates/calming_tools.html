@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid compact">
+    <div class="hero-copy">
+        <p class="eyebrow">Find your calm</p>
+        <h1>Guided practices to steady your breath and body.</h1>
+        <p class="lede">Use these quick sequences during stressful moments. Each one can be done quietly at your desk, in a waiting room, or wherever you are.</p>
+        <div class="cta-row">
+            <a class="btn" href="#tools">Try a practice</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section id="tools" class="resource-grid tools-grid">
+    {% for tool in tools %}
+    <article class="resource-card">
+        <div class="card-header">
+            <div class="dot"></div>
+            <h3>{{ tool.title }}</h3>
+        </div>
+        <p class="body">{{ tool.description }}</p>
+        <ol class="breath">
+            {% for step in tool.steps %}
+            <li>{{ step }}</li>
+            {% endfor %}
+        </ol>
+    </article>
+    {% endfor %}
+</section>
+{% endblock %}
