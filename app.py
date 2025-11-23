@@ -1,6 +1,56 @@
-from flask import Flask, render_template
+import json
+from pathlib import Path
+
+from flask import Flask, redirect, render_template, request, url_for
 
 app = Flask(__name__)
+
+DATA_DIR = Path("data")
+CHARITIES_FILE = DATA_DIR / "charities.json"
+
+
+DEFAULT_CHARITIES = [
+    {
+        "name": "Mind (UK)",
+        "description": "Providing advice and empowering people experiencing mental health problems through helplines, advocacy, and community programs.",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Mind.svg/320px-Mind.svg.png",
+        "site_url": "https://www.mind.org.uk/",
+    },
+    {
+        "name": "NAMI",  # National Alliance on Mental Illness
+        "description": "Education, support groups, and advocacy to build better lives for individuals and families affected by mental illness.",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/NAMI-Logo.svg/320px-NAMI-Logo.svg.png",
+        "site_url": "https://www.nami.org/",
+    },
+    {
+        "name": "The Trevor Project",
+        "description": "Crisis intervention and suicide prevention services for LGBTQ+ young people, available 24/7 via phone, chat, and text.",
+        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/The_Trevor_Project_logo.svg/320px-The_Trevor_Project_logo.svg.png",
+        "site_url": "https://www.thetrevorproject.org/",
+    },
+]
+
+
+def ensure_data_dir():
+    DATA_DIR.mkdir(exist_ok=True)
+
+
+def load_charities():
+    ensure_data_dir()
+    if CHARITIES_FILE.exists():
+        try:
+            with CHARITIES_FILE.open() as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            pass
+    save_charities(DEFAULT_CHARITIES)
+    return DEFAULT_CHARITIES.copy()
+
+
+def save_charities(charities):
+    ensure_data_dir()
+    with CHARITIES_FILE.open("w") as f:
+        json.dump(charities, f, indent=2)
 
 RESOURCES = [
     {
@@ -136,7 +186,14 @@ COMMUNITY_HIGHLIGHTS = [
 
 @app.route("/")
 def index():
-    return render_template("home.html", resources=RESOURCES)
+    charities = load_charities()
+    return render_template("home.html", resources=RESOURCES, charities=charities)
+
+
+@app.route("/charities")
+def charities():
+    charities = load_charities()
+    return render_template("charities.html", charities=charities)
 
 
 @app.route("/resources")
@@ -156,7 +213,32 @@ def community():
 
 @app.route("/admin")
 def admin():
-    return render_template("admin.html")
+    charities = load_charities()
+    message = request.args.get("message")
+    return render_template("admin.html", charities=charities, message=message)
+
+
+@app.route("/admin/charities", methods=["POST"])
+def add_charity():
+    name = request.form.get("name", "").strip()
+    description = request.form.get("description", "").strip()
+    logo_url = request.form.get("logo_url", "").strip()
+    site_url = request.form.get("site_url", "").strip()
+
+    if not all([name, description, logo_url, site_url]):
+        return redirect(url_for("admin", message="Please fill in all fields."))
+
+    charities = load_charities()
+    charities.append(
+        {
+            "name": name,
+            "description": description,
+            "logo_url": logo_url,
+            "site_url": site_url,
+        }
+    )
+    save_charities(charities)
+    return redirect(url_for("admin", message="Charity added successfully."))
 
 
 if __name__ == "__main__":
