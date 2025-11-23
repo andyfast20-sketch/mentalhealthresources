@@ -77,6 +77,28 @@ body {
   padding: 12px 16px;
 }
 
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.logo-mark {
+  width: 42px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.8);
+  border-radius: 12px;
+  box-shadow: 0 12px 24px rgba(195, 122, 117, 0.12);
+}
+
+.logo-mark svg {
+  width: 28px;
+  height: 28px;
+}
+
 .logo {
   font-weight: 800;
   font-size: 22px;
