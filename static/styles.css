@@ -493,6 +493,8 @@ body {
   padding: 18px;
   box-shadow: 0 12px 30px rgba(233, 168, 169, 0.25);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .charity-card::before {
@@ -600,9 +602,15 @@ body {
   filter: saturate(1.05);
 }
 
+.charity-card .body {
+  margin-top: 12px;
+  margin-bottom: 0;
+  flex: 1;
+}
+
 .charity-actions {
-  margin-top: 14px;
-  display: inline-flex;
+  margin-top: auto;
+  display: flex;
   align-items: center;
   gap: 10px;
   position: relative;
