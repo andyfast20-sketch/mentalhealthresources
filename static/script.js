@@ -112,17 +112,25 @@ const phaseLabel = document.querySelector('[data-phase-label]');
 const pulseRing = document.querySelector('[data-pulse-ring]');
 const phaseTimeline = document.querySelector('[data-phase-timeline]');
 const affirmation = document.querySelector('[data-affirmation]');
+const cyclePreview = document.querySelector('[data-cycle-preview]');
 
 let calmTimer;
 let sessionTimer;
 let sessionEndTime = null;
 let phaseIndex = 0;
 let running = false;
+let lastTargetScale = 1;
+
+const scaleTargets = {
+  expand: 1.08,
+  contract: 0.7,
+};
 
 const phaseConfig = [
-  { label: 'Inhale', emoji: '🌅' },
-  { label: 'Hold', emoji: '✨' },
-  { label: 'Exhale', emoji: '🌊' },
+  { key: 'inhale', label: 'Inhale', emoji: '🌅', duration: (durations) => durations[0], target: 'contract' },
+  { key: 'hold-full', label: 'Hold full', emoji: '✨', duration: (durations) => durations[1], hold: true },
+  { key: 'exhale', label: 'Exhale', emoji: '🌊', duration: (durations) => durations[2], target: 'expand' },
+  { key: 'hold-open', label: 'Hold open', emoji: '✨', duration: (durations) => durations[1], hold: true },
 ];
 
 const affirmations = ['You deserve this pause.', 'Every breath is progress.', 'Settle into the softness of this moment.', 'Notice how capable your body is.', 'Quiet moments count as care.'];
@@ -148,27 +156,48 @@ function phaseDurations() {
 
 function setPhase(newIndex) {
   if (!phaseTimeline || !phaseLabel || !pulseRing) return;
+  clearTimeout(calmTimer);
   const durations = phaseDurations();
   phaseIndex = (newIndex + phaseConfig.length) % phaseConfig.length;
-  const { label, emoji } = phaseConfig[phaseIndex];
+  const currentPhase = phaseConfig[phaseIndex];
+  const durationSeconds = currentPhase.duration(durations);
+
+  if (durationSeconds <= 0) {
+    setPhase(phaseIndex + 1);
+    return;
+  }
 
   phaseTimeline.querySelectorAll('.chip').forEach((chip, idx) => {
     chip.classList.toggle('active', idx === phaseIndex);
   });
 
-  const scale = waveRange ? Number(waveRange.value) : 1;
-  pulseRing.style.setProperty('--pulse-scale', scale);
-  pulseRing.style.setProperty('--phase-duration', `${durations[phaseIndex]}s`);
-  pulseRing.classList.add('pulsing');
-  void pulseRing.offsetWidth; // restart animation
-  pulseRing.classList.remove('pulsing');
-  requestAnimationFrame(() => pulseRing.classList.add('pulsing'));
+  const intensity = waveRange ? Number(waveRange.value) : 1;
+  const targetScale = currentPhase.target ? scaleTargets[currentPhase.target] * intensity : lastTargetScale;
+  const transitionValue = currentPhase.hold ? 'none' : `transform ${durationSeconds}s ease-in-out`;
+  pulseRing.style.transition = transitionValue;
+  pulseRing.style.transform = `scale(${targetScale})`;
+  lastTargetScale = targetScale;
 
-  phaseLabel.textContent = `${emoji} ${label}`;
+  phaseLabel.textContent = `${currentPhase.emoji} ${currentPhase.label}`;
 
   calmTimer = setTimeout(() => {
     setPhase(phaseIndex + 1);
-  }, durations[phaseIndex] * 1000);
+  }, durationSeconds * 1000);
+}
+
+function primeRing() {
+  if (!pulseRing) return;
+  const intensity = waveRange ? Number(waveRange.value) : 1;
+  const initialScale = scaleTargets.expand * intensity;
+  lastTargetScale = initialScale;
+  pulseRing.style.transition = 'transform 0.4s ease-out';
+  pulseRing.style.transform = `scale(${initialScale})`;
+}
+
+function updateCyclePreview() {
+  if (!cyclePreview) return;
+  const [inhale, hold, exhale] = phaseDurations();
+  cyclePreview.textContent = `${inhale}s inhale • ${hold}s hold • ${exhale}s exhale • ${hold}s hold`;
 }
 
 function startCalm() {
@@ -184,6 +213,7 @@ function startCalm() {
   if (affirmation) {
     affirmation.textContent = affirmations[Math.floor(Math.random() * affirmations.length)];
   }
+  primeRing();
   setPhase(phaseIndex);
 }
 
@@ -194,13 +224,20 @@ function stopCalm(reset = false) {
   clearInterval(sessionTimer);
   if (reset && phaseLabel && pulseRing && phaseTimeline) {
     phaseLabel.textContent = 'Ready when you are';
-    pulseRing.classList.remove('pulsing');
+    primeRing();
     phaseTimeline.querySelectorAll('.chip').forEach((chip) => chip.classList.remove('active'));
     phaseIndex = 0;
   }
 }
 
-waveRange?.addEventListener('input', updateRangeDisplays);
+waveRange?.addEventListener('input', () => {
+  updateRangeDisplays();
+  if (running) {
+    setPhase(phaseIndex);
+  } else {
+    primeRing();
+  }
+});
 calmStart?.addEventListener('click', startCalm);
 calmReset?.addEventListener('click', () => stopCalm(true));
 sessionInput?.addEventListener('input', () => {
@@ -208,8 +245,16 @@ sessionInput?.addEventListener('input', () => {
   const minutes = clamp(Number(sessionInput.value || 0), 1, 30);
   sessionRemaining.textContent = `${minutes.toString().padStart(2, '0')}:00 remaining`;
 });
+[inhaleInput, holdInput, exhaleInput].forEach((input) => {
+  input?.addEventListener('input', () => {
+    updateCyclePreview();
+    if (running) setPhase(phaseIndex);
+  });
+});
 
 updateRangeDisplays();
+updateCyclePreview();
+primeRing();
 
 function startSessionTimer() {
   if (!sessionRemaining) return;
