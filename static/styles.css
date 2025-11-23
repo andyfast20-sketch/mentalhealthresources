@@ -1520,6 +1520,11 @@ body {
   z-index: 1;
 }
 
+.soothing-video {
+  display: grid;
+  gap: 16px;
+}
+
 .crisis-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -1582,6 +1587,26 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
+}
+
+.crisis-video {
+  position: relative;
+  width: 100%;
+  padding-top: 56.25%;
+  border-radius: 18px;
+  overflow: hidden;
+  box-shadow: 0 14px 36px rgba(195, 122, 117, 0.16);
+  border: 1px solid rgba(113, 64, 77, 0.14);
+  background: linear-gradient(135deg, rgba(245, 163, 181, 0.08), rgba(233, 188, 255, 0.06));
+}
+
+.crisis-video iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
 }
 
 .crisis-grid.calming .crisis-card {
