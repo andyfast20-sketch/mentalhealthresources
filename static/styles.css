@@ -380,7 +380,7 @@ body {
 .video-embed {
   position: relative;
   width: 100%;
-  aspect-ratio: 9 / 14;
+  aspect-ratio: 16 / 9;
   padding-top: 0;
   border-radius: 14px;
   overflow: hidden;
@@ -393,14 +393,13 @@ body {
   position: absolute;
   inset: 0;
   width: 100%;
-  height: 140%;
-  top: -12%;
+  height: 100%;
   border: 0;
 }
 
 @supports not (aspect-ratio: 1) {
   .video-embed {
-    padding-top: 75%;
+    padding-top: 56.25%;
   }
 }
 
