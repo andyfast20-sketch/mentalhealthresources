@@ -99,9 +99,12 @@ document.addEventListener('keydown', (event) => {
 });
 
 // Calming flow interactions
-const breathRange = document.querySelector('[data-breath-range]');
+const inhaleInput = document.querySelector('[data-inhale-input]');
+const holdInput = document.querySelector('[data-hold-input]');
+const exhaleInput = document.querySelector('[data-exhale-input]');
+const sessionInput = document.querySelector('[data-session-input]');
+const sessionRemaining = document.querySelector('[data-session-remaining]');
 const waveRange = document.querySelector('[data-wave-range]');
-const breathValue = document.querySelector('[data-breath-value]');
 const waveValue = document.querySelector('[data-wave-value]');
 const calmStart = document.querySelector('[data-calm-start]');
 const calmReset = document.querySelector('[data-calm-reset]');
@@ -111,6 +114,8 @@ const phaseTimeline = document.querySelector('[data-phase-timeline]');
 const affirmation = document.querySelector('[data-affirmation]');
 
 let calmTimer;
+let sessionTimer;
+let sessionEndTime = null;
 let phaseIndex = 0;
 let running = false;
 
@@ -118,21 +123,15 @@ const phaseConfig = [
   { label: 'Inhale', emoji: '🌅' },
   { label: 'Hold', emoji: '✨' },
   { label: 'Exhale', emoji: '🌊' },
-  { label: 'Soften', emoji: '🍃' },
 ];
 
-const affirmations = [
-  'You deserve this pause.',
-  'Every breath is progress.',
-  'Settle into the softness of this moment.',
-  'Notice how capable your body is.',
-  'Quiet moments count as care.',
-];
+const affirmations = ['You deserve this pause.', 'Every breath is progress.', 'Settle into the softness of this moment.', 'Notice how capable your body is.', 'Quiet moments count as care.'];
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
 
 function updateRangeDisplays() {
-  if (breathValue && breathRange) {
-    breathValue.textContent = `${breathRange.value}s inhale`;
-  }
   if (waveValue && waveRange) {
     const rangeVal = Number(waveRange.value);
     const label = rangeVal < 0.95 ? 'Feather-light' : rangeVal > 1.15 ? 'Deep waves' : 'Balanced';
@@ -141,8 +140,10 @@ function updateRangeDisplays() {
 }
 
 function phaseDurations() {
-  const base = Number(breathRange?.value || 5);
-  return [base, Math.max(2, base - 1), base + 1, 2.5];
+  const inhale = clamp(Number(inhaleInput?.value || 4), 1, 20);
+  const hold = clamp(Number(holdInput?.value || 2), 0, 20);
+  const exhale = clamp(Number(exhaleInput?.value || 5), 1, 20);
+  return [inhale, hold, exhale];
 }
 
 function setPhase(newIndex) {
@@ -176,6 +177,9 @@ function startCalm() {
     return;
   }
   running = true;
+  const minutes = clamp(Number(sessionInput?.value || 5), 1, 30);
+  sessionEndTime = Date.now() + minutes * 60 * 1000;
+  startSessionTimer();
   calmStart.textContent = 'Pause flow';
   if (affirmation) {
     affirmation.textContent = affirmations[Math.floor(Math.random() * affirmations.length)];
@@ -187,6 +191,7 @@ function stopCalm(reset = false) {
   running = false;
   calmStart.textContent = 'Start flow';
   clearTimeout(calmTimer);
+  clearInterval(sessionTimer);
   if (reset && phaseLabel && pulseRing && phaseTimeline) {
     phaseLabel.textContent = 'Ready when you are';
     pulseRing.classList.remove('pulsing');
@@ -195,12 +200,40 @@ function stopCalm(reset = false) {
   }
 }
 
-breathRange?.addEventListener('input', updateRangeDisplays);
 waveRange?.addEventListener('input', updateRangeDisplays);
 calmStart?.addEventListener('click', startCalm);
 calmReset?.addEventListener('click', () => stopCalm(true));
+sessionInput?.addEventListener('input', () => {
+  if (!sessionRemaining) return;
+  const minutes = clamp(Number(sessionInput.value || 0), 1, 30);
+  sessionRemaining.textContent = `${minutes.toString().padStart(2, '0')}:00 remaining`;
+});
 
 updateRangeDisplays();
+
+function startSessionTimer() {
+  if (!sessionRemaining) return;
+  updateSessionRemaining();
+  clearInterval(sessionTimer);
+  sessionTimer = setInterval(() => {
+    updateSessionRemaining();
+    if (!sessionEndTime || Date.now() >= sessionEndTime) {
+      sessionRemaining.textContent = 'Session complete';
+      stopCalm(true);
+    }
+  }, 250);
+}
+
+function updateSessionRemaining() {
+  if (!sessionRemaining || !sessionEndTime) return;
+  const remainingMs = Math.max(sessionEndTime - Date.now(), 0);
+  const totalSeconds = Math.round(remainingMs / 1000);
+  const minutes = Math.floor(totalSeconds / 60)
+    .toString()
+    .padStart(2, '0');
+  const seconds = (totalSeconds % 60).toString().padStart(2, '0');
+  sessionRemaining.textContent = `${minutes}:${seconds} remaining`;
+}
 
 // Smooth scroll for in-page anchors
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
