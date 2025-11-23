@@ -20,32 +20,48 @@
             <p class="eyebrow">Interactive</p>
             <h2>A gentle flow you can control.</h2>
             <p class="lede">Guide your own pace with a slider, choose how strong the breathing waves feel, and let the interface quietly update you through each phase. It’s meant to be playful, steady, and deeply calming.</p>
-            <div class="control-row">
-                <label class="control">
-                    <span>Inhale (seconds)</span>
-                    <input type="number" min="1" max="20" value="4" step="0.5" data-inhale-input />
-                    <span class="value">Choose the length of your in-breath.</span>
-                </label>
-                <label class="control">
-                    <span>Hold (seconds)</span>
-                    <input type="number" min="0" max="20" value="2" step="0.5" data-hold-input />
-                    <span class="value">Set a gentle pause.</span>
-                </label>
-                <label class="control">
-                    <span>Exhale (seconds)</span>
-                    <input type="number" min="1" max="20" value="5" step="0.5" data-exhale-input />
-                    <span class="value">Let the breath go slowly.</span>
-                </label>
-                <label class="control">
-                    <span>Session length (minutes)</span>
-                    <input type="number" min="1" max="30" value="5" step="1" data-session-input />
-                    <span class="value" data-session-remaining>5:00 remaining</span>
-                </label>
-                <label class="control">
-                    <span>Wave intensity</span>
-                    <input type="range" min="0.8" max="1.4" value="1" step="0.1" data-wave-range />
-                    <span class="value" data-wave-value>Balanced</span>
-                </label>
+            <div class="control-stack">
+                <div class="control-card">
+                    <div class="control-card__header">
+                        <p class="eyebrow muted">Timing</p>
+                        <p class="microcopy" data-cycle-preview>4s inhale • 2s hold • 5s exhale • 2s hold</p>
+                    </div>
+                    <div class="control-row refined">
+                        <label class="control">
+                            <span>Inhale (seconds)</span>
+                            <input type="number" min="1" max="20" value="4" step="0.5" data-inhale-input />
+                            <span class="value">Choose the length of your in-breath.</span>
+                        </label>
+                        <label class="control">
+                            <span>Hold (seconds)</span>
+                            <input type="number" min="0" max="20" value="2" step="0.5" data-hold-input />
+                            <span class="value">Stay softly at the top and bottom.</span>
+                        </label>
+                        <label class="control">
+                            <span>Exhale (seconds)</span>
+                            <input type="number" min="1" max="20" value="5" step="0.5" data-exhale-input />
+                            <span class="value">Let the breath go slowly.</span>
+                        </label>
+                    </div>
+                </div>
+                <div class="control-card">
+                    <div class="control-card__header">
+                        <p class="eyebrow muted">Session feel</p>
+                        <p class="microcopy">Keep the visuals steady and grounded.</p>
+                    </div>
+                    <div class="control-row refined">
+                        <label class="control">
+                            <span>Session length (minutes)</span>
+                            <input type="number" min="1" max="30" value="5" step="1" data-session-input />
+                            <span class="value" data-session-remaining>5:00 remaining</span>
+                        </label>
+                        <label class="control">
+                            <span>Wave intensity</span>
+                            <input type="range" min="0.8" max="1.4" value="1" step="0.1" data-wave-range />
+                            <span class="value" data-wave-value>Balanced</span>
+                        </label>
+                    </div>
+                </div>
             </div>
             <div class="cta-row">
                 <button class="btn" type="button" data-calm-start>Start flow</button>
@@ -60,6 +76,7 @@
                 <span class="chip">Inhale</span>
                 <span class="chip">Hold</span>
                 <span class="chip">Exhale</span>
+                <span class="chip">Hold</span>
             </div>
         </div>
     </div>

@@ -739,11 +739,51 @@ body {
   align-items: center;
 }
 
+.control-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.control-card {
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(90, 56, 71, 0.08);
+  box-shadow: 0 16px 38px rgba(90, 56, 71, 0.12);
+  border-radius: 14px;
+  padding: 12px 14px;
+}
+
+.control-card__header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.eyebrow.muted {
+  color: var(--muted);
+}
+
+.microcopy {
+  margin: 0;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
 .control-row {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
   gap: 12px;
   margin: 14px 0;
+}
+
+.control-row.refined .control {
+  background: rgba(245, 239, 245, 0.5);
+  border: 1px solid rgba(90, 56, 71, 0.08);
+  padding: 12px;
+  border-radius: 12px;
 }
 
 .control input[type='range'] {
@@ -777,25 +817,8 @@ body {
   border: 3px solid rgba(90, 56, 71, 0.2);
   transform: scale(1);
   opacity: 1;
-}
-
-.pulse-ring.pulsing {
-  animation: breathe var(--phase-duration, 5s) ease-in-out infinite;
-}
-
-@keyframes breathe {
-  0% {
-    transform: scale(calc(0.92 * var(--pulse-scale, 1)));
-    opacity: 0.75;
-  }
-  50% {
-    transform: scale(calc(1.08 * var(--pulse-scale, 1)));
-    opacity: 1;
-  }
-  100% {
-    transform: scale(calc(0.92 * var(--pulse-scale, 1)));
-    opacity: 0.85;
-  }
+  transition: transform 0.8s ease-in-out;
+  will-change: transform;
 }
 
 .phase-label {
