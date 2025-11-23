@@ -30,7 +30,10 @@
             <div class="book-meta">
                 <p class="eyebrow">{{ book.author }}</p>
                 <h3>{{ book.title }}</h3>
-                <p class="body">{{ book.description }}</p>
+                <p class="body book-description" data-collapsible>{{ book.description }}</p>
+                <button type="button" class="btn ghost tiny read-more" data-read-more aria-expanded="false">
+                    Read more
+                </button>
             </div>
             <div class="book-actions">
                 <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>

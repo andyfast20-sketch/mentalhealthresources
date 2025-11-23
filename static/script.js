@@ -104,6 +104,34 @@ bookTrack?.addEventListener('scroll', updateBookProgress, { passive: true });
 window.addEventListener('resize', updateBookProgress);
 updateBookProgress();
 
+function initReadMore() {
+  const descriptions = Array.from(document.querySelectorAll('[data-collapsible]'));
+
+  descriptions.forEach((description) => {
+    const toggle = description.nextElementSibling?.matches('[data-read-more]')
+      ? description.nextElementSibling
+      : null;
+
+    if (!toggle) return;
+
+    const needsToggle = description.scrollHeight - description.clientHeight > 6;
+
+    if (!needsToggle) {
+      toggle.style.display = 'none';
+      description.classList.add('is-expanded');
+      return;
+    }
+
+    toggle.addEventListener('click', () => {
+      const expanded = description.classList.toggle('is-expanded');
+      toggle.setAttribute('aria-expanded', expanded);
+      toggle.textContent = expanded ? 'Show less' : 'Read more';
+    });
+  });
+}
+
+window.addEventListener('load', initReadMore);
+
 function openModal() {
   if (!charityModal) return;
   charityModal.classList.add('is-open');
