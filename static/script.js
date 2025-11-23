@@ -6,6 +6,9 @@ const sliderProgress = document.querySelector('[data-slide-progress]');
 const sliderPrev = document.querySelector('[data-slide-prev]');
 const sliderNext = document.querySelector('[data-slide-next]');
 const sliderWindow = document.querySelector('.slider-window');
+const showCharitiesBtn = document.querySelector('[data-show-charities]');
+const charityModal = document.querySelector('[data-charity-modal]');
+const modalClose = document.querySelector('[data-modal-close]');
 let slideIndex = 0;
 let slideWidth = 0;
 
@@ -68,6 +71,32 @@ function initSlider() {
 }
 
 initSlider();
+
+function openModal() {
+  if (!charityModal) return;
+  charityModal.classList.add('is-open');
+  document.body.classList.add('modal-open');
+}
+
+function closeModal() {
+  if (!charityModal) return;
+  charityModal.classList.remove('is-open');
+  document.body.classList.remove('modal-open');
+}
+
+showCharitiesBtn?.addEventListener('click', openModal);
+modalClose?.addEventListener('click', closeModal);
+charityModal?.addEventListener('click', (event) => {
+  if (event.target === charityModal) {
+    closeModal();
+  }
+});
+
+document.addEventListener('keydown', (event) => {
+  if (event.key === 'Escape' && charityModal?.classList.contains('is-open')) {
+    closeModal();
+  }
+});
 
 // Calming flow interactions
 const breathRange = document.querySelector('[data-breath-range]');
