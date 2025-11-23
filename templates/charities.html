@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Collective care</p>
+        <h1>Charities fueling brighter mental health futures.</h1>
+        <p class="lede">Discover organizations bringing crisis help, counseling, advocacy, and education to communities around the world. Each one was chosen for impact and heart.</p>
+        <div class="cta-row">
+            <a class="btn" href="#charity-list">Browse charities</a>
+            <a class="btn ghost" href="{{ url_for('admin') }}">Add via admin</a>
+        </div>
+    </div>
+    <div class="hero-panel hero-image">
+        <img src="https://files.catbox.moe/ieem8n.png" alt="Illustration of community support" />
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section id="charity-list" class="panel charity-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Spotlight</p>
+        <h2>Organizations making support accessible.</h2>
+        <p class="lede">This living gallery grows through the admin dashboard, so you can keep lifting up the missions that resonate most.</p>
+    </div>
+    <div class="charity-grid">
+        {% for charity in charities %}
+        <article class="charity-card">
+            <div class="charity-top">
+                <div class="charity-logo" aria-hidden="true">
+                    <img src="{{ charity.logo_url }}" alt="{{ charity.name }} logo" loading="lazy" />
+                </div>
+                <div class="charity-meta">
+                    <p class="eyebrow">Impact partner</p>
+                    <h3>{{ charity.name }}</h3>
+                </div>
+            </div>
+            <p class="body">{{ charity.description }}</p>
+            <div class="charity-actions">
+                <a class="btn tiny" href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit site</a>
+                <div class="halo"></div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

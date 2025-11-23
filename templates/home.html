@@ -58,6 +58,34 @@
     {% endfor %}
 </section>
 
+<section id="charities" class="panel charity-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Give back</p>
+        <h2>Charities championing mental health.</h2>
+        <p class="lede">Explore vetted organizations making access to care, crisis support, and belonging possible. Add your own favorites through the admin space.</p>
+    </div>
+    <div class="charity-grid">
+        {% for charity in charities %}
+        <article class="charity-card">
+            <div class="charity-top">
+                <div class="charity-logo" aria-hidden="true">
+                    <img src="{{ charity.logo_url }}" alt="{{ charity.name }} logo" loading="lazy" />
+                </div>
+                <div class="charity-meta">
+                    <p class="eyebrow">Impact partner</p>
+                    <h3>{{ charity.name }}</h3>
+                </div>
+            </div>
+            <p class="body">{{ charity.description }}</p>
+            <div class="charity-actions">
+                <a class="btn tiny" href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit site</a>
+                <div class="halo"></div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
 <section class="panel gradient-panel">
     <div class="panel-header">
         <p class="eyebrow">Staying safe</p>

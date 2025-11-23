@@ -1,0 +1,20 @@
+[
+  {
+    "name": "Mind (UK)",
+    "description": "Providing advice and empowering people experiencing mental health problems through helplines, advocacy, and community programs.",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Mind.svg/320px-Mind.svg.png",
+    "site_url": "https://www.mind.org.uk/"
+  },
+  {
+    "name": "NAMI",
+    "description": "Education, support groups, and advocacy to build better lives for individuals and families affected by mental illness.",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/NAMI-Logo.svg/320px-NAMI-Logo.svg.png",
+    "site_url": "https://www.nami.org/"
+  },
+  {
+    "name": "The Trevor Project",
+    "description": "Crisis intervention and suicide prevention services for LGBTQ+ young people, available 24/7 via phone, chat, and text.",
+    "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/The_Trevor_Project_logo.svg/320px-The_Trevor_Project_logo.svg.png",
+    "site_url": "https://www.thetrevorproject.org/"
+  }
+]

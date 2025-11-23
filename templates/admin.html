@@ -5,17 +5,69 @@
     <div class="hero-copy">
         <p class="eyebrow">Site operations</p>
         <h1>Admin dashboard</h1>
-        <p class="lede">Manage the experience for visitors here. Controls and tools will appear as this space grows.</p>
+        <p class="lede">Manage the experience for visitors here. Use this space to feature inspiring mental health charities.</p>
     </div>
 </div>
 {% endblock %}
 
 {% block content %}
-<section class="panel">
+<section class="panel admin-panel">
     <div class="panel-header">
-        <p class="eyebrow">Coming soon</p>
-        <h2>Administrative controls will live here.</h2>
-        <p class="lede">This area is reserved for managing resources, community updates, and other site details.</p>
+        <p class="eyebrow">Curate</p>
+        <h2>Add a featured charity.</h2>
+        <p class="lede">Share a logo, mission statement, and the destination link. New entries appear instantly on the public site.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('add_charity') }}" method="post">
+        <div class="form-grid">
+            <label>
+                <span>Charity name</span>
+                <input type="text" name="name" placeholder="Ex: HopeLine" required />
+            </label>
+            <label>
+                <span>Logo URL</span>
+                <input type="url" name="logo_url" placeholder="https://.../logo.png" required />
+            </label>
+        </div>
+        <label>
+            <span>Short description</span>
+            <textarea name="description" rows="3" placeholder="What makes this organization shine?" required></textarea>
+        </label>
+        <label>
+            <span>Website link</span>
+            <input type="url" name="site_url" placeholder="https://charity.org" required />
+        </label>
+        <button class="btn" type="submit">Add charity</button>
+    </form>
+</section>
+
+<section class="panel charity-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Live preview</p>
+        <h2>Currently featured charities</h2>
+        <p class="lede">Everything in this grid is what visitors see. Keep descriptions concise and uplifting.</p>
+    </div>
+    <div class="charity-grid">
+        {% for charity in charities %}
+        <article class="charity-card">
+            <div class="charity-top">
+                <div class="charity-logo" aria-hidden="true">
+                    <img src="{{ charity.logo_url }}" alt="{{ charity.name }} logo" loading="lazy" />
+                </div>
+                <div class="charity-meta">
+                    <p class="eyebrow">Impact partner</p>
+                    <h3>{{ charity.name }}</h3>
+                </div>
+            </div>
+            <p class="body">{{ charity.description }}</p>
+            <div class="charity-actions">
+                <a class="btn tiny" href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit site</a>
+                <div class="halo"></div>
+            </div>
+        </article>
+        {% endfor %}
     </div>
 </section>
 {% endblock %}
