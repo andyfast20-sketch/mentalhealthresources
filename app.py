@@ -260,6 +260,11 @@ def community():
     return render_template("community.html", highlights=COMMUNITY_HIGHLIGHTS)
 
 
+@app.route("/crisis")
+def crisis_info():
+    return render_template("crisis.html")
+
+
 @app.route("/admin")
 def admin():
     charities = load_charities()
