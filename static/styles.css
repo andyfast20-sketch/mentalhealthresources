@@ -1555,9 +1555,9 @@ body {
 
 .floating-crisis-video iframe {
   position: absolute;
-  inset: -12%;
-  width: 124%;
-  height: 124%;
+  inset: -18%;
+  width: 136%;
+  height: 136%;
   transform: translate3d(0, 0, 0);
   border: none;
 }
@@ -1579,6 +1579,8 @@ body {
   place-items: center;
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
+  opacity: 0;
+  pointer-events: none;
 }
 
 .floating-crisis-video__close:hover,
@@ -1586,6 +1588,11 @@ body {
   background: rgba(19, 9, 15, 0.85);
   transform: scale(1.05);
   outline: none;
+}
+
+.floating-crisis-video.is-playing .floating-crisis-video__close {
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .floating-crisis-video.is-hidden {

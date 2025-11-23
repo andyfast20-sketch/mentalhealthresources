@@ -498,6 +498,7 @@ const youtubeApiCallbacks = [];
 function hideFloatingVideo() {
   if (!floatingVideo) return;
   floatingVideo.classList.add('is-hidden');
+  floatingVideo.classList.remove('is-playing');
   if (floatingPlayer?.pauseVideo) {
     floatingPlayer.pauseVideo();
   }
@@ -539,12 +540,24 @@ function initFloatingPlayer() {
           console.error('Unable to start floating video audio', error);
         }
       },
+      onStateChange: (event) => {
+        if (!floatingVideo) return;
+
+        if (event.data === YT.PlayerState.PLAYING) {
+          floatingVideo.classList.add('is-playing');
+        } else {
+          floatingVideo.classList.remove('is-playing');
+
+          if (event.data === YT.PlayerState.ENDED) {
+            hideFloatingVideo();
+          }
+        }
+      },
     },
     playerVars: {
       autoplay: 1,
       mute: 0,
-      loop: 1,
-      playlist: 'hEDRGd2UtFs',
+      loop: 0,
       rel: 0,
       controls: 0,
       playsinline: 1,
