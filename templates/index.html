@@ -42,7 +42,7 @@
                 <p class="lede">Explore immediate crisis help, therapy directories, calming tools, and guides for you and your support circle. Every link is handpicked to feel safe, practical, and hopeful.</p>
                 <div class="cta-row">
                     <a class="btn" href="#resources">Browse Resources</a>
-                    <a class="btn ghost" href="#how-to-use">How to use this hub</a>
+                    <a class="btn ghost" href="#resources">Explore support options</a>
                 </div>
                 <div class="trust">Curated with care • Human-reviewed • Free to explore</div>
             </div>
@@ -72,23 +72,6 @@
     </header>
 
     <main>
-        <section id="how-to-use" class="panel">
-            <div class="panel-header">
-                <p class="eyebrow">Navigate with ease</p>
-                <h2>Choose what you need right now.</h2>
-                <p class="lede">Filter by tags like “urgent”, “mindfulness”, or “community.” Each card opens trustworthy support—no distractions or ads.</p>
-                <div class="tag-row" id="tag-row">
-                    <button class="tag" data-tag="urgent">urgent</button>
-                    <button class="tag" data-tag="therapy">therapy</button>
-                    <button class="tag" data-tag="mindfulness">mindfulness</button>
-                    <button class="tag" data-tag="community">community</button>
-                    <button class="tag" data-tag="education">education</button>
-                    <button class="tag" data-tag="apps">apps</button>
-                    <button class="tag" data-tag="family">family</button>
-                </div>
-            </div>
-        </section>
-
         <section id="resources" class="resource-grid">
             {% for res in resources %}
             <article class="resource-card" data-tags="{{ res.tags|join(' ') }}">
@@ -150,7 +133,7 @@
         </div>
         <div class="footer-links">
             <a href="#resources">Explore</a>
-            <a href="#how-to-use">Filters</a>
+            <a href="#resources">Filters</a>
             <a href="mailto:hello@brightmind.local">Contact</a>
         </div>
     </footer>
