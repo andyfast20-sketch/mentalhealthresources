@@ -139,6 +139,14 @@ body {
   box-shadow: var(--shadow);
 }
 
+.pill.tiny {
+  padding: 8px 14px;
+  font-size: 14px;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}
+
 .pill-outline {
   background: transparent;
   border: 1px solid rgba(113, 64, 77, 0.24);
