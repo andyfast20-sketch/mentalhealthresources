@@ -84,19 +84,20 @@ body {
 }
 
 .logo-mark {
-  width: 42px;
-  height: 42px;
+  width: 48px;
+  height: 48px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  background: rgba(255, 255, 255, 0.8);
+  background: radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.7)),
+    linear-gradient(135deg, rgba(245, 163, 181, 0.25), rgba(176, 125, 252, 0.25));
   border-radius: 12px;
-  box-shadow: 0 12px 24px rgba(195, 122, 117, 0.12);
+  box-shadow: 0 14px 28px rgba(195, 122, 117, 0.18), 0 8px 18px rgba(90, 46, 105, 0.08);
 }
 
 .logo-mark svg {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
 }
 
 .logo {
