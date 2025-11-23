@@ -22,9 +22,24 @@
             <p class="lede">Guide your own pace with a slider, choose how strong the breathing waves feel, and let the interface quietly update you through each phase. It’s meant to be playful, steady, and deeply calming.</p>
             <div class="control-row">
                 <label class="control">
-                    <span>Tempo (seconds per inhale)</span>
-                    <input type="range" min="3" max="8" value="5" step="0.5" data-breath-range />
-                    <span class="value" data-breath-value>5s inhale</span>
+                    <span>Inhale (seconds)</span>
+                    <input type="number" min="1" max="20" value="4" step="0.5" data-inhale-input />
+                    <span class="value">Choose the length of your in-breath.</span>
+                </label>
+                <label class="control">
+                    <span>Hold (seconds)</span>
+                    <input type="number" min="0" max="20" value="2" step="0.5" data-hold-input />
+                    <span class="value">Set a gentle pause.</span>
+                </label>
+                <label class="control">
+                    <span>Exhale (seconds)</span>
+                    <input type="number" min="1" max="20" value="5" step="0.5" data-exhale-input />
+                    <span class="value">Let the breath go slowly.</span>
+                </label>
+                <label class="control">
+                    <span>Session length (minutes)</span>
+                    <input type="number" min="1" max="30" value="5" step="1" data-session-input />
+                    <span class="value" data-session-remaining>5:00 remaining</span>
                 </label>
                 <label class="control">
                     <span>Wave intensity</span>
@@ -36,7 +51,7 @@
                 <button class="btn" type="button" data-calm-start>Start flow</button>
                 <button class="btn ghost" type="button" data-calm-reset>Reset</button>
             </div>
-            <p class="body" data-affirmation>Pick a tempo you like and press “Start flow.”</p>
+            <p class="body" data-affirmation>Pick timing that feels supportive and press “Start flow.”</p>
         </div>
         <div class="immersive-visual">
             <div class="pulse-ring" data-pulse-ring></div>
@@ -45,7 +60,6 @@
                 <span class="chip">Inhale</span>
                 <span class="chip">Hold</span>
                 <span class="chip">Exhale</span>
-                <span class="chip">Soften</span>
             </div>
         </div>
     </div>
