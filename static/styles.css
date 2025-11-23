@@ -549,6 +549,201 @@ body {
   display: inline-block;
 }
 
+.charity-slider {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.slider-window {
+  overflow: hidden;
+  border-radius: var(--radius);
+}
+
+.slider-track {
+  display: flex;
+  transition: transform 0.45s ease;
+}
+
+.slide {
+  min-width: min(420px, 100%);
+}
+
+.slider-btn {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 24px rgba(195, 122, 117, 0.18);
+  cursor: pointer;
+  font-size: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.slider-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 16px 34px rgba(195, 122, 117, 0.26);
+}
+
+.slider-progress {
+  display: grid;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  overflow: hidden;
+  border: 1px solid rgba(113, 64, 77, 0.12);
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(120deg, #f5a3b5, #f7c06a);
+  width: 0%;
+  transition: width 0.35s ease;
+}
+
+.edit-block {
+  margin-top: 12px;
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(113, 64, 77, 0.12);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.edit-block summary {
+  font-weight: 700;
+  cursor: pointer;
+  color: #412132;
+}
+
+.edit-block .admin-form.compact {
+  margin-top: 10px;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.form-actions .helper {
+  color: var(--muted);
+  font-size: 13px;
+}
+
+.immersive-panel {
+  background: linear-gradient(160deg, rgba(246, 222, 255, 0.85), rgba(226, 244, 255, 0.9));
+  border: 1px solid rgba(255, 255, 255, 0.8);
+  box-shadow: 0 18px 48px rgba(182, 129, 126, 0.22);
+}
+
+.immersive-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+  align-items: center;
+}
+
+.control-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 12px;
+  margin: 14px 0;
+}
+
+.control input[type='range'] {
+  accent-color: #f5a3b5;
+}
+
+.control .value {
+  font-weight: 700;
+  color: #3a2632;
+}
+
+.immersive-visual {
+  position: relative;
+  min-height: 320px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 20% 20%, rgba(245, 163, 181, 0.18), transparent 45%),
+    radial-gradient(circle at 80% 0%, rgba(95, 183, 255, 0.2), transparent 36%);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.9);
+  overflow: hidden;
+}
+
+.pulse-ring {
+  width: 220px;
+  height: 220px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 163, 181, 0.65), rgba(255, 255, 255, 0.8));
+  filter: blur(0px);
+  transform: scale(1);
+  opacity: 0.92;
+}
+
+.pulse-ring.pulsing {
+  animation: breathe var(--phase-duration, 5s) ease-in-out infinite;
+}
+
+@keyframes breathe {
+  0% {
+    transform: scale(calc(0.92 * var(--pulse-scale, 1)));
+    opacity: 0.75;
+  }
+  50% {
+    transform: scale(calc(1.08 * var(--pulse-scale, 1)));
+    opacity: 1;
+  }
+  100% {
+    transform: scale(calc(0.92 * var(--pulse-scale, 1)));
+    opacity: 0.85;
+  }
+}
+
+.phase-label {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.9);
+  padding: 8px 14px;
+  border-radius: 12px;
+  font-weight: 700;
+  color: #3a2632;
+  box-shadow: 0 10px 24px rgba(195, 122, 117, 0.18);
+}
+
+.phase-timeline {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.phase-timeline .chip {
+  background: rgba(255, 255, 255, 0.9);
+  color: #5a3847;
+}
+
+.phase-timeline .chip.active {
+  background: linear-gradient(120deg, #f5a3b5, #f7c06a);
+  color: #2b1726;
+  box-shadow: 0 10px 24px rgba(195, 122, 117, 0.22);
+}
+
 .gradient-panel {
   background: linear-gradient(120deg, rgba(245, 163, 181, 0.12), rgba(233, 188, 255, 0.15));
   border-top: 1px solid rgba(95, 58, 69, 0.08);

@@ -47,6 +47,18 @@ def allowed_logo(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_LOGO_EXTENSIONS
 
 
+def store_logo_file(logo_file):
+    if not logo_file or not logo_file.filename:
+        return None
+    if not allowed_logo(logo_file.filename):
+        return None
+
+    ensure_upload_dir()
+    filename = f"{uuid4().hex}_{secure_filename(logo_file.filename)}"
+    logo_file.save(UPLOAD_DIR / filename)
+    return f"/static/uploads/{filename}"
+
+
 def delete_logo_file(logo_url):
     if not logo_url or not logo_url.startswith("/static/uploads/"):
         return
@@ -263,10 +275,7 @@ def add_charity():
     if logo_file and logo_file.filename:
         if not allowed_logo(logo_file.filename):
             return redirect(url_for("admin", message="Logo must be an image file."))
-        ensure_upload_dir()
-        filename = f"{uuid4().hex}_{secure_filename(logo_file.filename)}"
-        logo_file.save(UPLOAD_DIR / filename)
-        logo_url = f"/static/uploads/{filename}"
+        logo_url = store_logo_file(logo_file)
 
     if not all([name, description, site_url]) or not logo_url:
         return redirect(url_for("admin", message="Please fill in all fields."))
@@ -293,6 +302,41 @@ def delete_charity(charity_index):
         delete_logo_file(removed.get("logo_url"))
         return redirect(url_for("admin", message="Charity removed."))
     return redirect(url_for("admin", message="Charity not found."))
+
+
+@app.route("/admin/charities/<int:charity_index>/update", methods=["POST"])
+def update_charity(charity_index):
+    charities = load_charities()
+    if not (0 <= charity_index < len(charities)):
+        return redirect(url_for("admin", message="Charity not found."))
+
+    name = request.form.get("name", "").strip()
+    description = request.form.get("description", "").strip()
+    site_url = request.form.get("site_url", "").strip()
+    logo_url = request.form.get("logo_url", "").strip()
+    logo_file = request.files.get("logo_file")
+
+    if logo_file and logo_file.filename:
+        if not allowed_logo(logo_file.filename):
+            return redirect(url_for("admin", message="Logo must be an image file."))
+        new_logo_url = store_logo_file(logo_file)
+        delete_logo_file(charities[charity_index].get("logo_url"))
+    elif logo_url:
+        new_logo_url = logo_url
+    else:
+        new_logo_url = charities[charity_index].get("logo_url")
+
+    if not all([name, description, site_url, new_logo_url]):
+        return redirect(url_for("admin", message="Please complete all fields to update."))
+
+    charities[charity_index] = {
+        "name": name,
+        "description": description,
+        "logo_url": new_logo_url,
+        "site_url": site_url,
+    }
+    save_charities(charities)
+    return redirect(url_for("admin", message="Charity updated."))
 
 
 if __name__ == "__main__":
