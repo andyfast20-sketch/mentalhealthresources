@@ -126,6 +126,10 @@ function initReadMore() {
       const expanded = description.classList.toggle('is-expanded');
       toggle.setAttribute('aria-expanded', expanded);
       toggle.textContent = expanded ? 'Show less' : 'Read more';
+
+      if (!expanded) {
+        description.scrollTo({ top: 0, behavior: 'smooth' });
+      }
     });
   });
 }
