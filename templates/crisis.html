@@ -1,0 +1,157 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<section class="hero-grid crisis-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Immediate support</p>
+        <h1>In a crisis? Let's help you feel steadier.</h1>
+        <p class="lede">Save this space for the moments that feel too heavy. Reach a real person, slow your breath, and follow small steps that keep you grounded while help arrives.</p>
+        <div class="cta-row">
+            <a class="btn" href="tel:988">Call 988 Lifeline</a>
+            <a class="btn ghost" href="#grounding">Skip to calming steps</a>
+        </div>
+        <div class="crisis-chips">
+            <a class="pill tiny" href="sms:741741">Text HOME to 741741</a>
+            <a class="pill tiny" href="https://988lifeline.org/chat/" target="_blank" rel="noopener">Chat online</a>
+            <a class="pill tiny" href="https://www.samaritans.org/how-we-can-help/contact-samaritan/" target="_blank" rel="noopener">Samaritans (24/7)</a>
+        </div>
+    </div>
+    <div class="hero-panel crisis-card">
+        <div class="card-header">
+            <div class="dot"></div>
+            <div>
+                <div class="mini">Start here</div>
+                <strong>Three gentle actions</strong>
+            </div>
+        </div>
+        <ul class="grounding-list">
+            <li><span>📞</span>Call, text, or chat a crisis line—tell them where you are and what's happening.</li>
+            <li><span>🫁</span>Breathe slow: inhale for 4, hold for 2, exhale for 6. Repeat for one minute.</li>
+            <li><span>🏠</span>Reduce danger: put sharp objects away and ask someone you trust to sit with you.</li>
+        </ul>
+        <div class="reassure">You are not a burden. You deserve care exactly as you are.</div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="panel crisis-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Stay connected</p>
+        <h2>Ways to reach support right now</h2>
+        <p class="body">Choose the option that feels easiest. Crisis counselors are trained to listen without judgment and can stay with you while you take your next steps.</p>
+    </div>
+    <div class="crisis-grid">
+        <article class="crisis-card">
+            <div class="card-header">
+                <div class="dot"></div>
+                <h3>Talk to someone live</h3>
+            </div>
+            <p class="body">Free, confidential, and available 24/7. Share where you are and what you need help with.</p>
+            <div class="links">
+                <a class="link" href="tel:988">988 Suicide & Crisis Lifeline (US)</a>
+                <a class="link" href="tel:116123">Samaritans (UK & IE) — 116 123</a>
+                <a class="link" href="tel:131114">Lifeline Australia — 13 11 14</a>
+            </div>
+        </article>
+        <article class="crisis-card highlight">
+            <div class="card-header">
+                <div class="dot"></div>
+                <h3>Prefer to text or chat?</h3>
+            </div>
+            <p class="body">Text and chat counselors respond quickly and can guide you through coping steps in real time.</p>
+            <div class="links">
+                <a class="link" href="sms:741741">Text HOME to 741741 (US & CA)</a>
+                <a class="link" href="sms:50808">Text 50808 (Ireland)</a>
+                <a class="link" href="https://988lifeline.org/chat/" target="_blank" rel="noopener">988 Online Chat</a>
+            </div>
+        </article>
+        <article class="crisis-card">
+            <div class="card-header">
+                <div class="dot"></div>
+                <h3>Tell a trusted person</h3>
+            </div>
+            <p class="body">Share one concrete request: “Can you sit with me?” or “Can you help me call for support?”</p>
+            <ul class="grounding-list soft">
+                <li><span>👤</span>Name who feels safe to contact.</li>
+                <li><span>📍</span>Let them know where you are.</li>
+                <li><span>🕰️</span>Agree on the next 30 minutes together.</li>
+            </ul>
+        </article>
+    </div>
+</section>
+
+<section class="panel crisis-panel info-panel" id="grounding">
+    <div class="panel-header">
+        <p class="eyebrow">Regulate your body</p>
+        <h2>Grounding steps to ride the wave</h2>
+        <p class="body">Use these mini-practices to reduce overwhelm. Go slowly and celebrate each completed step.</p>
+    </div>
+    <div class="crisis-grid calming">
+        <article class="crisis-card">
+            <h3>Temperature reset</h3>
+            <p class="body">Splash cool water on your face or hold an ice cube. Notice the temperature for 60 seconds.</p>
+            <div class="chip-row">
+                <span class="chip">Cool water</span>
+                <span class="chip">Ice cube</span>
+                <span class="chip">Open window</span>
+            </div>
+        </article>
+        <article class="crisis-card">
+            <h3>5-4-3-2-1 senses</h3>
+            <ul class="grounding-list soft">
+                <li>5 things you can see</li>
+                <li>4 things you can touch</li>
+                <li>3 things you can hear</li>
+                <li>2 things you can smell</li>
+                <li>1 slow sip of water</li>
+            </ul>
+        </article>
+        <article class="crisis-card">
+            <h3>Move the energy</h3>
+            <p class="body">Shake your hands, roll your shoulders, or stretch your jaw. Movement tells your body it is safe to soften.</p>
+            <div class="chip-row">
+                <span class="chip">Shoulder rolls</span>
+                <span class="chip">Hand shakes</span>
+                <span class="chip">Neck stretch</span>
+            </div>
+        </article>
+    </div>
+</section>
+
+<section class="panel crisis-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Plan for the next hour</p>
+        <h2>Simple commitments you can keep</h2>
+        <p class="body">Pick one or two actions. Let someone know what you chose so they can cheer you on.</p>
+    </div>
+    <div class="crisis-grid calming">
+        <article class="crisis-card">
+            <h3>Safety steps</h3>
+            <ul class="grounding-list soft">
+                <li>Place medications or sharp items in a drawer.</li>
+                <li>Unlock your door so help can enter if needed.</li>
+                <li>Keep a glass of water nearby.</li>
+            </ul>
+        </article>
+        <article class="crisis-card highlight">
+            <h3>Stay connected</h3>
+            <p class="body">Send one message: “I’m having a hard moment. Can you check on me in 15 minutes?”</p>
+            <div class="chip-row">
+                <span class="chip">Send a text</span>
+                <span class="chip">Start a video call</span>
+                <span class="chip">Ask to sit together</span>
+            </div>
+        </article>
+        <article class="crisis-card">
+            <h3>Gentle focus</h3>
+            <p class="body">Choose a short activity: wash your face, make tea, or step outside. Set a 10-minute timer.</p>
+            <div class="chip-row">
+                <span class="chip">Make tea</span>
+                <span class="chip">Step outside</span>
+                <span class="chip">Warm shower</span>
+            </div>
+        </article>
+    </div>
+</section>
+{% endblock %}

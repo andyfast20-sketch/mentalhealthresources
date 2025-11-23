@@ -36,6 +36,7 @@
                 <a href="{{ url_for('calming_tools') }}" class="nav-link">Calming Tools</a>
                 <a href="{{ url_for('charities') }}" class="nav-link">Charities</a>
                 <a href="{{ url_for('community') }}" class="nav-link">Community</a>
+                <a href="{{ url_for('crisis_info') }}" class="nav-link">Crisis info</a>
                 <a href="#contact" class="nav-link">Contact</a>
             </div>
             <a class="pill nav-pill" href="{{ url_for('resources') }}">Browse Resources</a>
@@ -59,6 +60,8 @@
             <a class="pill tiny" id="footer-admin-link" href="{{ url_for('admin') }}">Admin</a>
         </div>
     </footer>
+
+    <a class="floating-crisis" href="{{ url_for('crisis_info') }}" aria-label="Open crisis information and coping tools">Crisis info</a>
 
     <script src="/static/script.js"></script>
 </body>

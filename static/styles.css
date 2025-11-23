@@ -1108,6 +1108,105 @@ body {
   align-items: center;
 }
 
+.floating-crisis {
+  position: fixed;
+  bottom: 22px;
+  right: 22px;
+  z-index: 30;
+  background: linear-gradient(135deg, rgba(245, 163, 181, 0.96), rgba(247, 192, 106, 0.96));
+  color: #2b1726;
+  padding: 12px 18px;
+  border-radius: 999px;
+  text-decoration: none;
+  font-weight: 800;
+  box-shadow: 0 16px 42px rgba(195, 122, 117, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(12px);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.floating-crisis:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 20px 48px rgba(195, 122, 117, 0.35);
+}
+
+.crisis-hero {
+  margin-top: 18px;
+}
+
+.crisis-panel {
+  position: relative;
+  z-index: 1;
+}
+
+.crisis-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.crisis-card {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(113, 64, 77, 0.14);
+  border-radius: 18px;
+  padding: 18px;
+  box-shadow: 0 14px 36px rgba(195, 122, 117, 0.16);
+  display: grid;
+  gap: 12px;
+}
+
+.crisis-card.highlight {
+  background: linear-gradient(150deg, rgba(245, 163, 181, 0.16), rgba(233, 188, 255, 0.14));
+  border-color: rgba(245, 163, 181, 0.4);
+}
+
+.grounding-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 10px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.grounding-list span {
+  display: inline-flex;
+  width: 26px;
+  align-items: center;
+  justify-content: center;
+  margin-right: 6px;
+}
+
+.grounding-list.soft li {
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(113, 64, 77, 0.1);
+  border-radius: 12px;
+  padding: 10px 12px;
+}
+
+.reassure {
+  background: rgba(245, 163, 181, 0.16);
+  border: 1px solid rgba(245, 163, 181, 0.4);
+  border-radius: 14px;
+  padding: 10px 12px;
+  font-weight: 700;
+  color: #412132;
+  box-shadow: 0 10px 26px rgba(195, 122, 117, 0.16);
+}
+
+.crisis-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.crisis-grid.calming .crisis-card {
+  align-content: start;
+}
+
 @media (max-width: 960px) {
   .hero {
     padding-top: 24px;
