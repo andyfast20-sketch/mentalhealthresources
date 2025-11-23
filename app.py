@@ -10,6 +10,7 @@ app = Flask(__name__)
 
 DATA_DIR = Path("data")
 CHARITIES_FILE = DATA_DIR / "charities.json"
+BOOKS_FILE = DATA_DIR / "books.json"
 UPLOAD_DIR = Path("static/uploads")
 ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
 
@@ -32,6 +33,44 @@ DEFAULT_CHARITIES = [
         "description": "Crisis intervention and suicide prevention services for LGBTQ+ young people, available 24/7 via phone, chat, and text.",
         "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/The_Trevor_Project_logo.svg/320px-The_Trevor_Project_logo.svg.png",
         "site_url": "https://www.thetrevorproject.org/",
+    },
+]
+
+DEFAULT_BOOKS = [
+    {
+        "title": "Atlas of the Heart",
+        "author": "Brené Brown",
+        "description": "A compassionate guide through 87 emotions and experiences, helping readers name what they feel and find language for connection.",
+        "affiliate_url": "https://amzn.to/3K6C0Lk",
+        "cover_url": "https://m.media-amazon.com/images/I/71+Jx1gIdwL._SL1500_.jpg",
+    },
+    {
+        "title": "Maybe You Should Talk to Someone",
+        "author": "Lori Gottlieb",
+        "description": "A therapist pulls back the curtain on her own sessions and reminds us therapy is a courageous act of care.",
+        "affiliate_url": "https://amzn.to/4bj8QEv",
+        "cover_url": "https://m.media-amazon.com/images/I/81PxgyrpFZL._SL1500_.jpg",
+    },
+    {
+        "title": "The Body Keeps the Score",
+        "author": "Bessel van der Kolk",
+        "description": "Evidence-based insights on how trauma lives in the body and the healing pathways that restore safety.",
+        "affiliate_url": "https://amzn.to/3yOaYDh",
+        "cover_url": "https://m.media-amazon.com/images/I/81dQwQlmAXL._SL1500_.jpg",
+    },
+    {
+        "title": "Set Boundaries, Find Peace",
+        "author": "Nedra Glover Tawwab",
+        "description": "Practical scripts and exercises to set limits with compassion, reduce overwhelm, and protect your energy.",
+        "affiliate_url": "https://amzn.to/3YVn1ch",
+        "cover_url": "https://m.media-amazon.com/images/I/71m3C1AI+8L._SL1500_.jpg",
+    },
+    {
+        "title": "Burnout: The Secret to Unlocking the Stress Cycle",
+        "author": "Emily Nagoski & Amelia Nagoski",
+        "description": "Research-backed strategies for completing the stress cycle, especially for caregivers and high achievers.",
+        "affiliate_url": "https://amzn.to/3WklwZg",
+        "cover_url": "https://m.media-amazon.com/images/I/71A4HVWjQBL._SL1500_.jpg",
     },
 ]
 
@@ -85,6 +124,24 @@ def save_charities(charities):
     ensure_data_dir()
     with CHARITIES_FILE.open("w") as f:
         json.dump(charities, f, indent=2)
+
+
+def load_books():
+    ensure_data_dir()
+    if BOOKS_FILE.exists():
+        try:
+            with BOOKS_FILE.open() as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            pass
+    save_books(DEFAULT_BOOKS)
+    return DEFAULT_BOOKS.copy()
+
+
+def save_books(books):
+    ensure_data_dir()
+    with BOOKS_FILE.open("w") as f:
+        json.dump(books, f, indent=2)
 
 RESOURCES = [
     {
@@ -234,8 +291,14 @@ COMMUNITY_HIGHLIGHTS = [
 def index():
     charities = load_charities()
     featured_charities = random.sample(charities, min(3, len(charities))) if charities else []
+    books = load_books()
+    featured_books = random.sample(books, min(3, len(books))) if books else []
     return render_template(
-        "home.html", resources=RESOURCES, charities=featured_charities, all_charities=charities
+        "home.html",
+        resources=RESOURCES,
+        charities=featured_charities,
+        all_charities=charities,
+        books=featured_books,
     )
 
 
@@ -243,6 +306,12 @@ def index():
 def charities():
     charities = load_charities()
     return render_template("charities.html", charities=charities)
+
+
+@app.route("/books")
+def books():
+    book_list = load_books()
+    return render_template("books.html", books=book_list)
 
 
 @app.route("/resources")
@@ -268,8 +337,9 @@ def crisis_info():
 @app.route("/admin")
 def admin():
     charities = load_charities()
+    books = load_books()
     message = request.args.get("message")
-    return render_template("admin.html", charities=charities, message=message)
+    return render_template("admin.html", charities=charities, books=books, message=message)
 
 
 @app.route("/admin/charities", methods=["POST"])
@@ -346,6 +416,67 @@ def update_charity(charity_index):
     }
     save_charities(charities)
     return redirect(url_for("admin", message="Charity updated."))
+
+
+@app.route("/admin/books", methods=["POST"])
+def add_book():
+    title = request.form.get("title", "").strip()
+    author = request.form.get("author", "").strip()
+    description = request.form.get("description", "").strip()
+    affiliate_url = request.form.get("affiliate_url", "").strip()
+    cover_url = request.form.get("cover_url", "").strip()
+
+    if not all([title, author, description, affiliate_url]):
+        return redirect(url_for("admin", message="Please fill in all book fields."))
+
+    books = load_books()
+    books.append(
+        {
+            "title": title,
+            "author": author,
+            "description": description,
+            "affiliate_url": affiliate_url,
+            "cover_url": cover_url,
+        }
+    )
+    save_books(books)
+    return redirect(url_for("admin", message="Book added."))
+
+
+@app.route("/admin/books/<int:book_index>/delete", methods=["POST"])
+def delete_book(book_index):
+    books = load_books()
+    if 0 <= book_index < len(books):
+        books.pop(book_index)
+        save_books(books)
+        return redirect(url_for("admin", message="Book removed."))
+    return redirect(url_for("admin", message="Book not found."))
+
+
+@app.route("/admin/books/<int:book_index>/update", methods=["POST"])
+def update_book(book_index):
+    books = load_books()
+    if not (0 <= book_index < len(books)):
+        return redirect(url_for("admin", message="Book not found."))
+
+    title = request.form.get("title", "").strip()
+    author = request.form.get("author", "").strip()
+    description = request.form.get("description", "").strip()
+    affiliate_url = request.form.get("affiliate_url", "").strip()
+    cover_url = request.form.get("cover_url", "").strip()
+
+    if not all([title, author, description, affiliate_url]):
+        return redirect(url_for("admin", message="Please complete all book fields to update."))
+
+    books[book_index] = {
+        "title": title,
+        "author": author,
+        "description": description,
+        "affiliate_url": affiliate_url,
+        "cover_url": cover_url,
+    }
+    save_books(books)
+    return redirect(url_for("admin", message="Book updated."))
 
 
 if __name__ == "__main__":

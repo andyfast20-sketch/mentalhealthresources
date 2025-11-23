@@ -108,4 +108,103 @@
         {% endfor %}
     </div>
 </section>
+
+<section class="panel admin-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Books</p>
+        <h2>Add a useful book.</h2>
+        <p class="lede">Include the title, author, affiliate link, and a short description. Covers are optional but make the list feel welcoming.</p>
+    </div>
+    <form class="admin-form" action="{{ url_for('add_book') }}" method="post">
+        <div class="form-grid">
+            <label>
+                <span>Title</span>
+                <input type="text" name="title" placeholder="Book title" required />
+            </label>
+            <label>
+                <span>Author</span>
+                <input type="text" name="author" placeholder="Author name" required />
+            </label>
+        </div>
+        <label>
+            <span>Short description</span>
+            <textarea name="description" rows="3" placeholder="Why this book helps" required></textarea>
+        </label>
+        <div class="form-grid">
+            <label>
+                <span>Affiliate or purchase link</span>
+                <input type="url" name="affiliate_url" placeholder="https://" required />
+            </label>
+            <label>
+                <span>Cover image URL (optional)</span>
+                <input type="url" name="cover_url" placeholder="https://.../cover.jpg" />
+            </label>
+        </div>
+        <button class="btn" type="submit">Add book</button>
+    </form>
+</section>
+
+<section class="panel book-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Live shelf</p>
+        <h2>Books visitors can browse</h2>
+        <p class="lede">Edit or remove any book. Updates appear instantly on the homepage shelf and the books page.</p>
+    </div>
+    <div class="book-grid">
+        {% for book in books %}
+        <article class="book-card">
+            <div class="book-cover" aria-hidden="true">
+                {% if book.cover_url %}
+                <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" loading="lazy" />
+                {% else %}
+                <div class="cover-placeholder">📖</div>
+                {% endif %}
+            </div>
+            <div class="book-meta">
+                <p class="eyebrow">{{ book.author }}</p>
+                <h3>{{ book.title }}</h3>
+                <p class="body">{{ book.description }}</p>
+            </div>
+            <div class="book-actions">
+                <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
+                <form action="{{ url_for('delete_book', book_index=loop.index0) }}" method="post">
+                    <button class="btn tiny ghost" type="submit">Remove</button>
+                </form>
+                <div class="halo"></div>
+            </div>
+            <details class="edit-block">
+                <summary>Edit book</summary>
+                <form class="admin-form compact" action="{{ url_for('update_book', book_index=loop.index0) }}" method="post">
+                    <label>
+                        <span>Title</span>
+                        <input type="text" name="title" value="{{ book.title }}" required />
+                    </label>
+                    <label>
+                        <span>Author</span>
+                        <input type="text" name="author" value="{{ book.author }}" required />
+                    </label>
+                    <label>
+                        <span>Description</span>
+                        <textarea name="description" rows="3" required>{{ book.description }}</textarea>
+                    </label>
+                    <div class="form-grid">
+                        <label>
+                            <span>Affiliate link</span>
+                            <input type="url" name="affiliate_url" value="{{ book.affiliate_url }}" required />
+                        </label>
+                        <label>
+                            <span>Cover image URL</span>
+                            <input type="url" name="cover_url" value="{{ book.cover_url }}" />
+                        </label>
+                    </div>
+                    <div class="form-actions">
+                        <button class="btn tiny" type="submit">Save changes</button>
+                        <span class="helper">Leave cover blank to keep the current look.</span>
+                    </div>
+                </form>
+            </details>
+        </article>
+        {% endfor %}
+    </div>
+</section>
 {% endblock %}
