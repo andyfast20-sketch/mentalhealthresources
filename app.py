@@ -187,6 +187,18 @@ CALMING_TOOLS = [
             "Notice the warmth and heaviness after each release.",
         ],
     },
+    {
+        "title": "Aurora Ripple Journey",
+        "description": "A gentle visualization that pairs your breath with soft waves of color and motion.",
+        "steps": [
+            "Sit comfortably and imagine a calm pool in front of you, lit by soft sunrise colors.",
+            "Inhale for four counts as you picture a rosy glow spreading across the water.",
+            "Hold for two counts and notice the glow shimmering with tiny ripples.",
+            "Exhale for six counts, watching the colors fade into a cool lavender mist.",
+            "Repeat for three rounds, letting each ripple carry tension away from your body.",
+            "Finish by placing a hand over your heart and thanking yourself for pausing.",
+        ],
+    },
 ]
 
 COMMUNITY_HIGHLIGHTS = [
