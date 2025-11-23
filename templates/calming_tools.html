@@ -14,42 +14,55 @@
 {% endblock %}
 
 {% block content %}
+<section class="section-guide" aria-label="Calming practice navigation">
+    <div class="section-guide__copy">
+        <p class="eyebrow">Choose your path</p>
+        <h2>Pick the practice that fits how you feel right now.</h2>
+        <p class="body">Jump straight to breath pacing, body relaxation, or simple step-by-step exercises.</p>
+    </div>
+    <div class="section-guide__links">
+        <a class="pill" href="#interactive-calm">Breath flow</a>
+        <a class="pill ghost" href="#pmr">Muscle relaxer</a>
+        <a class="pill ghost" href="#tools">Quick exercises</a>
+    </div>
+</section>
+
 <section class="panel immersive-panel" id="interactive-calm">
     <div class="immersive-grid">
         <div class="immersive-copy">
             <p class="eyebrow">Interactive</p>
-            <h2>A gentle flow you can control.</h2>
-            <p class="lede">Guide your own pace with a slider, choose how strong the breathing waves feel, and let the interface quietly update you through each phase. It’s meant to be playful, steady, and deeply calming.</p>
-            <div class="control-stack">
-                <div class="control-card">
+            <h2>Light, fluid breathwork you can dial in.</h2>
+            <p class="lede">Set a soft rhythm, then glide through each inhale, pause, and exhale with gentle cues. Keep the cards minimal, so the breathing itself stays in focus.</p>
+            <div class="control-stack duo">
+                <div class="control-card slim">
                     <div class="control-card__header">
                         <p class="eyebrow muted">Timing</p>
                         <p class="microcopy" data-cycle-preview>4s inhale • 2s hold • 5s exhale • 2s hold</p>
                     </div>
-                    <div class="control-row refined">
+                    <div class="control-row refined compact">
                         <label class="control">
                             <span>Inhale (seconds)</span>
                             <input type="number" min="1" max="20" value="4" step="0.5" data-inhale-input />
-                            <span class="value">Choose the length of your in-breath.</span>
+                            <span class="value">Lengthen the in-breath.</span>
                         </label>
                         <label class="control">
                             <span>Hold (seconds)</span>
                             <input type="number" min="0" max="20" value="2" step="0.5" data-hold-input />
-                            <span class="value">Stay softly at the top and bottom.</span>
+                            <span class="value">Linger lightly at the top.</span>
                         </label>
                         <label class="control">
                             <span>Exhale (seconds)</span>
                             <input type="number" min="1" max="20" value="5" step="0.5" data-exhale-input />
-                            <span class="value">Let the breath go slowly.</span>
+                            <span class="value">Let the breath drift out.</span>
                         </label>
                     </div>
                 </div>
-                <div class="control-card">
+                <div class="control-card slim">
                     <div class="control-card__header">
                         <p class="eyebrow muted">Session feel</p>
                         <p class="microcopy">Keep the visuals steady and grounded.</p>
                     </div>
-                    <div class="control-row refined">
+                    <div class="control-row refined compact">
                         <label class="control">
                             <span>Session length (minutes)</span>
                             <input type="number" min="1" max="30" value="5" step="1" data-session-input />
@@ -114,7 +127,7 @@
                 <li data-step="face">Jaw &amp; face</li>
             </ol>
         </div>
-        <div class="pmr-visual">
+        <div class="pmr-visual elevated">
             <div class="pmr-backdrop"></div>
             <svg class="pmr-figure" viewBox="0 0 200 520" role="img" aria-label="Human outline highlighting muscle groups">
                 <defs>
@@ -153,6 +166,18 @@
                 </g>
             </svg>
         </div>
+    </div>
+</section>
+
+<section class="section-guide lite" aria-label="Quick exercise overview">
+    <div class="section-guide__copy">
+        <p class="eyebrow">Quick wins</p>
+        <h2>Short exercises you can scroll to instantly.</h2>
+        <p class="body">Pick a card below to see the steps. Everything is laid out so you can drop in and start without hunting for the right spot.</p>
+    </div>
+    <div class="section-guide__links">
+        <a class="pill" href="#interactive-calm">Breath flow</a>
+        <a class="pill ghost" href="#pmr">Muscle relaxer</a>
     </div>
 </section>
 
