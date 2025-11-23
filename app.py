@@ -1,4 +1,5 @@
 import json
+import random
 from pathlib import Path
 from uuid import uuid4
 
@@ -232,7 +233,10 @@ COMMUNITY_HIGHLIGHTS = [
 @app.route("/")
 def index():
     charities = load_charities()
-    return render_template("home.html", resources=RESOURCES, charities=charities)
+    featured_charities = random.sample(charities, min(3, len(charities))) if charities else []
+    return render_template(
+        "home.html", resources=RESOURCES, charities=featured_charities, all_charities=charities
+    )
 
 
 @app.route("/charities")

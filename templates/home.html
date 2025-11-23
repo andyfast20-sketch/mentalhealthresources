@@ -42,12 +42,44 @@
         <h2>Charities championing mental health.</h2>
         <p class="lede">Explore vetted organizations making access to care, crisis support, and belonging possible. Add your own favorites through the admin space.</p>
     </div>
-    <div class="charity-slider">
-        <button class="slider-btn" data-slide-prev aria-label="Previous charity">&#10094;</button>
-        <div class="slider-window">
-            <div class="slider-track" data-charity-track>
-                {% for charity in charities %}
-                <article class="charity-card slide">
+    <div class="charity-grid">
+        {% for charity in charities %}
+        <article class="charity-card">
+            <div class="charity-top">
+                <div class="charity-logo" aria-hidden="true">
+                    <img src="{{ charity.logo_url }}" alt="{{ charity.name }} logo" loading="lazy" />
+                </div>
+                <div class="charity-meta">
+                    <p class="eyebrow">Featured</p>
+                    <h3>{{ charity.name }}</h3>
+                </div>
+            </div>
+            <p class="body">{{ charity.description }}</p>
+            <div class="charity-actions">
+                <a class="btn tiny" href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit site</a>
+                <div class="halo"></div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    <div class="charity-footer">
+        <p class="body">We refresh these highlights each visit. Want to see everyone? </p>
+        <button class="btn ghost tiny" type="button" data-show-charities>Show more</button>
+    </div>
+
+    <div class="modal-backdrop" data-charity-modal>
+        <div class="modal-dialog" role="dialog" aria-modal="true" aria-labelledby="charityModalTitle">
+            <div class="modal-header">
+                <div>
+                    <p class="eyebrow">Explore the full list</p>
+                    <h3 id="charityModalTitle">Every charity in our library</h3>
+                </div>
+                <button class="modal-close" type="button" aria-label="Close charity list" data-modal-close>&times;</button>
+            </div>
+            <p class="body muted">Browse every organization you can add and feature through admin.</p>
+            <div class="modal-grid">
+                {% for charity in all_charities %}
+                <article class="charity-card">
                     <div class="charity-top">
                         <div class="charity-logo" aria-hidden="true">
                             <img src="{{ charity.logo_url }}" alt="{{ charity.name }} logo" loading="lazy" />
@@ -66,13 +98,6 @@
                 {% endfor %}
             </div>
         </div>
-        <button class="slider-btn" data-slide-next aria-label="Next charity">&#10095;</button>
-    </div>
-    <div class="slider-progress">
-        <div class="progress-bar">
-            <div class="progress-fill" data-slide-progress></div>
-        </div>
-        <p class="body">Use the arrows or swipe to browse each spotlight charity.</p>
     </div>
 </section>
 
