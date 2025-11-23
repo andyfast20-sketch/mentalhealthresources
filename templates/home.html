@@ -36,28 +36,6 @@
     </div>
 </section>
 
-<section id="resources" class="resource-grid">
-    {% for res in resources %}
-    <article class="resource-card" data-tags="{{ res.tags|join(' ') }}">
-        <div class="card-header">
-            <div class="dot"></div>
-            <h3>{{ res.title }}</h3>
-        </div>
-        <p class="body">{{ res.description }}</p>
-        <div class="links">
-            {% for link in res.links %}
-            <a href="{{ link.url }}" target="_blank" rel="noopener" class="link">{{ link.label }}</a>
-            {% endfor %}
-        </div>
-        <div class="chip-row">
-            {% for tag in res.tags %}
-            <span class="chip">{{ tag }}</span>
-            {% endfor %}
-        </div>
-    </article>
-    {% endfor %}
-</section>
-
 <section id="charities" class="panel charity-panel">
     <div class="panel-header">
         <p class="eyebrow">Give back</p>
