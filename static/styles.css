@@ -323,6 +323,44 @@ body {
   padding: 24px clamp(20px, 5vw, 64px);
 }
 
+.info-panel {
+  background: rgba(255, 255, 255, 0.7);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 14px;
+  margin-top: 18px;
+}
+
+.info-card {
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(113, 64, 77, 0.14);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 12px 30px rgba(195, 122, 117, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.info-card h3 {
+  margin: 0;
+}
+
+.info-card ul {
+  padding-left: 18px;
+  margin: 0;
+  display: grid;
+  gap: 6px;
+}
+
+.info-card.highlight {
+  background: linear-gradient(135deg, rgba(245, 163, 181, 0.16), rgba(233, 188, 255, 0.14));
+  border-color: rgba(245, 163, 181, 0.45);
+}
+
 .panel-header {
   max-width: 800px;
 }
