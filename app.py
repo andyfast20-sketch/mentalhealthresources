@@ -154,5 +154,10 @@ def community():
     return render_template("community.html", highlights=COMMUNITY_HIGHLIGHTS)
 
 
+@app.route("/admin")
+def admin():
+    return render_template("admin.html")
+
+
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001, debug=True)
