@@ -663,7 +663,11 @@ body {
 
 .book-description.is-expanded {
   -webkit-line-clamp: initial;
-  max-height: none;
+  max-height: 180px;
+  overflow-y: auto;
+  padding-right: 4px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(75, 91, 122, 0.35) rgba(233, 236, 244, 0.8);
 }
 
 .book-description.is-expanded::after {
