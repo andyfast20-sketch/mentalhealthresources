@@ -511,11 +511,76 @@ body {
   box-shadow: 0 16px 40px rgba(107, 142, 198, 0.18);
 }
 
+.book-scroller {
+  position: relative;
+  margin-top: 18px;
+  padding: 8px 4px 2px;
+}
+
+.book-scroller::before,
+.book-scroller::after {
+  content: "";
+  position: absolute;
+  top: 8px;
+  bottom: 38px;
+  width: 68px;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.book-scroller::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.94), transparent);
+}
+
+.book-scroller::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(255, 255, 255, 0.94), transparent);
+}
+
+.book-track {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(260px, 320px);
+  gap: 14px;
+  overflow-x: auto;
+  padding: 4px 12px 14px;
+  scroll-snap-type: x mandatory;
+  scroll-padding: 12px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(103, 132, 183, 0.45) rgba(255, 255, 255, 0.9);
+}
+
+.book-track::-webkit-scrollbar {
+  height: 8px;
+}
+
+.book-track::-webkit-scrollbar-thumb {
+  background: rgba(103, 132, 183, 0.45);
+  border-radius: 999px;
+}
+
+.book-track::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.9);
+}
+
 .book-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 16px;
   margin-top: 18px;
+}
+
+.book-track .book-card {
+  min-width: 260px;
+  max-width: 320px;
+  scroll-snap-align: start;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-track .book-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 16px 36px rgba(107, 142, 198, 0.25);
 }
 
 .book-card {
@@ -573,6 +638,63 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 6px;
+}
+
+.book-nav {
+  position: absolute;
+  top: 42%;
+  transform: translateY(-50%);
+  background: rgba(255, 255, 255, 0.92);
+  border: 1px solid rgba(115, 140, 185, 0.24);
+  border-radius: 999px;
+  box-shadow: 0 10px 26px rgba(107, 142, 198, 0.2);
+  width: 38px;
+  height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #4b5b7a;
+  z-index: 2;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.book-nav:hover {
+  transform: translateY(-50%) scale(1.04);
+  box-shadow: 0 12px 30px rgba(107, 142, 198, 0.28);
+}
+
+.book-nav.prev {
+  left: 4px;
+}
+
+.book-nav.next {
+  right: 4px;
+}
+
+.book-progress-row {
+  margin-top: 6px;
+  padding: 0 12px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  justify-content: space-between;
+}
+
+.book-progress-rail {
+  flex: 1;
+  height: 6px;
+  background: rgba(103, 132, 183, 0.14);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.book-progress {
+  display: block;
+  height: 100%;
+  width: 24%;
+  background: linear-gradient(90deg, #7ca3e5, #e297c1);
+  border-radius: inherit;
+  transition: width 0.25s ease;
 }
 
 .charity-top {

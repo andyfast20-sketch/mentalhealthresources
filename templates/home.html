@@ -143,27 +143,37 @@
         <h2>Useful books to keep close.</h2>
         <p class="lede">Curated titles with gentle guidance, stories of resilience, and science-backed skills. Add more anytime through admin.</p>
     </div>
-    <div class="book-grid">
-        {% for book in books %}
-        <article class="book-card">
-            <div class="book-cover" aria-hidden="true">
-                {% if book.cover_url %}
-                <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" loading="lazy" />
-                {% else %}
-                <div class="cover-placeholder">📖</div>
-                {% endif %}
+    <div class="book-scroller">
+        <button class="book-nav prev" type="button" aria-label="Scroll books left" data-book-prev>&larr;</button>
+        <div class="book-track" data-book-track>
+            {% for book in books %}
+            <article class="book-card">
+                <div class="book-cover" aria-hidden="true">
+                    {% if book.cover_url %}
+                    <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" loading="lazy" />
+                    {% else %}
+                    <div class="cover-placeholder">📖</div>
+                    {% endif %}
+                </div>
+                <div class="book-meta">
+                    <p class="eyebrow">{{ book.author }}</p>
+                    <h3>{{ book.title }}</h3>
+                    <p class="body">{{ book.description }}</p>
+                </div>
+                <div class="book-actions">
+                    <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
+                    <div class="halo"></div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+        <button class="book-nav next" type="button" aria-label="Scroll books right" data-book-next>&rarr;</button>
+        <div class="book-progress-row">
+            <div class="book-progress-rail" aria-hidden="true">
+                <span class="book-progress" data-book-progress></span>
             </div>
-            <div class="book-meta">
-                <p class="eyebrow">{{ book.author }}</p>
-                <h3>{{ book.title }}</h3>
-                <p class="body">{{ book.description }}</p>
-            </div>
-            <div class="book-actions">
-                <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
-                <div class="halo"></div>
-            </div>
-        </article>
-        {% endfor %}
+            <p class="body muted">Swipe, scroll, or tap for more picks.</p>
+        </div>
     </div>
     <div class="charity-footer">
         <p class="body">Want more recommendations? Explore the full shelf.</p>

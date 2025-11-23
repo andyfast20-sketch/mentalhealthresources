@@ -9,6 +9,10 @@ const sliderWindow = document.querySelector('.slider-window');
 const showCharitiesBtn = document.querySelector('[data-show-charities]');
 const charityModal = document.querySelector('[data-charity-modal]');
 const modalClose = document.querySelector('[data-modal-close]');
+const bookTrack = document.querySelector('[data-book-track]');
+const bookPrev = document.querySelector('[data-book-prev]');
+const bookNext = document.querySelector('[data-book-next]');
+const bookProgress = document.querySelector('[data-book-progress]');
 let slideIndex = 0;
 let slideWidth = 0;
 
@@ -71,6 +75,34 @@ function initSlider() {
 }
 
 initSlider();
+
+function updateBookProgress() {
+  if (!bookTrack || !bookProgress) return;
+  const maxScroll = bookTrack.scrollWidth - bookTrack.clientWidth;
+  if (maxScroll <= 0) {
+    bookProgress.style.width = '100%';
+    return;
+  }
+  const visibleRatio = bookTrack.clientWidth / bookTrack.scrollWidth;
+  const scrollRatio = bookTrack.scrollLeft / maxScroll;
+  const widthPercent = Math.min(100, (visibleRatio + scrollRatio) * 100);
+  bookProgress.style.width = `${widthPercent}%`;
+}
+
+function scrollBooks(direction = 1) {
+  if (!bookTrack) return;
+  const card = bookTrack.querySelector('.book-card');
+  const gap = Number.parseFloat(getComputedStyle(bookTrack).columnGap || getComputedStyle(bookTrack).gap || 14);
+  const cardWidth = card ? card.getBoundingClientRect().width : 280;
+  const scrollAmount = (cardWidth + gap) * direction;
+  bookTrack.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+}
+
+bookPrev?.addEventListener('click', () => scrollBooks(-1));
+bookNext?.addEventListener('click', () => scrollBooks(1));
+bookTrack?.addEventListener('scroll', updateBookProgress, { passive: true });
+window.addEventListener('resize', updateBookProgress);
+updateBookProgress();
 
 function openModal() {
   if (!charityModal) return;
