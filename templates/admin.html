@@ -20,15 +20,19 @@
         <div class="flash">{{ message }}</div>
         {% endif %}
     </div>
-    <form class="admin-form" action="{{ url_for('add_charity') }}" method="post">
+    <form class="admin-form" action="{{ url_for('add_charity') }}" method="post" enctype="multipart/form-data">
         <div class="form-grid">
             <label>
                 <span>Charity name</span>
                 <input type="text" name="name" placeholder="Ex: HopeLine" required />
             </label>
             <label>
-                <span>Logo URL</span>
-                <input type="url" name="logo_url" placeholder="https://.../logo.png" required />
+                <span>Logo file</span>
+                <input type="file" name="logo_file" accept="image/*" />
+            </label>
+            <label>
+                <span>Logo URL (optional if uploading)</span>
+                <input type="url" name="logo_url" placeholder="https://.../logo.png" />
             </label>
         </div>
         <label>
@@ -64,6 +68,9 @@
             <p class="body">{{ charity.description }}</p>
             <div class="charity-actions">
                 <a class="btn tiny" href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit site</a>
+                <form action="{{ url_for('delete_charity', charity_index=loop.index0) }}" method="post">
+                    <button class="btn tiny ghost" type="submit">Remove</button>
+                </form>
                 <div class="halo"></div>
             </div>
         </article>
