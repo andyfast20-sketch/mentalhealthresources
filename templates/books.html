@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Shelf of support</p>
+        <h1>Books to deepen care and understanding.</h1>
+        <p class="lede">Browse handpicked titles with affiliate links that help sustain this resource hub. Each book is chosen for clarity, compassion, and practical tools.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="panel book-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Full list</p>
+        <h2>Every recommended read.</h2>
+        <p class="lede">Add your own selections from the admin dashboard. Visitors can explore descriptions and click through to purchase.</p>
+    </div>
+    <div class="book-grid">
+        {% for book in books %}
+        <article class="book-card">
+            <div class="book-cover" aria-hidden="true">
+                {% if book.cover_url %}
+                <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" loading="lazy" />
+                {% else %}
+                <div class="cover-placeholder">📖</div>
+                {% endif %}
+            </div>
+            <div class="book-meta">
+                <p class="eyebrow">{{ book.author }}</p>
+                <h3>{{ book.title }}</h3>
+                <p class="body">{{ book.description }}</p>
+            </div>
+            <div class="book-actions">
+                <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
+                <div class="halo"></div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

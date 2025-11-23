@@ -503,6 +503,77 @@ body {
   pointer-events: none;
 }
 
+.book-panel {
+  margin-top: 14px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(205, 225, 255, 0.4));
+  border: 1px solid rgba(103, 132, 183, 0.16);
+  box-shadow: 0 16px 40px rgba(107, 142, 198, 0.18);
+}
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.book-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.96);
+  border: 1px solid rgba(115, 140, 185, 0.16);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: 0 12px 28px rgba(107, 142, 198, 0.16);
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 14px;
+  align-items: center;
+}
+
+.book-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 15% 10%, rgba(124, 163, 229, 0.16), transparent 42%),
+    radial-gradient(circle at 80% 90%, rgba(226, 151, 193, 0.12), transparent 48%);
+  pointer-events: none;
+}
+
+.book-cover {
+  width: 92px;
+  height: 128px;
+  border-radius: 12px;
+  background: linear-gradient(140deg, rgba(124, 163, 229, 0.18), rgba(240, 219, 255, 0.42));
+  overflow: hidden;
+  position: relative;
+  box-shadow: 0 10px 24px rgba(124, 163, 229, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.book-cover img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.cover-placeholder {
+  font-size: 28px;
+}
+
+.book-meta h3 {
+  margin: 4px 0;
+}
+
+.book-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
 .charity-top {
   display: flex;
   align-items: center;

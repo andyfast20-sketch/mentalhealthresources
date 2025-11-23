@@ -137,6 +137,40 @@
     </div>
 </section>
 
+<section id="books" class="panel book-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Helpful reads</p>
+        <h2>Useful books to keep close.</h2>
+        <p class="lede">Curated titles with gentle guidance, stories of resilience, and science-backed skills. Add more anytime through admin.</p>
+    </div>
+    <div class="book-grid">
+        {% for book in books %}
+        <article class="book-card">
+            <div class="book-cover" aria-hidden="true">
+                {% if book.cover_url %}
+                <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" loading="lazy" />
+                {% else %}
+                <div class="cover-placeholder">📖</div>
+                {% endif %}
+            </div>
+            <div class="book-meta">
+                <p class="eyebrow">{{ book.author }}</p>
+                <h3>{{ book.title }}</h3>
+                <p class="body">{{ book.description }}</p>
+            </div>
+            <div class="book-actions">
+                <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
+                <div class="halo"></div>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    <div class="charity-footer">
+        <p class="body">Want more recommendations? Explore the full shelf.</p>
+        <a class="btn ghost tiny" href="{{ url_for('books') }}">Show more</a>
+    </div>
+</section>
+
 <section class="panel gradient-panel">
     <div class="panel-header">
         <p class="eyebrow">Staying safe</p>
