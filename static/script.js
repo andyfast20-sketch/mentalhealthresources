@@ -486,6 +486,84 @@ pmrStart?.addEventListener('click', startPMR);
 pmrReset?.addEventListener('click', resetPMR);
 resetPMR();
 
+// Floating crisis video controls
+const floatingVideo = document.querySelector('[data-floating-video]');
+const floatingVideoClose = document.querySelector('[data-floating-video-close]');
+const floatingIframe = floatingVideo?.querySelector('iframe');
+let floatingPlayer;
+let floatingPlayerInitialized = false;
+let youtubeApiLoading = false;
+const youtubeApiCallbacks = [];
+
+function hideFloatingVideo() {
+  if (!floatingVideo) return;
+  floatingVideo.classList.add('is-hidden');
+  if (floatingPlayer?.pauseVideo) {
+    floatingPlayer.pauseVideo();
+  }
+}
+
+function loadYouTubeAPI(callback) {
+  if (window.YT?.Player) {
+    callback();
+    return;
+  }
+
+  youtubeApiCallbacks.push(callback);
+
+  if (youtubeApiLoading) return;
+  youtubeApiLoading = true;
+
+  const script = document.createElement('script');
+  script.src = 'https://www.youtube.com/iframe_api';
+  const firstScript = document.getElementsByTagName('script')[0];
+  firstScript.parentNode.insertBefore(script, firstScript);
+
+  window.onYouTubeIframeAPIReady = () => {
+    youtubeApiCallbacks.splice(0).forEach((cb) => cb());
+  };
+}
+
+function initFloatingPlayer() {
+  if (!floatingIframe || floatingPlayerInitialized || !window.YT?.Player) return;
+  floatingPlayerInitialized = true;
+
+  floatingPlayer = new YT.Player(floatingIframe, {
+    events: {
+      onReady: (event) => {
+        try {
+          event.target.unMute();
+          event.target.setVolume(100);
+          event.target.playVideo();
+        } catch (error) {
+          console.error('Unable to start floating video audio', error);
+        }
+      },
+    },
+    playerVars: {
+      autoplay: 1,
+      mute: 0,
+      loop: 1,
+      playlist: 'hEDRGd2UtFs',
+      rel: 0,
+      controls: 0,
+      playsinline: 1,
+    },
+  });
+}
+
+function bootstrapFloatingVideo() {
+  if (!floatingVideo || floatingPlayerInitialized) return;
+  loadYouTubeAPI(initFloatingPlayer);
+}
+
+floatingVideoClose?.addEventListener('click', hideFloatingVideo);
+
+if (floatingVideo) {
+  bootstrapFloatingVideo();
+  window.addEventListener('load', bootstrapFloatingVideo);
+}
+
 // Smooth scroll for in-page anchors
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {
   anchor.addEventListener('click', function (e) {
