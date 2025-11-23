@@ -1,12 +1,16 @@
 import json
 from pathlib import Path
+from uuid import uuid4
 
 from flask import Flask, redirect, render_template, request, url_for
+from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
 DATA_DIR = Path("data")
 CHARITIES_FILE = DATA_DIR / "charities.json"
+UPLOAD_DIR = Path("static/uploads")
+ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
 
 
 DEFAULT_CHARITIES = [
@@ -33,6 +37,23 @@ DEFAULT_CHARITIES = [
 
 def ensure_data_dir():
     DATA_DIR.mkdir(exist_ok=True)
+
+
+def ensure_upload_dir():
+    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def allowed_logo(filename):
+    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_LOGO_EXTENSIONS
+
+
+def delete_logo_file(logo_url):
+    if not logo_url or not logo_url.startswith("/static/uploads/"):
+        return
+
+    file_path = Path(logo_url.lstrip("/"))
+    if file_path.exists() and file_path.is_file():
+        file_path.unlink()
 
 
 def load_charities():
@@ -225,7 +246,17 @@ def add_charity():
     logo_url = request.form.get("logo_url", "").strip()
     site_url = request.form.get("site_url", "").strip()
 
-    if not all([name, description, logo_url, site_url]):
+    logo_file = request.files.get("logo_file")
+
+    if logo_file and logo_file.filename:
+        if not allowed_logo(logo_file.filename):
+            return redirect(url_for("admin", message="Logo must be an image file."))
+        ensure_upload_dir()
+        filename = f"{uuid4().hex}_{secure_filename(logo_file.filename)}"
+        logo_file.save(UPLOAD_DIR / filename)
+        logo_url = f"/static/uploads/{filename}"
+
+    if not all([name, description, site_url]) or not logo_url:
         return redirect(url_for("admin", message="Please fill in all fields."))
 
     charities = load_charities()
@@ -239,6 +270,17 @@ def add_charity():
     )
     save_charities(charities)
     return redirect(url_for("admin", message="Charity added successfully."))
+
+
+@app.route("/admin/charities/<int:charity_index>/delete", methods=["POST"])
+def delete_charity(charity_index):
+    charities = load_charities()
+    if 0 <= charity_index < len(charities):
+        removed = charities.pop(charity_index)
+        save_charities(charities)
+        delete_logo_file(removed.get("logo_url"))
+        return redirect(url_for("admin", message="Charity removed."))
+    return redirect(url_for("admin", message="Charity not found."))
 
 
 if __name__ == "__main__":
