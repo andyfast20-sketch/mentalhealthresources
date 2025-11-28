@@ -359,14 +359,13 @@ def index():
     charities = load_charities()
     featured_charities = random.sample(charities, min(3, len(charities))) if charities else []
     books = load_books()
-    featured_indices = pick_featured_books(books, count=3) if books else []
-    featured_books = [{**books[i], "index": i} for i in featured_indices] if books else []
+    books = books_with_indices(books)
     return render_template(
         "home.html",
         resources=RESOURCES,
         charities=featured_charities,
         all_charities=charities,
-        books=featured_books,
+        books=books,
     )
 
 
