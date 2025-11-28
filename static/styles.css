@@ -696,9 +696,10 @@ body {
 .book-panel .book-card {
   padding: 12px;
   grid-template-columns: 86px 1fr;
+  grid-template-rows: auto 1fr;
   gap: 12px;
   align-items: start;
-  max-height: 360px;
+  max-height: 420px;
 }
 
 .book-card::before {
@@ -810,13 +811,37 @@ body {
 }
 
 .book-panel .book-actions {
-  align-self: start;
+  align-self: stretch;
   gap: 8px;
+  justify-content: space-between;
 }
 
 .book-actions .btn {
   position: relative;
   z-index: 2;
+}
+
+.book-admin-footer {
+  grid-column: 1 / -1;
+  background: linear-gradient(180deg, rgba(124, 163, 229, 0.08), rgba(243, 198, 228, 0.16));
+  border: 1px solid rgba(115, 140, 185, 0.14);
+  border-radius: 14px;
+  padding: 12px 12px 10px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 10px 26px rgba(107, 142, 198, 0.12);
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  position: relative;
+  overflow: hidden;
+}
+
+.book-admin-footer::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 12% 10%, rgba(255, 255, 255, 0.6), transparent 35%),
+    radial-gradient(circle at 82% 90%, rgba(124, 163, 229, 0.18), transparent 42%);
+  pointer-events: none;
 }
 
 .book-nav {
@@ -1081,6 +1106,7 @@ body {
   inset: -18px;
   background: radial-gradient(circle, rgba(245, 163, 181, 0.16), transparent 60%);
   z-index: 0;
+  pointer-events: none;
 }
 
 .charity-actions .btn {
@@ -1222,6 +1248,7 @@ body {
   max-height: 220px;
   overflow-y: auto;
   padding-right: 10px;
+  background: rgba(255, 255, 255, 0.9);
 }
 
 .book-panel .edit-block .admin-form.compact {
