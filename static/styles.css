@@ -1422,7 +1422,7 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
-  align-items: center;
+  align-items: stretch;
 }
 
 .control-stack {
@@ -1500,8 +1500,12 @@ body {
 .immersive-visual {
   position: relative;
   min-height: 320px;
-  display: grid;
-  place-items: center;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
   background: radial-gradient(circle at 20% 20%, rgba(245, 163, 181, 0.22), transparent 45%),
     radial-gradient(circle at 80% 0%, rgba(95, 183, 255, 0.28), transparent 36%),
     linear-gradient(145deg, #fff7fb, #f1f6ff);
