@@ -944,32 +944,6 @@ body {
   right: 4px;
 }
 
-.book-progress-row {
-  margin-top: 6px;
-  padding: 0 12px 8px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  justify-content: space-between;
-}
-
-.book-progress-rail {
-  flex: 1;
-  height: 6px;
-  background: rgba(103, 132, 183, 0.14);
-  border-radius: 999px;
-  overflow: hidden;
-}
-
-.book-progress {
-  display: block;
-  height: 100%;
-  width: 24%;
-  background: linear-gradient(90deg, #7ca3e5, #e297c1);
-  border-radius: inherit;
-  transition: width 0.25s ease;
-}
-
 .book-metrics-table-wrapper {
   margin-top: 32px;
   border: 1px solid #ece7fd;
