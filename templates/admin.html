@@ -174,42 +174,69 @@
                     <form action="{{ url_for('delete_book', book_index=loop.index0) }}" method="post">
                         <button class="btn tiny ghost" type="submit">Remove</button>
                     </form>
+                    <button
+                        class="btn tiny secondary"
+                        type="button"
+                        data-admin-book-edit-trigger
+                        data-action="{{ url_for('update_book', book_index=loop.index0) }}"
+                        data-title="{{ book.title }}"
+                        data-author="{{ book.author }}"
+                        data-description="{{ book.description }}"
+                        data-affiliate-url="{{ book.affiliate_url }}"
+                        data-cover-url="{{ book.cover_url }}"
+                    >
+                        Edit book
+                    </button>
                     <div class="halo"></div>
                 </div>
-                <details class="edit-block">
-                    <summary>Edit book</summary>
-                    <form class="admin-form compact" action="{{ url_for('update_book', book_index=loop.index0) }}" method="post">
-                        <label>
-                            <span>Title</span>
-                            <input type="text" name="title" value="{{ book.title }}" required />
-                        </label>
-                        <label>
-                            <span>Author</span>
-                            <input type="text" name="author" value="{{ book.author }}" required />
-                        </label>
-                        <label>
-                            <span>Description</span>
-                            <textarea name="description" rows="3" required>{{ book.description }}</textarea>
-                        </label>
-                        <div class="form-grid">
-                            <label>
-                                <span>Affiliate link</span>
-                                <input type="url" name="affiliate_url" value="{{ book.affiliate_url }}" required />
-                            </label>
-                            <label>
-                                <span>Cover image URL</span>
-                                <input type="url" name="cover_url" value="{{ book.cover_url }}" />
-                            </label>
-                        </div>
-                        <div class="form-actions">
-                            <button class="btn tiny" type="submit">Save changes</button>
-                            <span class="helper">Leave cover blank to keep the current look.</span>
-                        </div>
-                    </form>
-                </details>
             </div>
         </article>
         {% endfor %}
     </div>
 </section>
+
+<div class="modal-backdrop admin-edit-modal" data-admin-book-modal>
+    <div class="modal-dialog admin-modal" role="dialog" aria-modal="true" aria-labelledby="adminBookModalTitle">
+        <div class="book-modal-glow"></div>
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">Edit book</p>
+                <h3 id="adminBookModalTitle">Update book details</h3>
+                <p class="body muted">Refresh the book card with a new title, cover, or link. Changes save instantly.</p>
+            </div>
+            <button class="modal-close" type="button" aria-label="Close edit dialog" data-admin-book-modal-close>&times;</button>
+        </div>
+        <form class="admin-form compact" method="post" data-admin-book-form>
+            <div class="modal-grid">
+                <label>
+                    <span>Title</span>
+                    <input type="text" name="title" required />
+                </label>
+                <label>
+                    <span>Author</span>
+                    <input type="text" name="author" required />
+                </label>
+            </div>
+            <label>
+                <span>Description</span>
+                <textarea name="description" rows="3" required></textarea>
+            </label>
+            <div class="modal-grid">
+                <label>
+                    <span>Affiliate link</span>
+                    <input type="url" name="affiliate_url" required />
+                </label>
+                <label>
+                    <span>Cover image URL</span>
+                    <input type="url" name="cover_url" />
+                </label>
+            </div>
+            <div class="form-actions">
+                <button class="btn" type="submit">Save changes</button>
+                <button class="btn ghost" type="button" data-admin-book-modal-close>Cancel</button>
+                <span class="helper">Leave the cover field empty to keep the current image.</span>
+            </div>
+        </form>
+    </div>
+</div>
 {% endblock %}
