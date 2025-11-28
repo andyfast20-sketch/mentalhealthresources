@@ -662,6 +662,12 @@ body {
   margin-top: 18px;
 }
 
+.book-panel .book-grid {
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  align-items: start;
+  gap: 12px;
+}
+
 .book-track .book-card {
   min-width: 260px;
   max-width: 320px;
@@ -685,6 +691,14 @@ body {
   grid-template-columns: 110px 1fr;
   gap: 14px;
   align-items: center;
+}
+
+.book-panel .book-card {
+  padding: 12px;
+  grid-template-columns: 86px 1fr;
+  gap: 12px;
+  align-items: start;
+  max-height: 360px;
 }
 
 .book-card::before {
@@ -715,6 +729,12 @@ body {
   object-fit: cover;
 }
 
+.book-panel .book-cover {
+  width: 86px;
+  height: 120px;
+  box-shadow: 0 8px 18px rgba(124, 163, 229, 0.16);
+}
+
 .cover-placeholder {
   font-size: 28px;
 }
@@ -728,6 +748,26 @@ body {
   display: flex;
   flex-direction: column;
   gap: 6px;
+}
+
+.book-panel .book-meta {
+  gap: 4px;
+}
+
+.book-admin-description {
+  max-height: 110px;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+}
+
+.book-admin-description::-webkit-scrollbar {
+  width: 6px;
+}
+
+.book-admin-description::-webkit-scrollbar-thumb {
+  background: rgba(107, 142, 198, 0.35);
+  border-radius: 12px;
 }
 
 .book-description {
@@ -767,6 +807,11 @@ body {
   gap: 10px;
   flex-wrap: wrap;
   margin-top: 6px;
+}
+
+.book-panel .book-actions {
+  align-self: start;
+  gap: 8px;
 }
 
 .book-actions .btn {
@@ -1171,6 +1216,16 @@ body {
 
 .edit-block .admin-form.compact {
   margin-top: 10px;
+}
+
+.book-panel .edit-block {
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: 10px;
+}
+
+.book-panel .edit-block .admin-form.compact {
+  gap: 10px;
 }
 
 .form-actions {
