@@ -663,9 +663,36 @@ body {
 }
 
 .book-panel .book-grid {
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  --admin-book-columns: auto-fit;
+  grid-template-columns: repeat(var(--admin-book-columns), minmax(220px, 1fr));
   align-items: start;
   gap: 12px;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 14px 0 6px;
+}
+
+.stat-card {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid rgba(115, 140, 185, 0.16);
+  border-radius: 16px;
+  padding: 12px 14px;
+  box-shadow: 0 12px 26px rgba(107, 142, 198, 0.12);
+}
+
+.stat-number {
+  font-size: 26px;
+  font-weight: 700;
+  margin: 4px 0;
+}
+
+.stat-helper {
+  margin: 0;
+  color: var(--muted);
 }
 
 .book-track .book-card {
