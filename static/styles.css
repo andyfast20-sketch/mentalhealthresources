@@ -1454,11 +1454,11 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   gap: 20px;
-  align-items: stretch;
+  align-items: center;
 }
 
 .immersive-grid > * {
-  height: 100%;
+  height: auto;
 }
 
 .immersive-copy {
@@ -1553,8 +1553,10 @@ body {
 
 .immersive-visual {
   position: relative;
-  min-height: 0;
-  height: 100%;
+  min-height: clamp(220px, 32vw, 320px);
+  width: min(100%, 340px);
+  padding: 16px;
+  height: auto;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -1566,6 +1568,9 @@ body {
   border-radius: 20px;
   border: 1px solid rgba(90, 56, 71, 0.08);
   overflow: hidden;
+  justify-self: center;
+  align-self: center;
+  margin-top: 8px;
 }
 
 .pulse-ring {
