@@ -13,11 +13,22 @@ const bookTrack = document.querySelector('[data-book-track]');
 const bookPrev = document.querySelector('[data-book-prev]');
 const bookNext = document.querySelector('[data-book-next]');
 const bookProgress = document.querySelector('[data-book-progress]');
+const bookModal = document.querySelector('[data-book-modal]');
+const bookModalTitle = document.querySelector('[data-book-modal-title]');
+const bookModalAuthor = document.querySelector('[data-book-modal-author]');
+const bookModalDescription = document.querySelector('[data-book-modal-description]');
+const bookModalCover = document.querySelector('[data-book-modal-cover]');
+const bookModalCoverWrapper = document.querySelector('[data-book-modal-cover-wrapper]');
+const bookModalCoverFallback = document.querySelector('[data-book-modal-cover-fallback]');
+const bookModalLink = document.querySelector('[data-book-modal-link]');
+const bookDetailButtons = Array.from(document.querySelectorAll('[data-book-detail]'));
+const bookModalCloseButtons = Array.from(document.querySelectorAll('[data-book-modal-close]'));
 const crisisVolume = document.querySelector('[data-crisis-volume]');
 const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
 let slideIndex = 0;
 let slideWidth = 0;
 let crisisPlayer;
+let activeBookTrigger = null;
 
 function applyFilter(tag) {
   cards.forEach((card) => {
@@ -149,59 +160,99 @@ if (window.YT && typeof window.YT.Player === 'function') {
   initCrisisPlayer();
 }
 
-function initReadMore() {
-  const descriptions = Array.from(document.querySelectorAll('[data-collapsible]'));
+function updateBodyModalLock() {
+  const hasOpenModal = charityModal?.classList.contains('is-open') || bookModal?.classList.contains('is-open');
+  document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
+}
 
-  descriptions.forEach((description) => {
-    const toggle = description.nextElementSibling?.matches('[data-read-more]')
-      ? description.nextElementSibling
-      : null;
+function populateBookModal(data) {
+  if (!bookModal) return;
 
-    if (!toggle) return;
+  if (bookModalTitle) {
+    bookModalTitle.textContent = data.title || 'Book details';
+  }
 
-    const needsToggle = description.scrollHeight - description.clientHeight > 6 || description.textContent.length > 140;
+  if (bookModalAuthor) {
+    bookModalAuthor.textContent = data.author || 'Featured read';
+  }
 
-    if (!needsToggle) {
-      toggle.style.display = 'none';
-      description.classList.add('is-expanded');
-      return;
+  if (bookModalDescription) {
+    bookModalDescription.textContent = data.description || 'Description coming soon.';
+  }
+
+  if (bookModalLink) {
+    bookModalLink.href = data.link || '#';
+  }
+
+  if (bookModalCover) {
+    if (data.cover) {
+      bookModalCover.src = data.cover;
+      bookModalCover.alt = `${data.title || 'Book'} cover`;
+      bookModalCover.style.display = 'block';
+      bookModalCoverWrapper?.classList.remove('is-empty');
+      bookModalCoverFallback?.classList.add('hidden');
+    } else {
+      bookModalCover.removeAttribute('src');
+      bookModalCover.alt = '';
+      bookModalCover.style.display = 'none';
+      bookModalCoverWrapper?.classList.add('is-empty');
+      bookModalCoverFallback?.classList.remove('hidden');
     }
+  }
 
-    const setExpandedState = (expanded) => {
-      description.classList.toggle('is-expanded', expanded);
-      toggle.setAttribute('aria-expanded', expanded);
-      toggle.textContent = expanded ? 'Show less' : 'Read more';
-    };
+  bookModal.classList.add('is-open');
+  updateBodyModalLock();
+}
 
-    setExpandedState(false);
+function openBookModalFromCard(card, trigger) {
+  if (!card) return;
 
-    toggle.addEventListener('click', () => {
-      const expanded = !description.classList.contains('is-expanded');
-      setExpandedState(expanded);
+  const data = {
+    title: card.dataset.bookTitle || card.querySelector('h3')?.textContent || '',
+    author: card.dataset.bookAuthor || '',
+    description: card.dataset.bookDescription || card.querySelector('.book-description')?.textContent || '',
+    cover: card.dataset.bookCover || card.querySelector('.book-cover img')?.src || '',
+    link: card.dataset.bookLink || card.querySelector('.book-actions a')?.href || '',
+  };
 
-      if (!expanded) {
-        description.scrollTo({ top: 0, behavior: 'smooth' });
-      }
-    });
+  activeBookTrigger = trigger || null;
+  activeBookTrigger?.setAttribute('aria-expanded', 'true');
+
+  populateBookModal(data);
+}
+
+function closeBookModal() {
+  if (!bookModal) return;
+  bookModal.classList.remove('is-open');
+  activeBookTrigger?.setAttribute('aria-expanded', 'false');
+  activeBookTrigger = null;
+  updateBodyModalLock();
+}
+
+bookDetailButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    openBookModalFromCard(button.closest('.book-card'), button);
   });
-}
+});
 
-if (document.readyState === 'loading') {
-  document.addEventListener('DOMContentLoaded', initReadMore);
-} else {
-  initReadMore();
-}
+bookModalCloseButtons.forEach((button) => button.addEventListener('click', closeBookModal));
+
+bookModal?.addEventListener('click', (event) => {
+  if (event.target === bookModal) {
+    closeBookModal();
+  }
+});
 
 function openModal() {
   if (!charityModal) return;
   charityModal.classList.add('is-open');
-  document.body.classList.add('modal-open');
+  updateBodyModalLock();
 }
 
 function closeModal() {
   if (!charityModal) return;
   charityModal.classList.remove('is-open');
-  document.body.classList.remove('modal-open');
+  updateBodyModalLock();
 }
 
 showCharitiesBtn?.addEventListener('click', openModal);
@@ -213,8 +264,9 @@ charityModal?.addEventListener('click', (event) => {
 });
 
 document.addEventListener('keydown', (event) => {
-  if (event.key === 'Escape' && charityModal?.classList.contains('is-open')) {
-    closeModal();
+  if (event.key === 'Escape') {
+    if (charityModal?.classList.contains('is-open')) closeModal();
+    if (bookModal?.classList.contains('is-open')) closeBookModal();
   }
 });
 
