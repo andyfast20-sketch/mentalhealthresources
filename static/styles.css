@@ -1221,11 +1221,12 @@ body {
 }
 
 .snapshot-card {
-  background: #0c1120;
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: linear-gradient(160deg, rgba(255, 250, 245, 0.95), rgba(245, 227, 236, 0.94));
+  border: 1px solid rgba(113, 64, 77, 0.12);
   border-radius: 16px;
   padding: 16px;
-  box-shadow: 0 18px 44px rgba(12, 17, 32, 0.55);
+  box-shadow: 0 18px 44px rgba(189, 147, 153, 0.32);
+  color: #2b1726;
 }
 
 .snapshot-table {
@@ -1244,17 +1245,18 @@ body {
   font-size: 14px;
   letter-spacing: 0.01em;
   text-transform: uppercase;
-  color: #8ca2c0;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  color: #5f3c4c;
+  border-bottom: 1px solid rgba(113, 64, 77, 0.12);
 }
 
 .snapshot-table td {
   font-size: 15px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+  color: #2b1726;
+  border-bottom: 1px solid rgba(113, 64, 77, 0.08);
 }
 
 .snapshot-table tbody tr:nth-child(even) {
-  background: rgba(255, 255, 255, 0.02);
+  background: rgba(255, 255, 255, 0.7);
 }
 
 .snapshot-card .table-scroll {
