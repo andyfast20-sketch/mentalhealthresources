@@ -19,7 +19,7 @@
     </div>
     <div class="book-grid">
         {% for book in books %}
-        <article class="book-card">
+        <article class="book-card" data-book-title="{{ book.title }}" data-book-author="{{ book.author }}" data-book-description="{{ book.description }}" data-book-cover="{{ book.cover_url }}" data-book-link="{{ book.affiliate_url }}">
             <div class="book-cover" aria-hidden="true">
                 {% if book.cover_url %}
                 <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" loading="lazy" />
@@ -30,9 +30,9 @@
             <div class="book-meta">
                 <p class="eyebrow">{{ book.author }}</p>
                 <h3>{{ book.title }}</h3>
-                <p class="body book-description" data-collapsible>{{ book.description }}</p>
-                <button type="button" class="btn ghost tiny read-more" data-read-more aria-expanded="false">
-                    Read more
+                <p class="body book-description">{{ book.description }}</p>
+                <button type="button" class="btn tiny book-detail-trigger" data-book-detail aria-expanded="false">
+                    View details
                 </button>
             </div>
             <div class="book-actions">

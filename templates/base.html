@@ -72,6 +72,33 @@
     {% block floating %}{% endblock %}
     <a class="floating-crisis" href="{{ url_for('crisis_info') }}" aria-label="Open crisis information and coping tools">Crisis info</a>
 
+    <div class="modal-backdrop book-modal-backdrop" data-book-modal>
+        <div class="modal-dialog book-modal" role="dialog" aria-modal="true" aria-labelledby="bookModalTitle">
+            <div class="book-modal-glow"></div>
+            <div class="book-modal-layout">
+                <div class="book-modal-cover" data-book-modal-cover-wrapper>
+                    <div class="cover-placeholder" data-book-modal-cover-fallback aria-hidden="true">📖</div>
+                    <img src="" alt="" loading="lazy" data-book-modal-cover />
+                </div>
+                <div class="book-modal-copy">
+                    <div class="modal-header">
+                        <div>
+                            <p class="eyebrow" data-book-modal-author></p>
+                            <h3 id="bookModalTitle" data-book-modal-title></h3>
+                        </div>
+                        <button class="modal-close" type="button" aria-label="Close book details" data-book-modal-close>&times;</button>
+                    </div>
+                    <p class="body bold pill featured-pill">Featured shelf pick</p>
+                    <p class="body" data-book-modal-description></p>
+                    <div class="book-modal-actions">
+                        <a class="btn" href="#" target="_blank" rel="noopener" data-book-modal-link>View book</a>
+                        <button class="btn ghost" type="button" data-book-modal-close>Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="https://www.youtube.com/iframe_api"></script>
     <script src="/static/script.js"></script>
 </body>
