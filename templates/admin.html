@@ -213,44 +213,6 @@
             </table>
         </div>
     </div>
-    <div class="book-metrics-table-wrapper">
-        <div class="panel-header compact">
-            <p class="eyebrow">Engagement</p>
-            <h3>Who looked at each book</h3>
-            <p class="lede">Counts increase when visitors open the book modal or scroll to a card in the home shelf.</p>
-        </div>
-        <div class="table-scroll">
-            <table class="book-metrics-table">
-                <thead>
-                    <tr>
-                        <th scope="col">Book</th>
-                        <th scope="col">"View book" clicks</th>
-                        <th scope="col">Scrolled-to cards</th>
-                        <th scope="col">Total interactions</th>
-                        <th scope="col" class="text-right">Reset</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for book in books %}
-                    <tr>
-                        <td>
-                            <div class="table-title">{{ book.title }}</div>
-                            <div class="eyebrow">{{ book.author }}</div>
-                        </td>
-                        <td>{{ book.view_count | default(0) }}</td>
-                        <td>{{ book.scroll_count | default(0) }}</td>
-                        <td>{{ (book.view_count | default(0)) + (book.scroll_count | default(0)) }}</td>
-                        <td class="text-right">
-                            <form action="{{ url_for('reset_book_views', book_index=loop.index0) }}" method="post">
-                                <button class="btn tiny secondary" type="submit">Reset counters</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
     <div class="book-grid" style="--admin-book-columns: {{ books_per_row }}">
         {% for book in books %}
         <article class="book-card">
