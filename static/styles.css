@@ -1569,8 +1569,8 @@ body {
 }
 
 .pulse-ring {
-  width: clamp(180px, 22vw, 220px);
-  height: clamp(180px, 22vw, 220px);
+  width: clamp(90px, 11vw, 110px);
+  height: clamp(90px, 11vw, 110px);
   border-radius: 50%;
   background: radial-gradient(circle at 35% 35%, rgba(245, 163, 181, 0.8), rgba(255, 255, 255, 0.92));
   box-shadow: 0 0 0 10px rgba(90, 56, 71, 0.08), 0 0 24px rgba(90, 56, 71, 0.16);
