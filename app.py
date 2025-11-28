@@ -8,9 +8,13 @@ from werkzeug.utils import secure_filename
 
 app = Flask(__name__)
 
-DATA_DIR = Path("data")
+BASE_DIR = Path(__file__).resolve().parent
+DATA_DIR = BASE_DIR / "data"
+LOCAL_DATA_DIR = BASE_DIR / "local_data"
 CHARITIES_FILE = DATA_DIR / "charities.json"
 BOOKS_FILE = DATA_DIR / "books.json"
+LOCAL_CHARITIES_FILE = LOCAL_DATA_DIR / "charities.json"
+LOCAL_BOOKS_FILE = LOCAL_DATA_DIR / "books.json"
 UPLOAD_DIR = Path("static/uploads")
 ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
 
@@ -89,6 +93,10 @@ def ensure_data_dir():
     DATA_DIR.mkdir(exist_ok=True)
 
 
+def ensure_local_data_dir():
+    LOCAL_DATA_DIR.mkdir(exist_ok=True)
+
+
 def ensure_upload_dir():
     UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -128,42 +136,58 @@ def delete_logo_file(logo_url):
 
 
 def load_charities():
+    ensure_local_data_dir()
     ensure_data_dir()
-    if CHARITIES_FILE.exists():
-        try:
-            with CHARITIES_FILE.open() as f:
-                return json.load(f)
-        except json.JSONDecodeError:
-            pass
-    save_charities(DEFAULT_CHARITIES)
-    return DEFAULT_CHARITIES.copy()
+
+    for source in (LOCAL_CHARITIES_FILE, CHARITIES_FILE):
+        if source.exists():
+            try:
+                with source.open() as f:
+                    charities = json.load(f)
+                break
+            except json.JSONDecodeError:
+                continue
+    else:
+        charities = DEFAULT_CHARITIES.copy()
+
+    save_charities(charities)
+    return charities
 
 
 def save_charities(charities):
-    ensure_data_dir()
-    with CHARITIES_FILE.open("w") as f:
+    ensure_local_data_dir()
+    with LOCAL_CHARITIES_FILE.open("w") as f:
         json.dump(charities, f, indent=2)
 
 
 def load_books():
+    ensure_local_data_dir()
     ensure_data_dir()
-    if BOOKS_FILE.exists():
-        try:
-            with BOOKS_FILE.open() as f:
-                books = json.load(f)
-                for book in books:
-                    book.setdefault("view_count", 0)
-                    book.setdefault("scroll_count", 0)
-                return books
-        except json.JSONDecodeError:
-            pass
-    save_books(DEFAULT_BOOKS)
-    return DEFAULT_BOOKS.copy()
+
+    books = None
+    for source in (LOCAL_BOOKS_FILE, BOOKS_FILE):
+        if source.exists():
+            try:
+                with source.open() as f:
+                    books = json.load(f)
+                break
+            except json.JSONDecodeError:
+                continue
+
+    if books is None:
+        books = DEFAULT_BOOKS.copy()
+
+    for book in books:
+        book.setdefault("view_count", 0)
+        book.setdefault("scroll_count", 0)
+
+    save_books(books)
+    return books
 
 
 def save_books(books):
-    ensure_data_dir()
-    with BOOKS_FILE.open("w") as f:
+    ensure_local_data_dir()
+    with LOCAL_BOOKS_FILE.open("w") as f:
         json.dump(books, f, indent=2)
 
 
