@@ -29,6 +29,7 @@ const adminBookCloseButtons = Array.from(document.querySelectorAll('[data-admin-
 const adminBookEditTriggers = Array.from(document.querySelectorAll('[data-admin-book-edit-trigger]'));
 const crisisVolume = document.querySelector('[data-crisis-volume]');
 const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
+const calmingCompleteButtons = Array.from(document.querySelectorAll('[data-calming-complete]'));
 let slideIndex = 0;
 let slideWidth = 0;
 let crisisPlayer;
@@ -352,6 +353,39 @@ document.addEventListener('keydown', (event) => {
     if (bookModal?.classList.contains('is-open')) closeBookModal();
     if (adminBookModal?.classList.contains('is-open')) closeAdminBookModal();
   }
+});
+
+function updateCalmingCounts(slug, newCount) {
+  document.querySelectorAll(`[data-calming-count="${slug}"]`).forEach((node) => {
+    node.textContent = newCount;
+  });
+}
+
+function handleCalmingComplete(button) {
+  if (!button) return;
+
+  const slug = button.dataset.calmingSlug;
+  if (!slug) return;
+
+  button.disabled = true;
+  const originalText = button.textContent;
+  button.textContent = 'Logged';
+
+  fetch(`/calming-tools/${slug}/complete`, { method: 'POST' })
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data?.success) return;
+      updateCalmingCounts(slug, data.completed_count);
+    })
+    .catch(() => {})
+    .finally(() => {
+      button.textContent = originalText;
+      button.disabled = false;
+    });
+}
+
+calmingCompleteButtons.forEach((button) => {
+  button.addEventListener('click', () => handleCalmingComplete(button));
 });
 
 // Calming flow interactions

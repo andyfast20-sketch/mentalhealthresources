@@ -295,6 +295,32 @@
             <p class="stat-helper">"View book" clicks + scrolls</p>
         </div>
     </div>
+
+    <div class="book-metrics-table-wrapper">
+        <div class="panel-header compact">
+            <p class="eyebrow">Calming tools</p>
+            <h3>Usage across exercises</h3>
+            <p class="lede">Track how many times visitors mark a practice as completed.</p>
+        </div>
+        <div class="table-scroll">
+            <table class="book-metrics-table">
+                <thead>
+                    <tr>
+                        <th scope="col">Exercise</th>
+                        <th scope="col">Completed taps</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tool in calming_tools %}
+                    <tr>
+                        <td>{{ tool.title }}</td>
+                        <td>{{ tool.completed_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
     <div class="book-metrics-table-wrapper">
         <div class="panel-header compact">
             <p class="eyebrow">Engagement</p>

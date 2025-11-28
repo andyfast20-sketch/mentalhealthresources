@@ -189,11 +189,18 @@
             <h3>{{ tool.title }}</h3>
         </div>
         <p class="body">{{ tool.description }}</p>
+        <p class="stat-line">
+            <span class="stat-number" data-calming-count="{{ tool.slug }}">{{ tool.completed_count }}</span>
+            <span class="stat-helper">times completed</span>
+        </p>
         <ol class="breath">
             {% for step in tool.steps %}
             <li>{{ step }}</li>
             {% endfor %}
         </ol>
+        <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool.slug }}">
+            I tried this
+        </button>
     </article>
     {% endfor %}
 </section>

@@ -49,6 +49,32 @@
     </div>
 </section>
 
+<section class="panel info-panel calming-counter">
+    <div class="panel-header">
+        <p class="eyebrow">Shared calm</p>
+        <h2>See how often each calming exercise is used.</h2>
+        <p class="lede">Every time someone completes a practice, the counter below grows. Pick one to try and add your own tap.</p>
+    </div>
+    <div class="info-grid calming-counter__grid">
+        {% for tool in calming_tools %}
+        <article class="info-card">
+            <h3>{{ tool.title }}</h3>
+            <p class="body">{{ tool.description }}</p>
+            <p class="stat-line">
+                <span class="stat-number" data-calming-count="{{ tool.slug }}">{{ tool.completed_count }}</span>
+                <span class="stat-helper">times completed</span>
+            </p>
+            <div class="cta-row">
+                <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool.slug }}">
+                    I tried this
+                </button>
+                <a class="btn ghost tiny" href="{{ url_for('calming_tools') }}#tools">View steps</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
 <section id="talking-therapies" class="panel info-panel">
     <div class="panel-header">
         <p class="eyebrow">Talking therapies</p>
