@@ -18,6 +18,7 @@ LOCAL_CHARITIES_FILE = LOCAL_DATA_DIR / "charities.json"
 LOCAL_BOOKS_FILE = LOCAL_DATA_DIR / "books.json"
 LEGACY_LOCAL_CHARITIES_FILE = LEGACY_LOCAL_DATA_DIR / "charities.json"
 LEGACY_LOCAL_BOOKS_FILE = LEGACY_LOCAL_DATA_DIR / "books.json"
+CALMING_COUNTS_FILE = LOCAL_DATA_DIR / "calming_counts.json"
 UPLOAD_DIR = Path("static/uploads")
 ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
 
@@ -143,6 +144,10 @@ def ensure_data_dir():
 
 def ensure_local_data_dir():
     LOCAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def slugify(value):
+    return "-".join(value.lower().split())
 
 
 def ensure_upload_dir():
@@ -401,6 +406,44 @@ CALMING_TOOLS = [
     },
 ]
 
+
+def load_calming_counts():
+    ensure_local_data_dir()
+
+    if CALMING_COUNTS_FILE.exists():
+        try:
+            with CALMING_COUNTS_FILE.open() as f:
+                return json.load(f)
+        except json.JSONDecodeError:
+            pass
+
+    counts = {slugify(tool["title"]): 0 for tool in CALMING_TOOLS}
+    save_calming_counts(counts)
+    return counts
+
+
+def save_calming_counts(counts):
+    ensure_local_data_dir()
+    with CALMING_COUNTS_FILE.open("w") as f:
+        json.dump(counts, f, indent=2)
+
+
+def calming_tools_with_counts():
+    counts = load_calming_counts()
+    updated = {}
+    tools_with_counts = []
+
+    for tool in CALMING_TOOLS:
+        slug = slugify(tool["title"])
+        count = counts.get(slug, 0)
+        updated[slug] = count
+        tools_with_counts.append({**tool, "slug": slug, "completed_count": count})
+
+    if counts.keys() != updated.keys():
+        save_calming_counts(updated)
+
+    return tools_with_counts
+
 COMMUNITY_HIGHLIGHTS = [
     {
         "title": "Peer Circles",
@@ -423,12 +466,14 @@ def index():
     featured_charities = random.sample(charities, min(3, len(charities))) if charities else []
     books = load_books()
     books = books_with_indices(books)
+    calming_tools = calming_tools_with_counts()
     return render_template(
         "home.html",
         resources=RESOURCES,
         charities=featured_charities,
         all_charities=charities,
         books=books,
+        calming_tools=calming_tools,
     )
 
 
@@ -451,7 +496,8 @@ def resources():
 
 @app.route("/calming-tools")
 def calming_tools():
-    return render_template("calming_tools.html", tools=CALMING_TOOLS)
+    tools = calming_tools_with_counts()
+    return render_template("calming_tools.html", tools=tools)
 
 
 @app.route("/community")
@@ -485,6 +531,7 @@ def build_dataset_summary(charities, books):
 def render_admin_page(message=None, save_summary=None, load_summary=None):
     charities = load_charities()
     books = load_books()
+    calming_tools = calming_tools_with_counts()
     total_book_interactions = sum(
         (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
         for book in books
@@ -502,6 +549,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         books_with_covers=books_with_covers,
         books_without_covers=books_without_covers,
         books_per_row=books_per_row,
+        calming_tools=calming_tools,
         save_summary=save_summary,
         load_summary=load_summary,
     )
@@ -714,6 +762,17 @@ def reset_book_views(book_index):
     books[book_index]["scroll_count"] = 0
     save_books(books)
     return redirect(url_for("admin", message="Book counters reset."))
+
+
+@app.route("/calming-tools/<slug>/complete", methods=["POST"])
+def track_calming_completion(slug):
+    counts = load_calming_counts()
+    if slug not in counts:
+        return {"success": False, "message": "Exercise not found."}, 404
+
+    counts[slug] = (counts.get(slug, 0) or 0) + 1
+    save_calming_counts(counts)
+    return {"success": True, "completed_count": counts[slug]}
 
 
 if __name__ == "__main__":
