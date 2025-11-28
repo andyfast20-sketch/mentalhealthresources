@@ -27,12 +27,27 @@
         <div class="crisis-hero-video" aria-label="Calming breathing video to follow while you begin the steps">
             <div class="crisis-hero-video__frame">
                 <iframe
-                    src="https://www.youtube.com/embed/hEDRGd2UtFs?autoplay=1&mute=1&playsinline=1&controls=0&rel=0&modestbranding=1"
+                    id="crisis-video-player"
+                    src="https://www.youtube.com/embed/hEDRGd2UtFs?autoplay=1&mute=1&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1"
                     title="30-second breathing exercise"
                     frameborder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                     allowfullscreen
                 ></iframe>
+            </div>
+            <div class="crisis-video-controls" aria-label="Video volume controls">
+                <label for="crisis-volume" class="mini">Volume</label>
+                <input
+                    type="range"
+                    id="crisis-volume"
+                    name="crisis-volume"
+                    data-crisis-volume
+                    min="0"
+                    max="100"
+                    value="60"
+                    aria-label="Adjust crisis video volume"
+                />
+                <span class="crisis-volume-value" data-crisis-volume-value>60%</span>
             </div>
             <p class="mini">Press pause anytime; the calming prompts will loop while you breathe.</p>
         </div>
@@ -42,29 +57,6 @@
 {% endblock %}
 
 {% block content %}
-<section class="panel crisis-panel soothing-video">
-    <div class="panel-header">
-        <p class="eyebrow">Take a minute</p>
-        <h2>Follow along with this calming breath</h2>
-        <p class="body">Press play and breathe with the gentle prompts. The video is sized to sit comfortably on the page while you focus on the pace.</p>
-    </div>
-    <div class="crisis-video">
-        <iframe
-            id="crisis-video-player"
-            src="https://www.youtube.com/embed/hEDRGd2UtFs?enablejsapi=1&playsinline=1&rel=0&modestbranding=1"
-            title="30 second breathing exercise"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-        ></iframe>
-    </div>
-    <div class="crisis-video-controls" aria-label="Video volume controls">
-        <label for="crisis-volume" class="mini">Volume</label>
-        <input type="range" id="crisis-volume" name="crisis-volume" data-crisis-volume min="0" max="100" value="60" aria-label="Adjust crisis video volume">
-        <span class="crisis-volume-value" data-crisis-volume-value>60%</span>
-    </div>
-</section>
-
 <section class="panel crisis-panel">
     <div class="panel-header">
         <p class="eyebrow">Stay connected</p>
