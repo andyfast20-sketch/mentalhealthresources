@@ -1470,6 +1470,10 @@ body {
   border: 1px solid rgba(90, 56, 71, 0.08);
   padding: 12px;
   border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  height: 100%;
 }
 
 .control-row.compact {
@@ -1486,6 +1490,13 @@ body {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
   gap: 14px;
+  align-items: stretch;
+}
+
+.control-stack.duo .control-card {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 
 .control input[type='range'] {
