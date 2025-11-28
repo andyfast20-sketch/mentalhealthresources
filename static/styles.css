@@ -1659,7 +1659,7 @@ body {
   position: relative;
   border-radius: 12px;
   overflow: hidden;
-  aspect-ratio: 9 / 16;
+  aspect-ratio: 16 / 9;
   box-shadow: 0 12px 28px rgba(39, 19, 33, 0.18);
   background: radial-gradient(circle at 40% 40%, rgba(255, 244, 251, 0.6), rgba(146, 78, 107, 0.2));
 }
