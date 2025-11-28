@@ -377,7 +377,21 @@ def admin():
     charities = load_charities()
     books = load_books()
     message = request.args.get("message")
-    return render_template("admin.html", charities=charities, books=books, message=message)
+    total_book_views = sum((book.get("view_count", 0) or 0) for book in books)
+    books_with_covers = sum(1 for book in books if book.get("cover_url"))
+    books_without_covers = len(books) - books_with_covers
+    books_per_row = 4
+
+    return render_template(
+        "admin.html",
+        charities=charities,
+        books=books,
+        message=message,
+        total_book_views=total_book_views,
+        books_with_covers=books_with_covers,
+        books_without_covers=books_without_covers,
+        books_per_row=books_per_row,
+    )
 
 
 @app.route("/admin/charities", methods=["POST"])

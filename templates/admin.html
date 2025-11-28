@@ -153,7 +153,29 @@
         <div class="flash">{{ message }}</div>
         {% endif %}
     </div>
-    <div class="book-grid">
+    <div class="admin-stats">
+        <div class="stat-card">
+            <p class="eyebrow">Total books</p>
+            <p class="stat-number">{{ books|length }}</p>
+            <p class="stat-helper">Across the whole shelf</p>
+        </div>
+        <div class="stat-card">
+            <p class="eyebrow">Books per row</p>
+            <p class="stat-number">{{ books_per_row }}</p>
+            <p class="stat-helper">Shown on desktop widths</p>
+        </div>
+        <div class="stat-card">
+            <p class="eyebrow">Cover readiness</p>
+            <p class="stat-number">{{ books_with_covers }}/{{ books|length }}</p>
+            <p class="stat-helper">{{ books_without_covers }} missing covers</p>
+        </div>
+        <div class="stat-card">
+            <p class="eyebrow">Total views</p>
+            <p class="stat-number">{{ total_book_views }}</p>
+            <p class="stat-helper">From all book clicks</p>
+        </div>
+    </div>
+    <div class="book-grid" style="--admin-book-columns: {{ books_per_row }}">
         {% for book in books %}
         <article class="book-card">
             <div class="book-cover" aria-hidden="true">
