@@ -1498,6 +1498,12 @@ body {
   align-items: center;
 }
 
+.footer-note {
+  margin-top: 10px;
+  color: #6f4c5a;
+  font-size: 14px;
+}
+
 .floating-crisis {
   position: fixed;
   bottom: 22px;
