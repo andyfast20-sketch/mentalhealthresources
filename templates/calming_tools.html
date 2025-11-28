@@ -1,88 +1,122 @@
 {% extends "base.html" %}
 
 {% block hero %}
-<div class="hero-grid compact">
+<section class="calm-hero hero-grid">
     <div class="hero-copy">
         <p class="eyebrow">Find your calm</p>
-        <h1>Guided practices to steady your breath and body.</h1>
-        <p class="lede">Use these quick sequences during stressful moments. Each one can be done quietly at your desk, in a waiting room, or wherever you are.</p>
-        <div class="cta-row">
-            <a class="btn" href="#tools">Try a practice</a>
+        <h1>A soothing studio for breath, body, and reset.</h1>
+        <p class="lede">Move through curated micro-practices that match how you feel right now. Every element is aligned, intentional, and ready the moment you land.</p>
+        <div class="calm-hero__actions">
+            <a class="btn" href="#interactive-calm">Start guided flow</a>
+            <a class="btn ghost" href="#tools">Browse quick cards</a>
+        </div>
+        <div class="calm-hero__meta">
+            <div class="meta-card">
+                <p class="microcopy">Breath pacing</p>
+                <p class="stat-number">4s inhale • 2s hold • 5s exhale • 2s hold</p>
+            </div>
+            <div class="meta-card">
+                <p class="microcopy">Session timer</p>
+                <p class="stat-number">5:00 ready to begin</p>
+            </div>
+            <div class="meta-card">
+                <p class="microcopy">Feeling check</p>
+                <p class="body">Pick a practice and let the visuals guide you.</p>
+            </div>
         </div>
     </div>
-</div>
+    <div class="calm-hero__panel">
+        <div class="calm-hero__panel-inner">
+            <p class="eyebrow">Design-forward calm</p>
+            <h3>Aligned layouts, gentle gradients, instant anchors.</h3>
+            <p class="body">Everything sits on a consistent grid so nothing feels out of place. Slide into a flow, glance at the steps, and keep your focus on easing your breath.</p>
+            <div class="calm-hero__chips">
+                <span class="chip">Guided timing</span>
+                <span class="chip">Soft motion</span>
+                <span class="chip">Grounded palette</span>
+            </div>
+        </div>
+    </div>
+</section>
 {% endblock %}
 
 {% block content %}
-<section class="section-guide" aria-label="Calming practice navigation">
-    <div class="section-guide__copy">
+<section class="calm-nav" aria-label="Calming practice navigation">
+    <div>
         <p class="eyebrow">Choose your path</p>
-        <h2>Pick the practice that fits how you feel right now.</h2>
-        <p class="body">Jump straight to breath pacing, body relaxation, or simple step-by-step exercises.</p>
+        <h2>Everything is aligned into three experiences.</h2>
+        <p class="body">Jump straight to interactive breathwork, progressive muscle relaxation, or scrollable cards with simple step-by-step prompts.</p>
     </div>
-    <div class="section-guide__links">
+    <div class="calm-nav__links">
         <a class="pill" href="#interactive-calm">Breath flow</a>
         <a class="pill ghost" href="#pmr">Muscle relaxer</a>
         <a class="pill ghost" href="#tools">Quick exercises</a>
     </div>
 </section>
 
-<section class="panel immersive-panel" id="interactive-calm">
-    <div class="immersive-grid">
-        <div class="immersive-copy">
+<section class="calm-lab" id="interactive-calm">
+    <div class="calm-lab__header">
+        <div>
             <p class="eyebrow">Interactive</p>
             <h2>Light, fluid breathwork you can dial in.</h2>
-            <p class="lede">Set a soft rhythm, then glide through each inhale, pause, and exhale with gentle cues. Keep the cards minimal, so the breathing itself stays in focus.</p>
-            <div class="control-stack duo">
-                <div class="control-card slim">
-                    <div class="control-card__header">
-                        <p class="eyebrow muted">Timing</p>
-                        <p class="microcopy" data-cycle-preview>4s inhale • 2s hold • 5s exhale • 2s hold</p>
-                    </div>
-                    <div class="control-row refined compact">
-                        <label class="control">
-                            <span>Inhale (seconds)</span>
-                            <input type="number" min="1" max="20" value="4" step="0.5" data-inhale-input />
-                            <span class="value">Lengthen the in-breath.</span>
-                        </label>
-                        <label class="control">
-                            <span>Hold (seconds)</span>
-                            <input type="number" min="0" max="20" value="2" step="0.5" data-hold-input />
-                            <span class="value">Linger lightly at the top.</span>
-                        </label>
-                        <label class="control">
-                            <span>Exhale (seconds)</span>
-                            <input type="number" min="1" max="20" value="5" step="0.5" data-exhale-input />
-                            <span class="value">Let the breath drift out.</span>
-                        </label>
-                    </div>
+            <p class="lede">Set a soft rhythm, then glide through each inhale, pause, and exhale with gentle cues. The layout keeps the controls, cues, and visuals perfectly aligned.</p>
+        </div>
+        <div class="calm-lab__badges">
+            <span class="chip">Custom timing</span>
+            <span class="chip">Session tracker</span>
+            <span class="chip">Wave intensity</span>
+        </div>
+    </div>
+    <div class="calm-lab__grid">
+        <div class="control-stack duo">
+            <div class="control-card slim">
+                <div class="control-card__header">
+                    <p class="eyebrow muted">Timing</p>
+                    <p class="microcopy" data-cycle-preview>4s inhale • 2s hold • 5s exhale • 2s hold</p>
                 </div>
-                <div class="control-card slim">
-                    <div class="control-card__header">
-                        <p class="eyebrow muted">Session feel</p>
-                        <p class="microcopy">Keep the visuals steady and grounded.</p>
-                    </div>
-                    <div class="control-row refined compact">
-                        <label class="control">
-                            <span>Session length (minutes)</span>
-                            <input type="number" min="1" max="30" value="5" step="1" data-session-input />
-                            <span class="value" data-session-remaining>5:00 remaining</span>
-                        </label>
-                        <label class="control">
-                            <span>Wave intensity</span>
-                            <input type="range" min="0.8" max="1.4" value="1" step="0.1" data-wave-range />
-                            <span class="value" data-wave-value>Balanced</span>
-                        </label>
-                    </div>
+                <div class="control-row refined compact">
+                    <label class="control">
+                        <span>Inhale (seconds)</span>
+                        <input type="number" min="1" max="20" value="4" step="0.5" data-inhale-input />
+                        <span class="value">Lengthen the in-breath.</span>
+                    </label>
+                    <label class="control">
+                        <span>Hold (seconds)</span>
+                        <input type="number" min="0" max="20" value="2" step="0.5" data-hold-input />
+                        <span class="value">Linger lightly at the top.</span>
+                    </label>
+                    <label class="control">
+                        <span>Exhale (seconds)</span>
+                        <input type="number" min="1" max="20" value="5" step="0.5" data-exhale-input />
+                        <span class="value">Let the breath drift out.</span>
+                    </label>
                 </div>
             </div>
-            <div class="cta-row">
+            <div class="control-card slim">
+                <div class="control-card__header">
+                    <p class="eyebrow muted">Session feel</p>
+                    <p class="microcopy">Keep the visuals steady and grounded.</p>
+                </div>
+                <div class="control-row refined compact">
+                    <label class="control">
+                        <span>Session length (minutes)</span>
+                        <input type="number" min="1" max="30" value="5" step="1" data-session-input />
+                        <span class="value" data-session-remaining>5:00 remaining</span>
+                    </label>
+                    <label class="control">
+                        <span>Wave intensity</span>
+                        <input type="range" min="0.8" max="1.4" value="1" step="0.1" data-wave-range />
+                        <span class="value" data-wave-value>Balanced</span>
+                    </label>
+                </div>
+            </div>
+            <div class="calm-lab__actions">
                 <button class="btn" type="button" data-calm-start>Start flow</button>
                 <button class="btn ghost" type="button" data-calm-reset>Reset</button>
+                <p class="body" data-affirmation>Pick timing that feels supportive and press “Start flow.”</p>
             </div>
-            <p class="body" data-affirmation>Pick timing that feels supportive and press “Start flow.”</p>
         </div>
-        <div class="immersive-visual">
+        <div class="immersive-visual elevated">
             <div class="pulse-ring" data-pulse-ring></div>
             <div class="phase-label" data-phase-label>Ready when you are</div>
             <div class="phase-timeline" data-phase-timeline>
@@ -95,23 +129,32 @@
     </div>
 </section>
 
-<section class="panel pmr" id="pmr">
-    <div class="pmr-grid">
-        <div class="pmr-copy">
+<section class="calm-lab pmr" id="pmr">
+    <div class="calm-lab__header">
+        <div>
             <p class="eyebrow">Body-led calm</p>
-            <h2>Progressive Muscle Relaxation</h2>
-            <p class="lede">Travel from your toes to your forehead with gentle squeezes and soft releases. Each zone glows for six seconds as you go, so you can settle into a quick, soothing ritual.</p>
-            <div class="cta-row">
+            <h2>Progressive muscle relaxation with a soft glow.</h2>
+            <p class="lede">Travel from your toes to your forehead with gentle squeezes and releases. Each zone lights up for six seconds so you never lose your place.</p>
+            <div class="calm-lab__actions">
                 <button class="btn" type="button" data-pmr-start>Start 72-second flow</button>
                 <button class="btn ghost" type="button" data-pmr-reset>Reset</button>
-            </div>
-            <div class="pmr-status">
-                <div>
-                    <p class="microcopy muted">Current focus</p>
-                    <p class="body" data-pmr-status>Ready when you are.</p>
+                <div class="pmr-status">
+                    <div>
+                        <p class="microcopy muted">Current focus</p>
+                        <p class="body" data-pmr-status>Ready when you are.</p>
+                    </div>
+                    <div class="pmr-timer" data-pmr-countdown>01:12</div>
                 </div>
-                <div class="pmr-timer" data-pmr-countdown>01:12</div>
             </div>
+        </div>
+        <div class="calm-lab__badges">
+            <span class="chip">12 zones</span>
+            <span class="chip">Audio-free</span>
+            <span class="chip">Loop friendly</span>
+        </div>
+    </div>
+    <div class="pmr-grid">
+        <div class="pmr-copy">
             <ol class="pmr-steps">
                 <li data-step="feet">Feet &amp; toes</li>
                 <li data-step="calves">Calves</li>
@@ -169,21 +212,21 @@
     </div>
 </section>
 
-<section class="section-guide lite" aria-label="Quick exercise overview">
-    <div class="section-guide__copy">
+<section class="calm-nav calm-nav--secondary" aria-label="Quick exercise overview">
+    <div>
         <p class="eyebrow">Quick wins</p>
-        <h2>Short exercises you can scroll to instantly.</h2>
-        <p class="body">Pick a card below to see the steps. Everything is laid out so you can drop in and start without hunting for the right spot.</p>
+        <h2>Scrollable cards with aligned copy and steps.</h2>
+        <p class="body">Pick a card to see the steps without hunting for the right spot. The layout locks each piece into place for a smoother read.</p>
     </div>
-    <div class="section-guide__links">
+    <div class="calm-nav__links">
         <a class="pill" href="#interactive-calm">Breath flow</a>
         <a class="pill ghost" href="#pmr">Muscle relaxer</a>
     </div>
 </section>
 
-<section id="tools" class="resource-grid tools-grid">
+<section id="tools" class="tools-gallery">
     {% for tool in tools %}
-    <article class="resource-card">
+    <article class="resource-card tool-card">
         <div class="card-header">
             <div class="dot"></div>
             <h3>{{ tool.title }}</h3>
@@ -198,9 +241,12 @@
             <li>{{ step }}</li>
             {% endfor %}
         </ol>
-        <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool.slug }}">
-            I tried this
-        </button>
+        <div class="tool-card__actions">
+            <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool.slug }}">
+                I tried this
+            </button>
+            <a class="btn ghost tiny" href="#interactive-calm">Back to top</a>
+        </div>
     </article>
     {% endfor %}
 </section>
