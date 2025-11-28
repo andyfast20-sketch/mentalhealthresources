@@ -114,7 +114,7 @@ function initReadMore() {
 
     if (!toggle) return;
 
-    const needsToggle = description.scrollHeight - description.clientHeight > 6;
+    const needsToggle = description.scrollHeight - description.clientHeight > 6 || description.textContent.length > 140;
 
     if (!needsToggle) {
       toggle.style.display = 'none';
@@ -122,10 +122,17 @@ function initReadMore() {
       return;
     }
 
-    toggle.addEventListener('click', () => {
-      const expanded = description.classList.toggle('is-expanded');
+    const setExpandedState = (expanded) => {
+      description.classList.toggle('is-expanded', expanded);
       toggle.setAttribute('aria-expanded', expanded);
       toggle.textContent = expanded ? 'Show less' : 'Read more';
+    };
+
+    setExpandedState(false);
+
+    toggle.addEventListener('click', () => {
+      const expanded = !description.classList.contains('is-expanded');
+      setExpandedState(expanded);
 
       if (!expanded) {
         description.scrollTo({ top: 0, behavior: 'smooth' });
