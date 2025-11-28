@@ -404,6 +404,16 @@ CALMING_TOOLS = [
             "Finish by placing a hand over your heart and thanking yourself for pausing.",
         ],
     },
+    {
+        "title": "Anxiety Colour Drop",
+        "description": "Drag coloured emotion droplets into a calm pool and watch them dissolve as a symbolic release.",
+        "steps": [
+            "Name the feeling you're holding—frustration, worry, guilt, fear, or anything else.",
+            "Drag that droplet into the water and picture the colour softening as it lands.",
+            "Take a slow exhale as the ripple fades, letting the feeling loosen its grip.",
+            "Repeat with any remaining emotions until the pool looks lighter.",
+        ],
+    },
 ]
 
 

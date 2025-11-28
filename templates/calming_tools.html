@@ -38,18 +38,20 @@
         </div>
     </div>
 </section>
+
 {% endblock %}
 
 {% block content %}
 <section class="calm-nav" aria-label="Calming practice navigation">
     <div>
         <p class="eyebrow">Choose your path</p>
-        <h2>Everything is aligned into three experiences.</h2>
-        <p class="body">Jump straight to interactive breathwork, progressive muscle relaxation, or scrollable cards with simple step-by-step prompts.</p>
+        <h2>Everything is aligned into four calming experiences.</h2>
+        <p class="body">Jump straight to interactive breathwork, progressive muscle relaxation, the colour drop ritual, or scrollable cards with simple step-by-step prompts.</p>
     </div>
     <div class="calm-nav__links">
         <a class="pill" href="#interactive-calm">Breath flow</a>
         <a class="pill ghost" href="#pmr">Muscle relaxer</a>
+        <a class="pill ghost" href="#colour-drop">Colour drop ritual</a>
         <a class="pill ghost" href="#tools">Quick exercises</a>
     </div>
 </section>
@@ -208,6 +210,68 @@
                     <path d="M72 242c-18 14-28 34-28 56 0 42 30 96 56 96s56-54 56-96c0-22-10-42-28-56" />
                 </g>
             </svg>
+        </div>
+    </div>
+</section>
+
+<section class="calm-lab colour-drop" id="colour-drop">
+    <div class="calm-lab__header">
+        <div>
+            <p class="eyebrow">Symbolic release</p>
+            <h2>🎨 Anxiety Colour Drop</h2>
+            <p class="lede">Name the feeling you're carrying, pick its colour, then let it dissolve into the calm pool. Each drop fades with a soft ripple to help your body register release.</p>
+            <div class="calm-lab__actions">
+                <button class="btn" type="button" data-reset-pool>Clear pool</button>
+                <p class="body" data-drop-status>Drag a colour droplet into the pool to begin.</p>
+            </div>
+        </div>
+        <div class="calm-lab__badges">
+            <span class="chip">Drag &amp; drop</span>
+            <span class="chip">Visual soothing</span>
+            <span class="chip">Emotion naming</span>
+        </div>
+    </div>
+    <div class="colour-drop__grid">
+        <div class="palette-card elevated">
+            <p class="eyebrow muted">Emotion droplets</p>
+            <p class="body">Pick the feeling that matches your mood. Drag it into the pool and exhale as it sinks.</p>
+            <div class="drop-palette" role="list">
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Frustration" data-colour="#f16b6f">
+                    <span>Frustration</span>
+                    <small>Hot coral</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Worry" data-colour="#6aa9f7">
+                    <span>Worry</span>
+                    <small>Blue hush</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Guilt" data-colour="#c28bf2">
+                    <span>Guilt</span>
+                    <small>Lavender dusk</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Fear" data-colour="#5ed0b6">
+                    <span>Fear</span>
+                    <small>Seafoam</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Overwhelm" data-colour="#f5c26b">
+                    <span>Overwhelm</span>
+                    <small>Golden glow</small>
+                </button>
+            </div>
+            <p class="microcopy">Tip: say the feeling quietly to yourself before you release it.</p>
+        </div>
+        <div class="pool-card elevated" aria-label="Calm water pool" data-colour-pool>
+            <div class="pool-sheen"></div>
+            <div class="pool-water">
+                <div class="pool-rings"></div>
+                <p class="pool-prompt">Drop a feeling here</p>
+            </div>
+            <div class="pool-footer">
+                <p class="microcopy">Each ripple lasts a few seconds then fades. Take a long exhale as it dissolves.</p>
+                <div class="legend">
+                    <span class="chip tiny ghost">Drag to release</span>
+                    <span class="chip tiny">Watch it fade</span>
+                </div>
+            </div>
         </div>
     </div>
 </section>

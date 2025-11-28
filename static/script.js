@@ -409,6 +409,11 @@ const pmrStatus = document.querySelector('[data-pmr-status]');
 const pmrCountdown = document.querySelector('[data-pmr-countdown]');
 const pmrSteps = Array.from(document.querySelectorAll('.pmr-steps [data-step]'));
 const pmrMuscles = Array.from(document.querySelectorAll('[data-muscle]'));
+const colourPool = document.querySelector('[data-colour-pool]');
+const poolWater = colourPool?.querySelector('.pool-water');
+const dropStatus = document.querySelector('[data-drop-status]');
+const resetPoolBtn = document.querySelector('[data-reset-pool]');
+const emotionDrops = Array.from(document.querySelectorAll('[data-emotion-drop]'));
 
 let calmTimer;
 let sessionTimer;
@@ -711,6 +716,99 @@ function resetPMR() {
 pmrStart?.addEventListener('click', startPMR);
 pmrReset?.addEventListener('click', resetPMR);
 resetPMR();
+
+// Anxiety Colour Drop
+const releaseAffirmations = [
+  'Let this ripple carry the edge away.',
+  'Notice the colour soften as you do.',
+  'You can release without rushing.',
+  'Small drops add up to lighter shoulders.',
+  'Exhale and watch the feeling dissolve.',
+];
+
+function updateDropStatus(message) {
+  if (dropStatus) dropStatus.textContent = message;
+}
+
+function createPoolDrop(emotion, colour, clientX = null) {
+  if (!poolWater || !colourPool) return;
+  const drop = document.createElement('span');
+  drop.className = 'pool-drop';
+  drop.dataset.emotion = emotion;
+  drop.style.setProperty('--drop-colour', colour);
+
+  const rect = poolWater.getBoundingClientRect();
+  const leftPercent = clientX ? clamp(((clientX - rect.left) / rect.width) * 100, 6, 94) : 50;
+  const topPercent = clamp(36 + Math.random() * 28, 28, 78);
+  const size = clamp(48 + Math.random() * 36, 48, 96);
+  drop.style.left = `${leftPercent}%`;
+  drop.style.top = `${topPercent}%`;
+  drop.style.setProperty('--drop-size', `${size}px`);
+
+  poolWater.appendChild(drop);
+  drop.addEventListener('animationend', () => drop.remove());
+
+  const affirmation = releaseAffirmations[Math.floor(Math.random() * releaseAffirmations.length)];
+  updateDropStatus(`${emotion} released. ${affirmation}`);
+}
+
+function clearPoolDrops() {
+  poolWater?.querySelectorAll('.pool-drop').forEach((drop) => drop.remove());
+  updateDropStatus('Pool cleared. Invite a new feeling to soften.');
+}
+
+function handleDrop(event, payload) {
+  if (!payload?.emotion || !payload?.colour) return;
+  createPoolDrop(payload.emotion, payload.colour, event.clientX);
+}
+
+emotionDrops.forEach((drop) => {
+  const emotion = drop.dataset.emotion || 'Feeling';
+  const colour = drop.dataset.colour || '#6aa9f7';
+
+  drop.addEventListener('dragstart', (event) => {
+    drop.classList.add('is-dragging');
+    updateDropStatus(`Carrying ${emotion.toLowerCase()} to the water...`);
+    if (event.dataTransfer) {
+      event.dataTransfer.effectAllowed = 'copy';
+      event.dataTransfer.setData('text/plain', JSON.stringify({ emotion, colour }));
+    }
+  });
+
+  drop.addEventListener('dragend', () => {
+    drop.classList.remove('is-dragging');
+  });
+
+  drop.addEventListener('click', () => {
+    createPoolDrop(emotion, colour);
+  });
+});
+
+colourPool?.addEventListener('dragover', (event) => {
+  event.preventDefault();
+  colourPool.classList.add('is-ready');
+  if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
+});
+
+colourPool?.addEventListener('dragleave', () => {
+  colourPool.classList.remove('is-ready');
+});
+
+colourPool?.addEventListener('drop', (event) => {
+  event.preventDefault();
+  colourPool.classList.remove('is-ready');
+  let payload = null;
+  try {
+    payload = JSON.parse(event.dataTransfer?.getData('text/plain') || '{}');
+  } catch (error) {
+    payload = null;
+  }
+  handleDrop(event, payload);
+});
+
+resetPoolBtn?.addEventListener('click', () => {
+  clearPoolDrops();
+});
 
 // Floating crisis video controls
 const floatingVideo = document.querySelector('[data-floating-video]');
