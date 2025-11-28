@@ -821,6 +821,17 @@ body {
   z-index: 2;
 }
 
+.admin-book-panel .book-actions {
+  gap: 6px;
+}
+
+.admin-book-panel .book-actions .btn,
+.admin-book-panel .book-actions .btn.tiny {
+  padding: 8px 12px;
+  font-size: 13px;
+  border-radius: 12px;
+}
+
 .book-admin-footer {
   grid-column: 1 / -1;
   background: linear-gradient(180deg, rgba(124, 163, 229, 0.08), rgba(243, 198, 228, 0.16));
