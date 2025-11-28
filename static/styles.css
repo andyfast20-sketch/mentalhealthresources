@@ -963,6 +963,59 @@ body {
   transition: width 0.25s ease;
 }
 
+.book-metrics-table-wrapper {
+  margin-top: 32px;
+  border: 1px solid #ece7fd;
+  border-radius: 20px;
+  padding: 16px;
+  background: #fcfbff;
+}
+
+.book-metrics-table-wrapper .panel-header {
+  padding: 8px 8px 16px;
+}
+
+.table-scroll {
+  overflow-x: auto;
+}
+
+.book-metrics-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 640px;
+}
+
+.book-metrics-table th,
+.book-metrics-table td {
+  padding: 12px;
+  text-align: left;
+  border-bottom: 1px solid #ece7fd;
+}
+
+.book-metrics-table th {
+  font-weight: 700;
+  color: #4c3d69;
+  font-size: 0.95rem;
+}
+
+.book-metrics-table td {
+  color: #332445;
+  font-size: 0.95rem;
+}
+
+.book-metrics-table .table-title {
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.book-metrics-table .text-right {
+  text-align: right;
+}
+
+.book-metrics-table tbody tr:nth-child(even) {
+  background: #f8f6ff;
+}
+
 .charity-top {
   display: flex;
   align-items: center;

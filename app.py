@@ -44,6 +44,7 @@ DEFAULT_BOOKS = [
         "affiliate_url": "https://amzn.to/3K6C0Lk",
         "cover_url": "https://m.media-amazon.com/images/I/71+Jx1gIdwL._SL1500_.jpg",
         "view_count": 0,
+        "scroll_count": 0,
     },
     {
         "title": "Maybe You Should Talk to Someone",
@@ -52,6 +53,7 @@ DEFAULT_BOOKS = [
         "affiliate_url": "https://amzn.to/4bj8QEv",
         "cover_url": "https://m.media-amazon.com/images/I/81PxgyrpFZL._SL1500_.jpg",
         "view_count": 0,
+        "scroll_count": 0,
     },
     {
         "title": "The Body Keeps the Score",
@@ -60,6 +62,7 @@ DEFAULT_BOOKS = [
         "affiliate_url": "https://amzn.to/3yOaYDh",
         "cover_url": "https://m.media-amazon.com/images/I/81dQwQlmAXL._SL1500_.jpg",
         "view_count": 0,
+        "scroll_count": 0,
     },
     {
         "title": "Set Boundaries, Find Peace",
@@ -68,6 +71,7 @@ DEFAULT_BOOKS = [
         "affiliate_url": "https://amzn.to/3YVn1ch",
         "cover_url": "https://m.media-amazon.com/images/I/71m3C1AI+8L._SL1500_.jpg",
         "view_count": 0,
+        "scroll_count": 0,
     },
     {
         "title": "Burnout: The Secret to Unlocking the Stress Cycle",
@@ -76,6 +80,7 @@ DEFAULT_BOOKS = [
         "affiliate_url": "https://amzn.to/3WklwZg",
         "cover_url": "https://m.media-amazon.com/images/I/71A4HVWjQBL._SL1500_.jpg",
         "view_count": 0,
+        "scroll_count": 0,
     },
 ]
 
@@ -148,6 +153,7 @@ def load_books():
                 books = json.load(f)
                 for book in books:
                     book.setdefault("view_count", 0)
+                    book.setdefault("scroll_count", 0)
                 return books
         except json.JSONDecodeError:
             pass
@@ -377,7 +383,10 @@ def admin():
     charities = load_charities()
     books = load_books()
     message = request.args.get("message")
-    total_book_views = sum((book.get("view_count", 0) or 0) for book in books)
+    total_book_interactions = sum(
+        (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
+        for book in books
+    )
     books_with_covers = sum(1 for book in books if book.get("cover_url"))
     books_without_covers = len(books) - books_with_covers
     books_per_row = 4
@@ -387,7 +396,7 @@ def admin():
         charities=charities,
         books=books,
         message=message,
-        total_book_views=total_book_views,
+        total_book_interactions=total_book_interactions,
         books_with_covers=books_with_covers,
         books_without_covers=books_without_covers,
         books_per_row=books_per_row,
@@ -490,6 +499,7 @@ def add_book():
             "affiliate_url": affiliate_url,
             "cover_url": cover_url,
             "view_count": 0,
+            "scroll_count": 0,
         }
     )
     save_books(books)
@@ -536,6 +546,7 @@ def update_book(book_index):
         "affiliate_url": affiliate_url,
         "cover_url": cover_url,
         "view_count": existing_book.get("view_count", 0),
+        "scroll_count": existing_book.get("scroll_count", 0),
     }
     save_books(books)
     return redirect(url_for("admin", message="Book updated."))
@@ -552,6 +563,17 @@ def track_book_view(book_index):
     return {"success": True, "view_count": books[book_index]["view_count"]}
 
 
+@app.route("/books/<int:book_index>/scroll", methods=["POST"])
+def track_book_scroll(book_index):
+    books = load_books()
+    if not (0 <= book_index < len(books)):
+        return {"success": False, "message": "Book not found."}, 404
+
+    books[book_index]["scroll_count"] = (books[book_index].get("scroll_count", 0) or 0) + 1
+    save_books(books)
+    return {"success": True, "scroll_count": books[book_index]["scroll_count"]}
+
+
 @app.route("/admin/books/<int:book_index>/reset_views", methods=["POST"])
 def reset_book_views(book_index):
     books = load_books()
@@ -559,8 +581,9 @@ def reset_book_views(book_index):
         return redirect(url_for("admin", message="Book not found."))
 
     books[book_index]["view_count"] = 0
+    books[book_index]["scroll_count"] = 0
     save_books(books)
-    return redirect(url_for("admin", message="Book views reset."))
+    return redirect(url_for("admin", message="Book counters reset."))
 
 
 if __name__ == "__main__":
