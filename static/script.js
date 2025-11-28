@@ -724,7 +724,19 @@ const releaseAffirmations = [
   'You can release without rushing.',
   'Small drops add up to lighter shoulders.',
   'Exhale and watch the feeling dissolve.',
+  'Picture the colour washing into calm water.',
+  'Your breath is the current—ride it out.',
+  'Every release is proof you can shift the feeling.',
 ];
+
+const breathCues = ['Inhale for four, exhale for six.', 'Add a shoulder roll as you drop.', 'Let your jaw loosen on the out-breath.'];
+let breathCueIndex = 0;
+
+function nextBreathCue() {
+  const cue = breathCues[breathCueIndex];
+  breathCueIndex = (breathCueIndex + 1) % breathCues.length;
+  return cue;
+}
 
 function updateDropStatus(message) {
   if (dropStatus) dropStatus.textContent = message;
@@ -749,12 +761,13 @@ function createPoolDrop(emotion, colour, clientX = null) {
   drop.addEventListener('animationend', () => drop.remove());
 
   const affirmation = releaseAffirmations[Math.floor(Math.random() * releaseAffirmations.length)];
-  updateDropStatus(`${emotion} released. ${affirmation}`);
+  const cue = nextBreathCue();
+  updateDropStatus(`${emotion} released. ${affirmation} ${cue}`);
 }
 
 function clearPoolDrops() {
   poolWater?.querySelectorAll('.pool-drop').forEach((drop) => drop.remove());
-  updateDropStatus('Pool cleared. Invite a new feeling to soften.');
+  updateDropStatus('Pool cleared. Invite a new feeling to soften and breathe out as it lands.');
 }
 
 function handleDrop(event, payload) {
@@ -787,6 +800,7 @@ emotionDrops.forEach((drop) => {
 colourPool?.addEventListener('dragover', (event) => {
   event.preventDefault();
   colourPool.classList.add('is-ready');
+  updateDropStatus('Pool open—carry the colour in and let it ripple.');
   if (event.dataTransfer) event.dataTransfer.dropEffect = 'copy';
 });
 
