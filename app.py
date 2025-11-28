@@ -383,7 +383,10 @@ def admin():
     charities = load_charities()
     books = load_books()
     message = request.args.get("message")
-    total_book_views = sum((book.get("view_count", 0) or 0) for book in books)
+    total_book_interactions = sum(
+        (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
+        for book in books
+    )
     books_with_covers = sum(1 for book in books if book.get("cover_url"))
     books_without_covers = len(books) - books_with_covers
     books_per_row = 4
@@ -393,7 +396,7 @@ def admin():
         charities=charities,
         books=books,
         message=message,
-        total_book_views=total_book_views,
+        total_book_interactions=total_book_interactions,
         books_with_covers=books_with_covers,
         books_without_covers=books_without_covers,
         books_per_row=books_per_row,
