@@ -13,8 +13,11 @@ const bookTrack = document.querySelector('[data-book-track]');
 const bookPrev = document.querySelector('[data-book-prev]');
 const bookNext = document.querySelector('[data-book-next]');
 const bookProgress = document.querySelector('[data-book-progress]');
+const crisisVolume = document.querySelector('[data-crisis-volume]');
+const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
 let slideIndex = 0;
 let slideWidth = 0;
+let crisisPlayer;
 
 function applyFilter(tag) {
   cards.forEach((card) => {
@@ -103,6 +106,48 @@ bookNext?.addEventListener('click', () => scrollBooks(1));
 bookTrack?.addEventListener('scroll', updateBookProgress, { passive: true });
 window.addEventListener('resize', updateBookProgress);
 updateBookProgress();
+
+function updateCrisisVolumeDisplay(volume) {
+  if (crisisVolumeValue) {
+    crisisVolumeValue.textContent = `${Math.round(volume)}%`;
+  }
+}
+
+function bindCrisisVolumeControl(player) {
+  if (!crisisVolume) return;
+
+  const startingVolume = Number.parseFloat(crisisVolume.value || '60');
+  player.setVolume(startingVolume);
+  updateCrisisVolumeDisplay(startingVolume);
+
+  crisisVolume.addEventListener('input', (event) => {
+    const value = Number.parseFloat(event.target.value || '0');
+    player.unMute();
+    player.setVolume(value);
+    updateCrisisVolumeDisplay(value);
+  });
+}
+
+function initCrisisPlayer() {
+  const crisisIframe = document.getElementById('crisis-video-player');
+  if (!crisisIframe || !window.YT || typeof window.YT.Player !== 'function') return;
+
+  crisisPlayer = new window.YT.Player(crisisIframe, {
+    events: {
+      onReady: ({ target }) => {
+        bindCrisisVolumeControl(target);
+      },
+    },
+  });
+}
+
+window.onYouTubeIframeAPIReady = () => {
+  initCrisisPlayer();
+};
+
+if (window.YT && typeof window.YT.Player === 'function') {
+  initCrisisPlayer();
+}
 
 function initReadMore() {
   const descriptions = Array.from(document.querySelectorAll('[data-collapsible]'));

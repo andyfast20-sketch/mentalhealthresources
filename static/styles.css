@@ -1714,7 +1714,7 @@ body {
 .crisis-video {
   position: relative;
   width: 100%;
-  padding-top: 56.25%;
+  aspect-ratio: 9 / 16;
   border-radius: 18px;
   overflow: hidden;
   box-shadow: 0 14px 36px rgba(195, 122, 117, 0.16);
@@ -1724,11 +1724,31 @@ body {
 
 .crisis-video iframe {
   position: absolute;
-  top: -14%;
-  left: -20%;
-  width: 140%;
-  height: 128%;
+  inset: 0;
+  width: 100%;
+  height: 100%;
   border: 0;
+}
+
+.crisis-video-controls {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.85);
+  padding: 8px 12px;
+  border-radius: 12px;
+  border: 1px solid rgba(113, 64, 77, 0.12);
+  box-shadow: 0 10px 20px rgba(195, 122, 117, 0.12);
+}
+
+.crisis-video-controls input[type='range'] {
+  accent-color: #f5a3b5;
+}
+
+.crisis-volume-value {
+  font-weight: 700;
+  color: #412132;
 }
 
 .crisis-grid.calming .crisis-card {
