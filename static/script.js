@@ -173,6 +173,16 @@ function updateBodyModalLock() {
   document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
 }
 
+function trackBookView(card) {
+  const index = card?.dataset.bookIndex;
+  if (index === undefined) return;
+
+  fetch(`/books/${index}/view`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }).catch(() => {});
+}
+
 function populateBookModal(data) {
   if (!bookModal) return;
 
@@ -214,6 +224,8 @@ function populateBookModal(data) {
 
 function openBookModalFromCard(card, trigger) {
   if (!card) return;
+
+  trackBookView(card);
 
   const data = {
     title: card.dataset.bookTitle || card.querySelector('h3')?.textContent || '',

@@ -169,6 +169,7 @@
                 <p class="body book-admin-description">{{ book.description }}</p>
             </div>
             <div class="book-admin-footer">
+                <p class="body muted">Views: {{ book.view_count | default(0) }}</p>
                 <div class="book-actions">
                     <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
                     <form action="{{ url_for('delete_book', book_index=loop.index0) }}" method="post">
@@ -187,6 +188,9 @@
                     >
                         Edit book
                     </button>
+                    <form action="{{ url_for('reset_book_views', book_index=loop.index0) }}" method="post">
+                        <button class="btn tiny secondary" type="submit">Reset views</button>
+                    </form>
                     <div class="halo"></div>
                 </div>
             </div>

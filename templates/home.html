@@ -160,7 +160,15 @@
         <button class="book-nav prev" type="button" aria-label="Scroll books left" data-book-prev>&larr;</button>
         <div class="book-track" data-book-track>
             {% for book in books %}
-            <article class="book-card" data-book-title="{{ book.title }}" data-book-author="{{ book.author }}" data-book-description="{{ book.description }}" data-book-cover="{{ book.cover_url }}" data-book-link="{{ book.affiliate_url }}">
+            <article
+                class="book-card"
+                data-book-index="{{ book.index }}"
+                data-book-title="{{ book.title }}"
+                data-book-author="{{ book.author }}"
+                data-book-description="{{ book.description }}"
+                data-book-cover="{{ book.cover_url }}"
+                data-book-link="{{ book.affiliate_url }}"
+            >
                 <div class="book-cover" aria-hidden="true">
                     {% if book.cover_url %}
                     <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" loading="lazy" />
