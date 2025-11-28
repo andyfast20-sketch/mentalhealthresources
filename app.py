@@ -43,6 +43,7 @@ DEFAULT_BOOKS = [
         "description": "A compassionate guide through 87 emotions and experiences, helping readers name what they feel and find language for connection.",
         "affiliate_url": "https://amzn.to/3K6C0Lk",
         "cover_url": "https://m.media-amazon.com/images/I/71+Jx1gIdwL._SL1500_.jpg",
+        "view_count": 0,
     },
     {
         "title": "Maybe You Should Talk to Someone",
@@ -50,6 +51,7 @@ DEFAULT_BOOKS = [
         "description": "A therapist pulls back the curtain on her own sessions and reminds us therapy is a courageous act of care.",
         "affiliate_url": "https://amzn.to/4bj8QEv",
         "cover_url": "https://m.media-amazon.com/images/I/81PxgyrpFZL._SL1500_.jpg",
+        "view_count": 0,
     },
     {
         "title": "The Body Keeps the Score",
@@ -57,6 +59,7 @@ DEFAULT_BOOKS = [
         "description": "Evidence-based insights on how trauma lives in the body and the healing pathways that restore safety.",
         "affiliate_url": "https://amzn.to/3yOaYDh",
         "cover_url": "https://m.media-amazon.com/images/I/81dQwQlmAXL._SL1500_.jpg",
+        "view_count": 0,
     },
     {
         "title": "Set Boundaries, Find Peace",
@@ -64,6 +67,7 @@ DEFAULT_BOOKS = [
         "description": "Practical scripts and exercises to set limits with compassion, reduce overwhelm, and protect your energy.",
         "affiliate_url": "https://amzn.to/3YVn1ch",
         "cover_url": "https://m.media-amazon.com/images/I/71m3C1AI+8L._SL1500_.jpg",
+        "view_count": 0,
     },
     {
         "title": "Burnout: The Secret to Unlocking the Stress Cycle",
@@ -71,6 +75,7 @@ DEFAULT_BOOKS = [
         "description": "Research-backed strategies for completing the stress cycle, especially for caregivers and high achievers.",
         "affiliate_url": "https://amzn.to/3WklwZg",
         "cover_url": "https://m.media-amazon.com/images/I/71A4HVWjQBL._SL1500_.jpg",
+        "view_count": 0,
     },
 ]
 
@@ -140,7 +145,10 @@ def load_books():
     if BOOKS_FILE.exists():
         try:
             with BOOKS_FILE.open() as f:
-                return json.load(f)
+                books = json.load(f)
+                for book in books:
+                    book.setdefault("view_count", 0)
+                return books
         except json.JSONDecodeError:
             pass
     save_books(DEFAULT_BOOKS)
@@ -151,6 +159,26 @@ def save_books(books):
     ensure_data_dir()
     with BOOKS_FILE.open("w") as f:
         json.dump(books, f, indent=2)
+
+
+def pick_featured_books(books, count=3):
+    if len(books) <= count:
+        return list(range(len(books)))
+
+    weights = [(book.get("view_count", 0) or 0) + 1 for book in books]
+    selected_indices = []
+    available_indices = list(range(len(books)))
+
+    while len(selected_indices) < count and available_indices:
+        choice = random.choices(available_indices, weights=[weights[i] for i in available_indices], k=1)[0]
+        selected_indices.append(choice)
+        available_indices.remove(choice)
+
+    return selected_indices
+
+
+def books_with_indices(books):
+    return [{**book, "index": idx} for idx, book in enumerate(books)]
 
 RESOURCES = [
     {
@@ -301,7 +329,8 @@ def index():
     charities = load_charities()
     featured_charities = random.sample(charities, min(3, len(charities))) if charities else []
     books = load_books()
-    featured_books = random.sample(books, min(3, len(books))) if books else []
+    featured_indices = pick_featured_books(books, count=3) if books else []
+    featured_books = [{**books[i], "index": i} for i in featured_indices] if books else []
     return render_template(
         "home.html",
         resources=RESOURCES,
@@ -319,7 +348,7 @@ def charities():
 
 @app.route("/books")
 def books():
-    book_list = load_books()
+    book_list = books_with_indices(load_books())
     return render_template("books.html", books=book_list)
 
 
@@ -446,6 +475,7 @@ def add_book():
             "description": description,
             "affiliate_url": affiliate_url,
             "cover_url": cover_url,
+            "view_count": 0,
         }
     )
     save_books(books)
@@ -491,9 +521,32 @@ def update_book(book_index):
         "description": description,
         "affiliate_url": affiliate_url,
         "cover_url": cover_url,
+        "view_count": existing_book.get("view_count", 0),
     }
     save_books(books)
     return redirect(url_for("admin", message="Book updated."))
+
+
+@app.route("/books/<int:book_index>/view", methods=["POST"])
+def track_book_view(book_index):
+    books = load_books()
+    if not (0 <= book_index < len(books)):
+        return {"success": False, "message": "Book not found."}, 404
+
+    books[book_index]["view_count"] = (books[book_index].get("view_count", 0) or 0) + 1
+    save_books(books)
+    return {"success": True, "view_count": books[book_index]["view_count"]}
+
+
+@app.route("/admin/books/<int:book_index>/reset_views", methods=["POST"])
+def reset_book_views(book_index):
+    books = load_books()
+    if not (0 <= book_index < len(books)):
+        return redirect(url_for("admin", message="Book not found."))
+
+    books[book_index]["view_count"] = 0
+    save_books(books)
+    return redirect(url_for("admin", message="Book views reset."))
 
 
 if __name__ == "__main__":
