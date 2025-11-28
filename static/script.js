@@ -22,6 +22,7 @@ const bookModalCoverWrapper = document.querySelector('[data-book-modal-cover-wra
 const bookModalCoverFallback = document.querySelector('[data-book-modal-cover-fallback]');
 const bookModalLink = document.querySelector('[data-book-modal-link]');
 const bookTriggerButtons = Array.from(document.querySelectorAll('[data-book-trigger]'));
+const bookCards = Array.from(document.querySelectorAll('.book-card[data-book-index]'));
 const bookModalCloseButtons = Array.from(document.querySelectorAll('[data-book-modal-close]'));
 const adminBookModal = document.querySelector('[data-admin-book-modal]');
 const adminBookForm = document.querySelector('[data-admin-book-form]');
@@ -34,6 +35,7 @@ let slideWidth = 0;
 let crisisPlayer;
 let activeBookTrigger = null;
 let activeAdminTrigger = null;
+const trackedScrollBooks = new Set();
 
 function applyFilter(tag) {
   cards.forEach((card) => {
@@ -183,6 +185,18 @@ function trackBookView(card) {
   }).catch(() => {});
 }
 
+function trackBookScroll(card) {
+  const index = card?.dataset.bookIndex;
+  if (index === undefined || trackedScrollBooks.has(index)) return;
+
+  trackedScrollBooks.add(index);
+
+  fetch(`/books/${index}/scroll`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+  }).catch(() => {});
+}
+
 function populateBookModal(data) {
   if (!bookModal) return;
 
@@ -249,11 +263,33 @@ function closeBookModal() {
   updateBodyModalLock();
 }
 
+function initBookScrollTracking() {
+  if (!bookCards.length) return;
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) {
+          trackBookScroll(entry.target);
+        }
+      });
+    },
+    {
+      root: bookTrack || null,
+      threshold: 0.6,
+    }
+  );
+
+  bookCards.forEach((card) => observer.observe(card));
+}
+
 bookTriggerButtons.forEach((button) => {
   button.addEventListener('click', () => {
     openBookModalFromCard(button.closest('.book-card'), button);
   });
 });
+
+initBookScrollTracking();
 
 bookModalCloseButtons.forEach((button) => button.addEventListener('click', closeBookModal));
 
