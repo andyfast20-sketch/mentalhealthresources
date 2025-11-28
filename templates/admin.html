@@ -149,6 +149,9 @@
         <p class="eyebrow">Live shelf</p>
         <h2>Books visitors can browse</h2>
         <p class="lede">Edit or remove any book. Updates appear instantly on the homepage shelf and the books page.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
     </div>
     <div class="book-grid">
         {% for book in books %}
@@ -163,7 +166,7 @@
             <div class="book-meta">
                 <p class="eyebrow">{{ book.author }}</p>
                 <h3>{{ book.title }}</h3>
-                <p class="body">{{ book.description }}</p>
+                <p class="body book-admin-description">{{ book.description }}</p>
             </div>
             <div class="book-actions">
                 <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
