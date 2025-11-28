@@ -468,22 +468,29 @@ def update_book(book_index):
     if not (0 <= book_index < len(books)):
         return redirect(url_for("admin", message="Book not found."))
 
-    title = request.form.get("title", "").strip()
-    author = request.form.get("author", "").strip()
-    description = request.form.get("description", "").strip()
-    affiliate_url = normalize_url(request.form.get("affiliate_url", ""))
-    cover_url = normalize_url(request.form.get("cover_url", ""))
+    existing_book = books[book_index]
+
+    title = request.form.get("title", "").strip() or existing_book.get("title", "")
+    author = request.form.get("author", "").strip() or existing_book.get("author", "")
+    description = request.form.get("description", "").strip() or existing_book.get("description", "")
+
+    affiliate_input = request.form.get("affiliate_url", "").strip()
+    affiliate_url = (
+        normalize_url(affiliate_input) if affiliate_input else existing_book.get("affiliate_url", "")
+    )
+
+    cover_input = request.form.get("cover_url", "").strip()
+    cover_url = normalize_url(cover_input) if cover_input else existing_book.get("cover_url", "")
 
     if not all([title, author, description, affiliate_url]):
         return redirect(url_for("admin", message="Please complete all book fields to update."))
 
-    existing_cover = books[book_index].get("cover_url", "")
     books[book_index] = {
         "title": title,
         "author": author,
         "description": description,
         "affiliate_url": affiliate_url,
-        "cover_url": cover_url or existing_cover,
+        "cover_url": cover_url,
     }
     save_books(books)
     return redirect(url_for("admin", message="Book updated."))
