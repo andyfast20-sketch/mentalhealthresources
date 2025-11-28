@@ -24,6 +24,18 @@
                 <strong>Three gentle actions</strong>
             </div>
         </div>
+        <div class="crisis-hero-video" aria-label="Calming breathing video to follow while you begin the steps">
+            <div class="crisis-hero-video__frame">
+                <iframe
+                    src="https://www.youtube.com/embed/hEDRGd2UtFs?autoplay=1&mute=1&playsinline=1&controls=0&rel=0&modestbranding=1"
+                    title="30-second breathing exercise"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                ></iframe>
+            </div>
+            <p class="mini">Press pause anytime; the calming prompts will loop while you breathe.</p>
+        </div>
         <ul class="grounding-list">
             <li><span>📞</span>Call, text, or chat a crisis line—tell them where you are and what's happening.</li>
             <li><span>🫁</span>Breathe slow: inhale for 4, hold for 2, exhale for 6. Repeat for one minute.</li>
@@ -168,19 +180,4 @@
 {% endblock %}
 
 {% block floating %}
-<div class="floating-crisis-video" aria-label="Calming breathing video plays while you browse crisis support" data-floating-video>
-    <button class="floating-crisis-video__close" type="button" aria-label="Close calming video" data-floating-video-close>
-        ×
-    </button>
-    <div class="floating-crisis-video__ring"></div>
-    <div class="floating-crisis-video__frame" aria-hidden="true">
-        <iframe
-            src="https://www.youtube.com/embed/hEDRGd2UtFs?autoplay=1&mute=0&playsinline=1&enablejsapi=1&controls=0&rel=0"
-            title="30-second breathing exercise"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-            allowfullscreen
-        ></iframe>
-    </div>
-</div>
 {% endblock %}
