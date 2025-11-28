@@ -723,7 +723,11 @@ body {
 .book-panel .book-card {
   padding: 12px;
   grid-template-columns: 86px 1fr;
-  grid-template-rows: auto 1fr;
+  grid-template-rows: auto 1fr auto;
+  grid-template-areas:
+    'cover meta'
+    'cover meta'
+    'cover actions';
   gap: 12px;
   align-items: start;
   max-height: 420px;
@@ -761,6 +765,7 @@ body {
   width: 86px;
   height: 120px;
   box-shadow: 0 8px 18px rgba(124, 163, 229, 0.16);
+  grid-area: cover;
 }
 
 .cover-placeholder {
@@ -780,6 +785,7 @@ body {
 
 .book-panel .book-meta {
   gap: 4px;
+  grid-area: meta;
 }
 
 .book-admin-description {
@@ -862,9 +868,10 @@ body {
 }
 
 .book-panel .book-actions {
-  align-self: stretch;
+  align-self: end;
   gap: 8px;
   justify-content: space-between;
+  grid-area: actions;
 }
 
 .book-actions .btn {
