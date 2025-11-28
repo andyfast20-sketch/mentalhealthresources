@@ -87,6 +87,15 @@ def allowed_logo(filename):
     return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_LOGO_EXTENSIONS
 
 
+def normalize_url(url):
+    if not url:
+        return ""
+    url = url.strip()
+    if url.startswith("http://") or url.startswith("https://"):
+        return url
+    return f"https://{url}"
+
+
 def store_logo_file(logo_file):
     if not logo_file or not logo_file.filename:
         return None
@@ -347,7 +356,7 @@ def add_charity():
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
     logo_url = request.form.get("logo_url", "").strip()
-    site_url = request.form.get("site_url", "").strip()
+    site_url = normalize_url(request.form.get("site_url", ""))
 
     logo_file = request.files.get("logo_file")
 
@@ -391,7 +400,7 @@ def update_charity(charity_index):
 
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
-    site_url = request.form.get("site_url", "").strip()
+    site_url = normalize_url(request.form.get("site_url", ""))
     logo_url = request.form.get("logo_url", "").strip()
     logo_file = request.files.get("logo_file")
 
@@ -423,8 +432,8 @@ def add_book():
     title = request.form.get("title", "").strip()
     author = request.form.get("author", "").strip()
     description = request.form.get("description", "").strip()
-    affiliate_url = request.form.get("affiliate_url", "").strip()
-    cover_url = request.form.get("cover_url", "").strip()
+    affiliate_url = normalize_url(request.form.get("affiliate_url", ""))
+    cover_url = normalize_url(request.form.get("cover_url", ""))
 
     if not all([title, author, description, affiliate_url]):
         return redirect(url_for("admin", message="Please fill in all book fields."))
@@ -462,18 +471,19 @@ def update_book(book_index):
     title = request.form.get("title", "").strip()
     author = request.form.get("author", "").strip()
     description = request.form.get("description", "").strip()
-    affiliate_url = request.form.get("affiliate_url", "").strip()
-    cover_url = request.form.get("cover_url", "").strip()
+    affiliate_url = normalize_url(request.form.get("affiliate_url", ""))
+    cover_url = normalize_url(request.form.get("cover_url", ""))
 
     if not all([title, author, description, affiliate_url]):
         return redirect(url_for("admin", message="Please complete all book fields to update."))
 
+    existing_cover = books[book_index].get("cover_url", "")
     books[book_index] = {
         "title": title,
         "author": author,
         "description": description,
         "affiliate_url": affiliate_url,
-        "cover_url": cover_url,
+        "cover_url": cover_url or existing_cover,
     }
     save_books(books)
     return redirect(url_for("admin", message="Book updated."))
