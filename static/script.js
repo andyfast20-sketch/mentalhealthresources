@@ -141,7 +141,11 @@ function initReadMore() {
   });
 }
 
-window.addEventListener('load', initReadMore);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initReadMore);
+} else {
+  initReadMore();
+}
 
 function openModal() {
   if (!charityModal) return;

@@ -777,6 +777,11 @@ body {
   margin-top: 6px;
 }
 
+.book-actions .btn {
+  position: relative;
+  z-index: 2;
+}
+
 .book-nav {
   position: absolute;
   top: 42%;
