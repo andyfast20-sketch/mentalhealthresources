@@ -20,6 +20,126 @@
         <div class="flash">{{ message }}</div>
         {% endif %}
     </div>
+    <div class="data-actions">
+        <form action="{{ url_for('snapshot_save') }}" method="post">
+            <button class="btn secondary" type="submit">Save data</button>
+        </form>
+        <form action="{{ url_for('snapshot_load') }}" method="post">
+            <button class="btn ghost" type="submit">Load data</button>
+        </form>
+    </div>
+    <div class="snapshot-grid">
+        {% if save_summary %}
+        <div class="snapshot-card">
+            <div class="panel-header compact">
+                <p class="eyebrow">Saved</p>
+                <h3>Latest save snapshot</h3>
+                <p class="lede">Here is what was written to local storage.</p>
+            </div>
+            <div class="table-scroll">
+                <table class="snapshot-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Charity</th>
+                            <th scope="col">Website</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for charity in save_summary.charities %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ charity.name }}</td>
+                            <td>
+                                {% if charity.site_url %}
+                                <a href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit</a>
+                                {% else %}
+                                <span class="muted">No link provided</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-scroll">
+                <table class="snapshot-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Book</th>
+                            <th scope="col">Author</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in save_summary.books %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ book.title }}</td>
+                            <td>{{ book.author or "—" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+        {% if load_summary %}
+        <div class="snapshot-card">
+            <div class="panel-header compact">
+                <p class="eyebrow">Loaded</p>
+                <h3>Latest load snapshot</h3>
+                <p class="lede">The items pulled from storage just now.</p>
+            </div>
+            <div class="table-scroll">
+                <table class="snapshot-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Charity</th>
+                            <th scope="col">Website</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for charity in load_summary.charities %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ charity.name }}</td>
+                            <td>
+                                {% if charity.site_url %}
+                                <a href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit</a>
+                                {% else %}
+                                <span class="muted">No link provided</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            <div class="table-scroll">
+                <table class="snapshot-table">
+                    <thead>
+                        <tr>
+                            <th scope="col">#</th>
+                            <th scope="col">Book</th>
+                            <th scope="col">Author</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in load_summary.books %}
+                        <tr>
+                            <td>{{ loop.index }}</td>
+                            <td>{{ book.title }}</td>
+                            <td>{{ book.author or "—" }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+    </div>
     <form class="admin-form" action="{{ url_for('add_charity') }}" method="post" enctype="multipart/form-data">
         <div class="form-grid">
             <label>

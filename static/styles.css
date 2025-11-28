@@ -1205,6 +1205,62 @@ body {
   overflow: hidden;
 }
 
+.data-actions {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 16px;
+  flex-wrap: wrap;
+}
+
+.snapshot-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.snapshot-card {
+  background: #0c1120;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 18px 44px rgba(12, 17, 32, 0.55);
+}
+
+.snapshot-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 320px;
+}
+
+.snapshot-table th,
+.snapshot-table td {
+  padding: 10px;
+  text-align: left;
+}
+
+.snapshot-table th {
+  font-size: 14px;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  color: #8ca2c0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.snapshot-table td {
+  font-size: 15px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.snapshot-table tbody tr:nth-child(even) {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.snapshot-card .table-scroll {
+  margin-bottom: 10px;
+}
+
 .btn.secondary {
   background: linear-gradient(120deg, #ffebd7, #f5b5d1);
   color: #2b1726;

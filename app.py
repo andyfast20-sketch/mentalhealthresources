@@ -464,11 +464,27 @@ def crisis_info():
     return render_template("crisis.html")
 
 
-@app.route("/admin")
-def admin():
+
+def build_dataset_summary(charities, books):
+    return {
+        "charities": [
+            {"name": charity.get("name", "Untitled"), "site_url": charity.get("site_url", "")}
+            for charity in charities
+        ],
+        "books": [
+            {
+                "title": book.get("title", "Untitled"),
+                "author": book.get("author", ""),
+                "affiliate_url": book.get("affiliate_url", ""),
+            }
+            for book in books
+        ],
+    }
+
+
+def render_admin_page(message=None, save_summary=None, load_summary=None):
     charities = load_charities()
     books = load_books()
-    message = request.args.get("message")
     total_book_interactions = sum(
         (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
         for book in books
@@ -486,7 +502,35 @@ def admin():
         books_with_covers=books_with_covers,
         books_without_covers=books_without_covers,
         books_per_row=books_per_row,
+        save_summary=save_summary,
+        load_summary=load_summary,
     )
+
+
+@app.route("/admin")
+def admin():
+    message = request.args.get("message")
+    return render_admin_page(message=message)
+
+
+@app.route("/admin/save-data", methods=["POST"])
+def snapshot_save():
+    charities = load_charities()
+    books = load_books()
+    save_charities(charities)
+    save_books(books)
+
+    save_summary = build_dataset_summary(charities, books)
+    return render_admin_page(message="Data saved locally.", save_summary=save_summary)
+
+
+@app.route("/admin/load-data", methods=["POST"])
+def snapshot_load():
+    charities = load_charities()
+    books = load_books()
+    load_summary = build_dataset_summary(charities, books)
+
+    return render_admin_page(message="Data loaded from storage.", load_summary=load_summary)
 
 
 @app.route("/admin/charities", methods=["POST"])
