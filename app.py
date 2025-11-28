@@ -10,11 +10,14 @@ app = Flask(__name__)
 
 BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
-LOCAL_DATA_DIR = BASE_DIR / "local_data"
+LOCAL_DATA_DIR = Path.home() / ".mentalhealthresources"
+LEGACY_LOCAL_DATA_DIR = BASE_DIR / "local_data"
 CHARITIES_FILE = DATA_DIR / "charities.json"
 BOOKS_FILE = DATA_DIR / "books.json"
 LOCAL_CHARITIES_FILE = LOCAL_DATA_DIR / "charities.json"
 LOCAL_BOOKS_FILE = LOCAL_DATA_DIR / "books.json"
+LEGACY_LOCAL_CHARITIES_FILE = LEGACY_LOCAL_DATA_DIR / "charities.json"
+LEGACY_LOCAL_BOOKS_FILE = LEGACY_LOCAL_DATA_DIR / "books.json"
 UPLOAD_DIR = Path("static/uploads")
 ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
 
@@ -86,6 +89,51 @@ DEFAULT_BOOKS = [
         "view_count": 0,
         "scroll_count": 0,
     },
+    {
+        "title": "Emotional Agility",
+        "author": "Susan David",
+        "description": "Science-backed tools to navigate emotions with curiosity and courage instead of getting stuck.",
+        "affiliate_url": "https://amzn.to/3WOO5RW",
+        "cover_url": "https://m.media-amazon.com/images/I/71kN7vR-4cL._SL1500_.jpg",
+        "view_count": 0,
+        "scroll_count": 0,
+    },
+    {
+        "title": "The Happiness Trap",
+        "author": "Russ Harris",
+        "description": "An introduction to Acceptance and Commitment Therapy that shows how to unhook from unhelpful thoughts.",
+        "affiliate_url": "https://amzn.to/4c8gZNh",
+        "cover_url": "https://m.media-amazon.com/images/I/71K9CsgY1QL._SL1500_.jpg",
+        "view_count": 0,
+        "scroll_count": 0,
+    },
+    {
+        "title": "What Happened to You?",
+        "author": "Bruce D. Perry & Oprah Winfrey",
+        "description": "A compassionate conversation about trauma, resilience, and the healing power of understanding.",
+        "affiliate_url": "https://amzn.to/3KMV3r9",
+        "cover_url": "https://m.media-amazon.com/images/I/81xG0LknQ+L._SL1500_.jpg",
+        "view_count": 0,
+        "scroll_count": 0,
+    },
+    {
+        "title": "The Comfort Book",
+        "author": "Matt Haig",
+        "description": "Short, soothing reflections and reminders that hope can be found in small, everyday moments.",
+        "affiliate_url": "https://amzn.to/3KJP3qH",
+        "cover_url": "https://m.media-amazon.com/images/I/71lz6h6hysL._SL1500_.jpg",
+        "view_count": 0,
+        "scroll_count": 0,
+    },
+    {
+        "title": "Self-Compassion",
+        "author": "Kristin Neff",
+        "description": "Practical exercises for treating yourself with the same kindness you offer others.",
+        "affiliate_url": "https://amzn.to/3WUgJRl",
+        "cover_url": "https://m.media-amazon.com/images/I/71pPpM9VfNL._SL1500_.jpg",
+        "view_count": 0,
+        "scroll_count": 0,
+    },
 ]
 
 
@@ -94,7 +142,7 @@ def ensure_data_dir():
 
 
 def ensure_local_data_dir():
-    LOCAL_DATA_DIR.mkdir(exist_ok=True)
+    LOCAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
 def ensure_upload_dir():
@@ -135,9 +183,22 @@ def delete_logo_file(logo_url):
         file_path.unlink()
 
 
+def migrate_legacy_data(legacy_path, new_path):
+    if new_path.exists() or not legacy_path.exists():
+        return
+
+    new_path.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        new_path.write_bytes(legacy_path.read_bytes())
+    except OSError:
+        return
+
+
 def load_charities():
     ensure_local_data_dir()
     ensure_data_dir()
+
+    migrate_legacy_data(LEGACY_LOCAL_CHARITIES_FILE, LOCAL_CHARITIES_FILE)
 
     for source in (LOCAL_CHARITIES_FILE, CHARITIES_FILE):
         if source.exists():
@@ -163,6 +224,8 @@ def save_charities(charities):
 def load_books():
     ensure_local_data_dir()
     ensure_data_dir()
+
+    migrate_legacy_data(LEGACY_LOCAL_BOOKS_FILE, LOCAL_BOOKS_FILE)
 
     books = None
     for source in (LOCAL_BOOKS_FILE, BOOKS_FILE):
