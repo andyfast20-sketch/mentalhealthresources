@@ -21,7 +21,7 @@ const bookModalCover = document.querySelector('[data-book-modal-cover]');
 const bookModalCoverWrapper = document.querySelector('[data-book-modal-cover-wrapper]');
 const bookModalCoverFallback = document.querySelector('[data-book-modal-cover-fallback]');
 const bookModalLink = document.querySelector('[data-book-modal-link]');
-const bookDetailButtons = Array.from(document.querySelectorAll('[data-book-detail]'));
+const bookTriggerButtons = Array.from(document.querySelectorAll('[data-book-trigger]'));
 const bookModalCloseButtons = Array.from(document.querySelectorAll('[data-book-modal-close]'));
 const crisisVolume = document.querySelector('[data-crisis-volume]');
 const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
@@ -229,7 +229,7 @@ function closeBookModal() {
   updateBodyModalLock();
 }
 
-bookDetailButtons.forEach((button) => {
+bookTriggerButtons.forEach((button) => {
   button.addEventListener('click', () => {
     openBookModalFromCard(button.closest('.book-card'), button);
   });

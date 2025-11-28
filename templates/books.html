@@ -31,12 +31,9 @@
                 <p class="eyebrow">{{ book.author }}</p>
                 <h3>{{ book.title }}</h3>
                 <p class="body book-description">{{ book.description }}</p>
-                <button type="button" class="btn tiny book-detail-trigger" data-book-detail aria-expanded="false">
-                    View details
-                </button>
             </div>
             <div class="book-actions">
-                <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
+                <button class="btn tiny" type="button" data-book-trigger aria-expanded="false">View book</button>
                 <div class="halo"></div>
             </div>
         </article>
