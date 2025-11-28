@@ -1641,6 +1641,31 @@ body {
   border-color: rgba(245, 163, 181, 0.4);
 }
 
+.crisis-hero-video {
+  display: grid;
+  gap: 8px;
+  padding: 10px;
+  border: 1px solid rgba(95, 51, 74, 0.08);
+  border-radius: 14px;
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.85), rgba(252, 240, 248, 0.75));
+}
+
+.crisis-hero-video__frame {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  box-shadow: 0 12px 28px rgba(39, 19, 33, 0.18);
+  background: radial-gradient(circle at 40% 40%, rgba(255, 244, 251, 0.6), rgba(146, 78, 107, 0.2));
+}
+
+.crisis-hero-video__frame iframe {
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}
+
 .grounding-list {
   list-style: none;
   padding: 0;
