@@ -23,12 +23,17 @@ const bookModalCoverFallback = document.querySelector('[data-book-modal-cover-fa
 const bookModalLink = document.querySelector('[data-book-modal-link]');
 const bookTriggerButtons = Array.from(document.querySelectorAll('[data-book-trigger]'));
 const bookModalCloseButtons = Array.from(document.querySelectorAll('[data-book-modal-close]'));
+const adminBookModal = document.querySelector('[data-admin-book-modal]');
+const adminBookForm = document.querySelector('[data-admin-book-form]');
+const adminBookCloseButtons = Array.from(document.querySelectorAll('[data-admin-book-modal-close]'));
+const adminBookEditTriggers = Array.from(document.querySelectorAll('[data-admin-book-edit-trigger]'));
 const crisisVolume = document.querySelector('[data-crisis-volume]');
 const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
 let slideIndex = 0;
 let slideWidth = 0;
 let crisisPlayer;
 let activeBookTrigger = null;
+let activeAdminTrigger = null;
 
 function applyFilter(tag) {
   cards.forEach((card) => {
@@ -161,7 +166,10 @@ if (window.YT && typeof window.YT.Player === 'function') {
 }
 
 function updateBodyModalLock() {
-  const hasOpenModal = charityModal?.classList.contains('is-open') || bookModal?.classList.contains('is-open');
+  const hasOpenModal =
+    charityModal?.classList.contains('is-open') ||
+    bookModal?.classList.contains('is-open') ||
+    adminBookModal?.classList.contains('is-open');
   document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
 }
 
@@ -243,6 +251,50 @@ bookModal?.addEventListener('click', (event) => {
   }
 });
 
+function populateAdminBookForm(trigger) {
+  if (!adminBookForm || !trigger) return;
+  adminBookForm.action = trigger.dataset.action || adminBookForm.action;
+  const titleInput = adminBookForm.querySelector('input[name="title"]');
+  const authorInput = adminBookForm.querySelector('input[name="author"]');
+  const descriptionInput = adminBookForm.querySelector('textarea[name="description"]');
+  const affiliateInput = adminBookForm.querySelector('input[name="affiliate_url"]');
+  const coverInput = adminBookForm.querySelector('input[name="cover_url"]');
+
+  if (titleInput) titleInput.value = trigger.dataset.title || '';
+  if (authorInput) authorInput.value = trigger.dataset.author || '';
+  if (descriptionInput) descriptionInput.value = trigger.dataset.description || '';
+  if (affiliateInput) affiliateInput.value = trigger.dataset.affiliateUrl || '';
+  if (coverInput) coverInput.value = trigger.dataset.coverUrl || '';
+}
+
+function openAdminBookModal(trigger) {
+  if (!adminBookModal) return;
+  activeAdminTrigger = trigger;
+  populateAdminBookForm(trigger);
+  adminBookModal.classList.add('is-open');
+  updateBodyModalLock();
+  adminBookForm?.querySelector('input[name="title"]')?.focus();
+}
+
+function closeAdminBookModal() {
+  if (!adminBookModal) return;
+  adminBookModal.classList.remove('is-open');
+  activeAdminTrigger = null;
+  updateBodyModalLock();
+}
+
+adminBookEditTriggers.forEach((trigger) => {
+  trigger.addEventListener('click', () => openAdminBookModal(trigger));
+});
+
+adminBookCloseButtons.forEach((button) => button.addEventListener('click', closeAdminBookModal));
+
+adminBookModal?.addEventListener('click', (event) => {
+  if (event.target === adminBookModal) {
+    closeAdminBookModal();
+  }
+});
+
 function openModal() {
   if (!charityModal) return;
   charityModal.classList.add('is-open');
@@ -267,6 +319,7 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     if (charityModal?.classList.contains('is-open')) closeModal();
     if (bookModal?.classList.contains('is-open')) closeBookModal();
+    if (adminBookModal?.classList.contains('is-open')) closeAdminBookModal();
   }
 });
 

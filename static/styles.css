@@ -960,6 +960,12 @@ body {
   visibility: visible;
 }
 
+.admin-edit-modal {
+  background: radial-gradient(circle at 25% 20%, rgba(255, 245, 232, 0.8), transparent 36%),
+    radial-gradient(circle at 80% 20%, rgba(209, 235, 255, 0.6), transparent 44%),
+    radial-gradient(circle at 50% 80%, rgba(240, 219, 255, 0.7), transparent 38%), rgba(25, 10, 22, 0.6);
+}
+
 .book-modal-backdrop {
   background: radial-gradient(circle at 20% 20%, rgba(255, 233, 245, 0.85), transparent 42%),
     radial-gradient(circle at 80% 20%, rgba(179, 210, 255, 0.65), transparent 46%), rgba(25, 10, 22, 0.7);
@@ -975,6 +981,13 @@ body {
   box-shadow: 0 24px 60px rgba(55, 12, 36, 0.2);
   padding: 20px 22px;
   position: relative;
+}
+
+.admin-modal {
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(255, 247, 240, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.92);
+  box-shadow: 0 26px 70px rgba(54, 19, 35, 0.28);
+  overflow: hidden;
 }
 
 .book-modal {
@@ -1094,6 +1107,17 @@ body {
 
 .modal-open {
   overflow: hidden;
+}
+
+.btn.secondary {
+  background: linear-gradient(120deg, #ffebd7, #f5b5d1);
+  color: #2b1726;
+  box-shadow: 0 14px 28px rgba(235, 164, 171, 0.32);
+}
+
+.btn.secondary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 18px 34px rgba(235, 164, 171, 0.35);
 }
 
 .btn.tiny {
