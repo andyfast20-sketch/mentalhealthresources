@@ -2928,9 +2928,9 @@ body {
   opacity: 0.9;
   border-radius: 50%;
   transform: translate(-50%, -50%) scale(0.6);
-  animation: dissolve 4.6s ease forwards;
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12);
-  z-index: 2;
+  animation: dissolve 7s ease forwards, float 6s ease-in-out infinite alternate;
+  box-shadow: 0 18px 42px rgba(0, 0, 0, 0.14), 0 0 0 8px rgba(255, 255, 255, 0.2);
+  z-index: 3;
 }
 
 .pool-drop::after {
@@ -2942,6 +2942,34 @@ body {
   color: #1e2442;
   font-weight: 700;
   opacity: 0.8;
+}
+
+.pool-ripple {
+  position: absolute;
+  width: var(--drop-size, 120px);
+  height: var(--drop-size, 120px);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.65) 0%, transparent 55%), transparent;
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.24), 0 0 0 12px rgba(106, 169, 247, 0.12);
+  opacity: 0.9;
+  z-index: 2;
+  animation: rippleWave 7s ease-out forwards;
+  mix-blend-mode: screen;
+}
+
+.pool-spark {
+  position: absolute;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #fff, var(--spark-colour, #c28bf2));
+  box-shadow: 0 0 0 6px rgba(255, 255, 255, 0.18);
+  filter: blur(0.4px);
+  transform: translate(-50%, -50%) scale(0.5);
+  z-index: 4;
+  animation: sparkDance 2.6s ease-out forwards;
+  animation-delay: var(--spark-delay, 0ms);
 }
 
 @keyframes dissolve {
@@ -2962,6 +2990,59 @@ body {
     transform: translate(-50%, -50%) scale(1.35);
     opacity: 0;
     filter: blur(10px);
+  }
+}
+
+@keyframes rippleWave {
+  0% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0.95;
+    box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.4), 0 0 0 10px rgba(106, 169, 247, 0.22);
+  }
+  40% {
+    opacity: 0.7;
+  }
+  90% {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0.35;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.9);
+    opacity: 0;
+    box-shadow: 0 0 0 28px rgba(255, 255, 255, 0);
+  }
+}
+
+@keyframes float {
+  0% {
+    transform: translate(-50%, -50%) scale(0.9) translateY(0px);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1) translateY(-4px);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.96) translateY(2px);
+  }
+}
+
+@keyframes sparkDance {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.3) rotate(0deg);
+  }
+  20% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.9) rotate(6deg);
+  }
+  70% {
+    opacity: 0.8;
+    transform: translate(-50%, -50%) scale(1) rotate(-6deg);
+    filter: blur(0px);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(1.1) translateY(6px);
+    filter: blur(4px);
   }
 }
 

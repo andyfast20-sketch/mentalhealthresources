@@ -744,21 +744,41 @@ function updateDropStatus(message) {
 
 function createPoolDrop(emotion, colour, clientX = null) {
   if (!poolWater || !colourPool) return;
-  const drop = document.createElement('span');
-  drop.className = 'pool-drop';
-  drop.dataset.emotion = emotion;
-  drop.style.setProperty('--drop-colour', colour);
-
   const rect = poolWater.getBoundingClientRect();
   const leftPercent = clientX ? clamp(((clientX - rect.left) / rect.width) * 100, 6, 94) : 50;
   const topPercent = clamp(36 + Math.random() * 28, 28, 78);
   const size = clamp(48 + Math.random() * 36, 48, 96);
+
+  const ripple = document.createElement('span');
+  ripple.className = 'pool-ripple';
+  ripple.style.left = `${leftPercent}%`;
+  ripple.style.top = `${topPercent}%`;
+  ripple.style.setProperty('--drop-size', `${size * 2.2}px`);
+  ripple.style.setProperty('--ripple-colour', colour);
+  poolWater.appendChild(ripple);
+  ripple.addEventListener('animationend', () => ripple.remove());
+
+  const drop = document.createElement('span');
+  drop.className = 'pool-drop';
+  drop.dataset.emotion = emotion;
+  drop.style.setProperty('--drop-colour', colour);
   drop.style.left = `${leftPercent}%`;
   drop.style.top = `${topPercent}%`;
   drop.style.setProperty('--drop-size', `${size}px`);
 
   poolWater.appendChild(drop);
   drop.addEventListener('animationend', () => drop.remove());
+
+  Array.from({ length: 6 }).forEach((_, index) => {
+    const sparkle = document.createElement('span');
+    sparkle.className = 'pool-spark';
+    sparkle.style.left = `${clamp(leftPercent + (Math.random() - 0.5) * 22, 8, 92)}%`;
+    sparkle.style.top = `${clamp(topPercent + (Math.random() - 0.5) * 20, 22, 86)}%`;
+    sparkle.style.setProperty('--spark-colour', colour);
+    sparkle.style.setProperty('--spark-delay', `${index * 90}ms`);
+    poolWater.appendChild(sparkle);
+    sparkle.addEventListener('animationend', () => sparkle.remove());
+  });
 
   const affirmation = releaseAffirmations[Math.floor(Math.random() * releaseAffirmations.length)];
   const cue = nextBreathCue();
