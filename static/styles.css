@@ -536,16 +536,22 @@ body {
 .resource-ribbon {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 12px;
+  gap: 14px;
+  align-items: stretch;
 }
 
 .ribbon-card {
-  padding: 16px;
+  padding: 18px 18px 16px;
   border-radius: var(--radius);
   border: 1px solid rgba(255, 255, 255, 0.58);
   box-shadow: var(--shadow);
   position: relative;
   overflow: hidden;
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: start;
+  min-height: 130px;
 }
 
 .soft-card {
@@ -563,6 +569,39 @@ body {
 
 .gradient-card {
   background: linear-gradient(120deg, rgba(245, 163, 181, 0.35), rgba(233, 188, 255, 0.42));
+}
+
+.ribbon-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.6);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+  font-size: 22px;
+}
+
+.ribbon-copy {
+  display: grid;
+  gap: 6px;
+}
+
+.ribbon-copy .lede {
+  margin: 0;
+  color: var(--muted);
+}
+
+.always-on {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.78), rgba(236, 244, 255, 0.76));
+}
+
+.fresh-drops {
+  background: linear-gradient(135deg, rgba(245, 163, 181, 0.26), rgba(233, 188, 255, 0.3));
+}
+
+.browse-topics {
+  background: linear-gradient(135deg, rgba(236, 248, 241, 0.78), rgba(214, 231, 255, 0.72));
 }
 
 .attachment-board {
