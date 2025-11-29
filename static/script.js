@@ -893,7 +893,6 @@ function initFloatingPlayer() {
         try {
           event.target.unMute();
           event.target.setVolume(100);
-          event.target.playVideo();
         } catch (error) {
           console.error('Unable to start floating video audio', error);
         }
@@ -913,7 +912,7 @@ function initFloatingPlayer() {
       },
     },
     playerVars: {
-      autoplay: 1,
+      autoplay: 0,
       mute: 0,
       loop: 0,
       rel: 0,
