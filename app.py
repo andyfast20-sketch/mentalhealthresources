@@ -476,14 +476,12 @@ def index():
     featured_charities = random.sample(charities, min(3, len(charities))) if charities else []
     books = load_books()
     books = books_with_indices(books)
-    calming_tools = calming_tools_with_counts()
     return render_template(
         "home.html",
         resources=RESOURCES,
         charities=featured_charities,
         all_charities=charities,
         books=books,
-        calming_tools=calming_tools,
     )
 
 
