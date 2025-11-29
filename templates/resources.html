@@ -15,37 +15,72 @@
 {% endblock %}
 
 {% block content %}
-<section class="panel">
-    <div class="tag-row" id="tag-row">
-        <button class="tag" data-tag="urgent">urgent</button>
-        <button class="tag" data-tag="therapy">therapy</button>
-        <button class="tag" data-tag="mindfulness">mindfulness</button>
-        <button class="tag" data-tag="community">community</button>
-        <button class="tag" data-tag="education">education</button>
-        <button class="tag" data-tag="apps">apps</button>
-        <button class="tag" data-tag="family">family</button>
+<section class="panel resource-panel">
+    <div class="panel-header resource-header">
+        <div class="resource-title">
+            <p class="eyebrow">Navigate with ease</p>
+            <h2>Follow the energy that fits your moment.</h2>
+            <p class="lede">Choose a vibe, hit reset at any time, and explore beautifully curated support with zero overwhelm.</p>
+        </div>
+        <div class="resource-ribbon">
+            <div class="ribbon-card glassy">
+                <p class="eyebrow">Always On</p>
+                <p class="lede">Emergency-ready, trusted sources, people-first.</p>
+            </div>
+            <div class="ribbon-card gradient-card">
+                <p class="eyebrow">Fresh Drops</p>
+                <p class="lede">New peer stories, calming tools, and therapists weekly.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="filters-card">
+        <div class="filters-copy">
+            <h3>Filter by feeling</h3>
+            <p class="body">Tap a tag to jump straight to the resources that match your current headspace. Reset brings everything back.</p>
+            <button class="pill" id="filter-reset" aria-label="Reset filters">Reset Filters</button>
+        </div>
+        <div class="tag-rail" aria-label="Resource filters">
+            <div class="tag-row" id="tag-row">
+                <button class="tag" data-tag="urgent">urgent</button>
+                <button class="tag" data-tag="therapy">therapy</button>
+                <button class="tag" data-tag="mindfulness">mindfulness</button>
+                <button class="tag" data-tag="community">community</button>
+                <button class="tag" data-tag="education">education</button>
+                <button class="tag" data-tag="apps">apps</button>
+                <button class="tag" data-tag="family">family</button>
+            </div>
+            <p class="microcopy">You can combine the tags with your own pace—hover cards for a little sparkle.</p>
+        </div>
     </div>
 </section>
 
-<section id="resources" class="resource-grid">
-    {% for res in resources %}
-    <article class="resource-card" data-tags="{{ res.tags|join(' ') }}">
-        <div class="card-header">
-            <div class="dot"></div>
-            <h3>{{ res.title }}</h3>
-        </div>
-        <p class="body">{{ res.description }}</p>
-        <div class="links">
-            {% for link in res.links %}
-            <a href="{{ link.url }}" target="_blank" rel="noopener" class="link">{{ link.label }}</a>
-            {% endfor %}
-        </div>
-        <div class="chip-row">
-            {% for tag in res.tags %}
-            <span class="chip">{{ tag }}</span>
-            {% endfor %}
-        </div>
-    </article>
-    {% endfor %}
+<section id="resources" class="resource-grid-shell">
+    <div class="resource-grid">
+        {% for res in resources %}
+        <article class="resource-card" data-tags="{{ res.tags|join(' ') }}">
+            <div class="card-glow"></div>
+            <div class="card-header">
+                <div class="dot"></div>
+                <div class="card-heading">
+                    <p class="eyebrow">Featured</p>
+                    <h3>{{ res.title }}</h3>
+                </div>
+                <span class="card-pill">Saved</span>
+            </div>
+            <p class="body">{{ res.description }}</p>
+            <div class="links">
+                {% for link in res.links %}
+                <a href="{{ link.url }}" target="_blank" rel="noopener" class="link">{{ link.label }}</a>
+                {% endfor %}
+            </div>
+            <div class="chip-row">
+                {% for tag in res.tags %}
+                <span class="chip">{{ tag }}</span>
+                {% endfor %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
 </section>
 {% endblock %}
