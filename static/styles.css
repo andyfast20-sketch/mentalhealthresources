@@ -653,6 +653,36 @@ body {
   font-size: 14px;
 }
 
+.resource-video {
+  margin: 22px 0;
+  padding: clamp(14px, 3vw, 20px);
+  border-radius: calc(var(--radius) + 2px);
+  background: linear-gradient(135deg, rgba(229, 241, 255, 0.65), rgba(245, 163, 181, 0.32));
+  border: 1px solid rgba(95, 58, 69, 0.12);
+  box-shadow: 0 16px 40px rgba(95, 58, 69, 0.12);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: clamp(12px, 3vw, 20px);
+  align-items: center;
+}
+
+.resource-video__copy h3 {
+  margin: 6px 0 8px;
+}
+
+.resource-video__copy p {
+  margin: 0;
+}
+
+.resource-video__player video {
+  width: 100%;
+  max-width: 640px;
+  border-radius: 16px;
+  box-shadow: var(--shadow);
+  display: block;
+  border: 1px solid rgba(255, 255, 255, 0.7);
+}
+
 .filters-card {
   margin-top: 18px;
   padding: 18px;
