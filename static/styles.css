@@ -1632,6 +1632,122 @@ body {
   background: #f8f6ff;
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+.charity-table-wrapper {
+  margin-top: 18px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(245, 163, 181, 0.18), rgba(95, 183, 255, 0.12));
+  padding: 12px;
+  border: 1px solid rgba(113, 64, 77, 0.16);
+  box-shadow: 0 12px 30px rgba(233, 168, 169, 0.25);
+}
+
+.charity-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  min-width: 720px;
+  background: rgba(255, 255, 255, 0.96);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.charity-table th,
+.charity-table td {
+  padding: 14px;
+  text-align: left;
+  border-bottom: 1px solid #f0e7f7;
+}
+
+.charity-table th {
+  font-weight: 800;
+  color: #3d2c55;
+  background: rgba(245, 163, 181, 0.14);
+}
+
+.charity-table tbody tr:nth-child(even) {
+  background: #fdf9ff;
+}
+
+.charity-table tbody tr:hover {
+  background: linear-gradient(120deg, rgba(245, 163, 181, 0.12), rgba(95, 183, 255, 0.12));
+}
+
+.charity-table .table-title {
+  font-weight: 800;
+  color: #2f1f40;
+  margin-bottom: 6px;
+}
+
+.charity-table .body {
+  margin: 0 0 6px 0;
+  color: #3f304e;
+}
+
+.charity-table .inline-link {
+  font-weight: 700;
+  color: #2f80ed;
+  text-decoration: none;
+}
+
+.charity-table .inline-link:hover {
+  text-decoration: underline;
+}
+
+.charity-table-cell {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 12px;
+  align-items: center;
+}
+
+.charity-logo.small {
+  width: 48px;
+  height: 48px;
+  box-shadow: 0 8px 18px rgba(195, 122, 117, 0.16);
+}
+
+.charity-availability {
+  text-align: center;
+  font-size: 20px;
+  font-weight: 800;
+  color: #2f924c;
+}
+
+.charity-availability .dash {
+  color: #9f8cb8;
+}
+
+.tick {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 30% 30%, rgba(95, 183, 255, 0.28), rgba(47, 146, 76, 0.16));
+  color: #127c3a;
+  box-shadow: 0 8px 18px rgba(18, 124, 58, 0.18);
+}
+
+.admin-preview-table {
+  margin-top: 12px;
+}
+
+.aspect-config {
+  margin-top: 18px;
+}
+
 .charity-top {
   display: flex;
   align-items: center;
@@ -2022,6 +2138,45 @@ body {
 
 .admin-form textarea {
   resize: vertical;
+}
+
+.aspect-fieldset {
+  border: 1px dashed rgba(113, 64, 77, 0.26);
+  border-radius: 12px;
+  padding: 12px;
+  display: grid;
+  gap: 10px;
+  background: rgba(255, 255, 255, 0.8);
+}
+
+.aspect-fieldset legend {
+  font-weight: 700;
+  color: #3b2537;
+  padding: 0 6px;
+}
+
+.aspect-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.toggle-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: linear-gradient(120deg, rgba(245, 163, 181, 0.2), rgba(95, 183, 255, 0.18));
+  border: 1px solid rgba(113, 64, 77, 0.16);
+  font-weight: 600;
+  color: #3c2b4e;
+}
+
+.toggle-pill input {
+  accent-color: #f58fb3;
+  width: 16px;
+  height: 16px;
 }
 
 .flash {
