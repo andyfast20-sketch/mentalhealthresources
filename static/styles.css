@@ -1652,11 +1652,12 @@ body {
   box-shadow: 0 12px 30px rgba(233, 168, 169, 0.25);
 }
 
+
 .charity-table {
   width: 100%;
   border-collapse: separate;
   border-spacing: 0;
-  min-width: 720px;
+  min-width: 620px;
   background: rgba(255, 255, 255, 0.96);
   border-radius: 12px;
   overflow: hidden;
@@ -1664,14 +1665,15 @@ body {
 
 .charity-table th,
 .charity-table td {
-  padding: 14px;
+  padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid #f0e7f7;
+  font-size: 14px;
 }
 
 .charity-table th:first-child,
 .charity-table td:first-child {
-  width: 42%;
+  width: 38%;
 }
 
 .charity-table th {
@@ -1691,12 +1693,14 @@ body {
 .charity-table .table-title {
   font-weight: 800;
   color: #2f1f40;
-  margin-bottom: 6px;
+  margin-bottom: 4px;
 }
 
 .charity-table .body {
-  margin: 0 0 6px 0;
+  margin: 0 0 4px 0;
   color: #3f304e;
+  font-size: 14px;
+  line-height: 1.4;
 }
 
 .charity-table .inline-link {
@@ -1712,7 +1716,7 @@ body {
 .charity-table-cell {
   display: grid;
   grid-template-columns: auto 1fr;
-  gap: 12px;
+  gap: 10px;
   align-items: center;
 }
 
@@ -1724,7 +1728,7 @@ body {
 
 .charity-availability {
   text-align: center;
-  font-size: 20px;
+  font-size: 18px;
   font-weight: 800;
   color: #2f924c;
 }
@@ -1737,8 +1741,8 @@ body {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 30px;
-  height: 30px;
+  width: 24px;
+  height: 24px;
   border-radius: 50%;
   background: radial-gradient(circle at 30% 30%, rgba(95, 183, 255, 0.28), rgba(47, 146, 76, 0.16));
   color: #127c3a;
