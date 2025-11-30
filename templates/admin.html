@@ -28,6 +28,23 @@
             <button class="btn ghost" type="submit">Load data</button>
         </form>
     </div>
+    <div class="table-scroll aspect-config">
+        <div class="panel-header compact">
+            <p class="eyebrow">Charity table</p>
+            <h3>Choose what visitors see</h3>
+            <p class="lede">Set the columns for the public charity table. Add or remove aspects like helplines, chat, or peer support.</p>
+        </div>
+        <form class="admin-form compact" action="{{ url_for('update_charity_aspects') }}" method="post">
+            <label>
+                <span>Comma-separated list of aspects</span>
+                <textarea name="aspect_list" rows="2" placeholder="Website, Helpline, Live Chat">{{ charity_aspects | join(', ') }}</textarea>
+            </label>
+            <div class="form-actions">
+                <button class="btn tiny" type="submit">Update columns</button>
+                <span class="helper">Applies instantly to the public table and the forms below.</span>
+            </div>
+        </form>
+    </div>
     <div class="snapshot-grid">
         {% if save_summary %}
         <div class="snapshot-card">
@@ -163,6 +180,18 @@
             <span>Website link</span>
             <input type="url" name="site_url" placeholder="https://charity.org" required />
         </label>
+        <fieldset class="aspect-fieldset">
+            <legend>Services to highlight</legend>
+            <div class="aspect-options">
+                {% for aspect in charity_aspects %}
+                <label class="toggle-pill">
+                    <input type="checkbox" name="aspect_{{ aspect | lower | replace(' ', '-') }}" {% if aspect.lower() == 'website' %}checked{% endif %} />
+                    <span>{{ aspect }}</span>
+                </label>
+                {% endfor %}
+            </div>
+            <p class="helper">Checked items appear as ticks for visitors.</p>
+        </fieldset>
         <button class="btn" type="submit">Add charity</button>
     </form>
 </section>
@@ -218,6 +247,17 @@
                             <input type="url" name="logo_url" value="{{ charity.logo_url }}" />
                         </label>
                     </div>
+                    <fieldset class="aspect-fieldset">
+                        <legend>Services to highlight</legend>
+                        <div class="aspect-options">
+                            {% for aspect in charity_aspects %}
+                            <label class="toggle-pill">
+                                <input type="checkbox" name="aspect_{{ aspect | lower | replace(' ', '-') }}" {% if charity.aspects and charity.aspects.get(aspect) %}checked{% endif %} />
+                                <span>{{ aspect }}</span>
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </fieldset>
                     <div class="form-actions">
                         <button class="btn tiny" type="submit">Save changes</button>
                         <span class="helper">Existing logos stay in place if you leave this blank.</span>
@@ -226,6 +266,45 @@
             </details>
         </article>
         {% endfor %}
+    </div>
+    <div class="table-scroll charity-table-wrapper">
+        <table class="charity-table admin-preview-table">
+            <caption class="sr-only">Preview of how charities will appear to visitors</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Organization</th>
+                    {% for aspect in charity_aspects %}
+                    <th scope="col">{{ aspect }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for charity in charities %}
+                <tr>
+                    <td>
+                        <div class="charity-table-cell">
+                            <div class="charity-logo small" aria-hidden="true">
+                                <img src="{{ charity.logo_url }}" alt="{{ charity.name }} logo" loading="lazy" />
+                            </div>
+                            <div>
+                                <div class="table-title">{{ charity.name }}</div>
+                                <p class="body">{{ charity.description }}</p>
+                            </div>
+                        </div>
+                    </td>
+                    {% for aspect in charity_aspects %}
+                    <td class="charity-availability">
+                        {% if charity.aspects and charity.aspects.get(aspect) %}
+                        <span class="tick" aria-label="Yes">✓</span>
+                        {% else %}
+                        <span class="dash" aria-label="No">—</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </section>
 

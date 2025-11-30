@@ -21,6 +21,8 @@ LEGACY_LOCAL_BOOKS_FILE = LEGACY_LOCAL_DATA_DIR / "books.json"
 CALMING_COUNTS_FILE = LOCAL_DATA_DIR / "calming_counts.json"
 UPLOAD_DIR = Path("static/uploads")
 ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
+CHARITY_ASPECTS_FILE = DATA_DIR / "charity_aspects.json"
+LOCAL_CHARITY_ASPECTS_FILE = LOCAL_DATA_DIR / "charity_aspects.json"
 
 
 DEFAULT_CHARITIES = [
@@ -42,6 +44,14 @@ DEFAULT_CHARITIES = [
         "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/The_Trevor_Project_logo.svg/320px-The_Trevor_Project_logo.svg.png",
         "site_url": "https://www.thetrevorproject.org/",
     },
+]
+
+DEFAULT_CHARITY_ASPECTS = [
+    "Website",
+    "Helpline",
+    "Live Chat",
+    "Textline",
+    "Resource Library",
 ]
 
 DEFAULT_BOOKS = [
@@ -188,6 +198,54 @@ def delete_logo_file(logo_url):
         file_path.unlink()
 
 
+def save_charity_aspects(aspects):
+    ensure_local_data_dir()
+    with LOCAL_CHARITY_ASPECTS_FILE.open("w") as f:
+        json.dump(aspects, f, indent=2)
+
+
+def load_charity_aspects():
+    ensure_local_data_dir()
+    ensure_data_dir()
+
+    for source in (LOCAL_CHARITY_ASPECTS_FILE, CHARITY_ASPECTS_FILE):
+        if source.exists():
+            try:
+                with source.open() as f:
+                    aspects = json.load(f)
+                if isinstance(aspects, list) and aspects:
+                    cleaned = []
+                    seen = set()
+                    for aspect in aspects:
+                        label = str(aspect).strip()
+                        if label and label not in seen:
+                            cleaned.append(label)
+                            seen.add(label)
+                    if cleaned:
+                        save_charity_aspects(cleaned)
+                        return cleaned
+            except json.JSONDecodeError:
+                continue
+
+    save_charity_aspects(DEFAULT_CHARITY_ASPECTS)
+    return DEFAULT_CHARITY_ASPECTS
+
+
+def parse_charity_aspects(form, aspects):
+    return {aspect: form.get(f"aspect_{slugify(aspect)}") == "on" for aspect in aspects}
+
+
+def ensure_charity_aspects(charities, aspects):
+    for charity in charities:
+        current = charity.get("aspects") or {}
+        normalized = {}
+        for aspect in aspects:
+            default_value = aspect.lower() == "website" and bool(charity.get("site_url"))
+            normalized[aspect] = bool(current.get(aspect, default_value))
+        charity["aspects"] = normalized
+    return charities
+
+
 def migrate_legacy_data(legacy_path, new_path):
     if new_path.exists() or not legacy_path.exists():
         return
@@ -205,6 +263,8 @@ def load_charities():
 
     migrate_legacy_data(LEGACY_LOCAL_CHARITIES_FILE, LOCAL_CHARITIES_FILE)
 
+    charity_aspects = load_charity_aspects()
+
     for source in (LOCAL_CHARITIES_FILE, CHARITIES_FILE):
         if source.exists():
             try:
@@ -216,6 +276,7 @@ def load_charities():
     else:
         charities = DEFAULT_CHARITIES.copy()
 
+    ensure_charity_aspects(charities, charity_aspects)
     save_charities(charities)
     return charities
 
@@ -575,7 +636,8 @@ def index():
 @app.route("/charities")
 def charities():
     charities = load_charities()
-    return render_template("charities.html", charities=charities)
+    charity_aspects = load_charity_aspects()
+    return render_template("charities.html", charities=charities, charity_aspects=charity_aspects)
 
 
 @app.route("/books")
@@ -648,6 +710,7 @@ def build_dataset_summary(charities, books):
 def render_admin_page(message=None, save_summary=None, load_summary=None):
     charities = load_charities()
     books = load_books()
+    charity_aspects = load_charity_aspects()
     calming_tools = calming_tools_with_counts()
     total_book_interactions = sum(
         (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
@@ -667,6 +730,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         books_without_covers=books_without_covers,
         books_per_row=books_per_row,
         calming_tools=calming_tools,
+        charity_aspects=charity_aspects,
         save_summary=save_summary,
         load_summary=load_summary,
     )
@@ -698,12 +762,39 @@ def snapshot_load():
     return render_admin_page(message="Data loaded from storage.", load_summary=load_summary)
 
 
+@app.route("/admin/charities/aspects", methods=["POST"])
+def update_charity_aspects():
+    raw_aspects = request.form.get("aspect_list", "")
+    aspect_candidates = raw_aspects.replace("\n", ",").split(",")
+
+    cleaned = []
+    seen = set()
+    for aspect in aspect_candidates:
+        label = aspect.strip()
+        if label and label not in seen:
+            cleaned.append(label)
+            seen.add(label)
+
+    if not cleaned:
+        cleaned = DEFAULT_CHARITY_ASPECTS
+
+    save_charity_aspects(cleaned)
+
+    charities = load_charities()
+    ensure_charity_aspects(charities, cleaned)
+    save_charities(charities)
+
+    return redirect(url_for("admin", message="Charity columns updated."))
+
+
 @app.route("/admin/charities", methods=["POST"])
 def add_charity():
+    charity_aspects = load_charity_aspects()
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
     logo_url = request.form.get("logo_url", "").strip()
     site_url = normalize_url(request.form.get("site_url", ""))
+    aspect_values = parse_charity_aspects(request.form, charity_aspects)
 
     logo_file = request.files.get("logo_file")
 
@@ -722,6 +813,7 @@ def add_charity():
             "description": description,
             "logo_url": logo_url,
             "site_url": site_url,
+            "aspects": aspect_values,
         }
     )
     save_charities(charities)
@@ -741,6 +833,7 @@ def delete_charity(charity_index):
 
 @app.route("/admin/charities/<int:charity_index>/update", methods=["POST"])
 def update_charity(charity_index):
+    charity_aspects = load_charity_aspects()
     charities = load_charities()
     if not (0 <= charity_index < len(charities)):
         return redirect(url_for("admin", message="Charity not found."))
@@ -750,6 +843,7 @@ def update_charity(charity_index):
     site_url = normalize_url(request.form.get("site_url", ""))
     logo_url = request.form.get("logo_url", "").strip()
     logo_file = request.files.get("logo_file")
+    aspect_values = parse_charity_aspects(request.form, charity_aspects)
 
     if logo_file and logo_file.filename:
         if not allowed_logo(logo_file.filename):
@@ -769,6 +863,7 @@ def update_charity(charity_index):
         "description": description,
         "logo_url": new_logo_url,
         "site_url": site_url,
+        "aspects": aspect_values,
     }
     save_charities(charities)
     return redirect(url_for("admin", message="Charity updated."))

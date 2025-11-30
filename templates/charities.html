@@ -24,25 +24,45 @@
         <h2>Organizations making support accessible.</h2>
         <p class="lede">This living gallery grows through the admin dashboard, so you can keep lifting up the missions that resonate most.</p>
     </div>
-    <div class="charity-grid">
-        {% for charity in charities %}
-        <article class="charity-card">
-            <div class="charity-top">
-                <div class="charity-logo" aria-hidden="true">
-                    <img src="{{ charity.logo_url }}" alt="{{ charity.name }} logo" loading="lazy" />
-                </div>
-                <div class="charity-meta">
-                    <p class="eyebrow">{{ charity.name }}</p>
-                    <h3>{{ charity.name }}</h3>
-                </div>
-            </div>
-            <p class="body">{{ charity.description }}</p>
-            <div class="charity-actions">
-                <a class="btn tiny" href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit site</a>
-                <div class="halo"></div>
-            </div>
-        </article>
-        {% endfor %}
+    <div class="table-scroll charity-table-wrapper">
+        <table class="charity-table">
+            <caption class="sr-only">Charities and the services they provide</caption>
+            <thead>
+                <tr>
+                    <th scope="col">Organization</th>
+                    {% for aspect in charity_aspects %}
+                    <th scope="col">{{ aspect }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for charity in charities %}
+                <tr>
+                    <td>
+                        <div class="charity-table-cell">
+                            <div class="charity-logo small" aria-hidden="true">
+                                <img src="{{ charity.logo_url }}" alt="{{ charity.name }} logo" loading="lazy" />
+                            </div>
+                            <div>
+                                <div class="table-title">{{ charity.name }}</div>
+                                <p class="body">{{ charity.description }}</p>
+                                <a class="inline-link" href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit website</a>
+                            </div>
+                        </div>
+                    </td>
+                    {% for aspect in charity_aspects %}
+                    <td class="charity-availability">
+                        {% if charity.aspects and charity.aspects.get(aspect) %}
+                        <span class="tick" aria-label="Yes">✓</span>
+                        {% else %}
+                        <span class="dash" aria-label="No">—</span>
+                        {% endif %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </section>
 {% endblock %}
