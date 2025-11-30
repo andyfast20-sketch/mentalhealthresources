@@ -363,6 +363,7 @@ RESOURCES = [
 
 CALMING_TOOLS = [
     {
+        "slug": "five-senses-reset",
         "title": "Five Senses Reset",
         "description": "A grounding practice to notice sight, sound, touch, scent, and taste in the room around you.",
         "steps": [
@@ -374,6 +375,7 @@ CALMING_TOOLS = [
         ],
     },
     {
+        "slug": "box-breathing",
         "title": "Box Breathing",
         "description": "Steady your nervous system with a balanced inhale, hold, and exhale.",
         "steps": [
@@ -384,6 +386,7 @@ CALMING_TOOLS = [
         ],
     },
     {
+        "slug": "tension-release",
         "title": "Tension & Release",
         "description": "Relax each muscle group with a short squeeze and soften sequence.",
         "steps": [
@@ -393,6 +396,7 @@ CALMING_TOOLS = [
         ],
     },
     {
+        "slug": "ripple-journey",
         "title": "Aurora Ripple Journey",
         "description": "A gentle visualization that pairs your breath with soft waves of color and motion.",
         "steps": [
@@ -405,6 +409,7 @@ CALMING_TOOLS = [
         ],
     },
     {
+        "slug": "anxiety-colour-drop",
         "title": "Anxiety Colour Drop",
         "description": "Drag coloured emotion droplets into a calm pool and watch them dissolve as a symbolic release.",
         "steps": [
@@ -415,6 +420,61 @@ CALMING_TOOLS = [
         ],
     },
 ]
+
+CALMING_TOOL_PAGES = [
+    {
+        "slug": "breath-flow",
+        "title": "Breath Flow",
+        "description": "Light, fluid breathwork with custom timing, waves, and a session timer.",
+        "template": "tools/breath_flow.html",
+    },
+    {
+        "slug": "progressive-muscle-relaxation",
+        "title": "Progressive Muscle Relaxation",
+        "description": "Travel from toes to forehead with gentle squeezes and glowing cues.",
+        "template": "tools/muscle_relaxation.html",
+    },
+    {
+        "slug": "anxiety-colour-drop",
+        "title": "Anxiety Colour Drop",
+        "description": "Drag coloured emotion droplets into the pool and release them with your breath.",
+        "template": "tools/anxiety_colour_drop.html",
+        "count_slug": "anxiety-colour-drop",
+    },
+    {
+        "slug": "five-senses-reset",
+        "title": "Five Senses Reset",
+        "description": "Ground quickly by noticing sights, textures, sounds, scents, and taste.",
+        "template": "tools/simple_tool.html",
+        "count_slug": "five-senses-reset",
+    },
+    {
+        "slug": "box-breathing",
+        "title": "Box Breathing",
+        "description": "Balance your nervous system with a steady four-count inhale, hold, and exhale.",
+        "template": "tools/simple_tool.html",
+        "count_slug": "box-breathing",
+    },
+    {
+        "slug": "tension-release",
+        "title": "Tension & Release",
+        "description": "Use short squeezes and softens to melt muscle tension from head to toe.",
+        "template": "tools/simple_tool.html",
+        "count_slug": "tension-release",
+    },
+    {
+        "slug": "ripple-journey",
+        "title": "Aurora Ripple Journey",
+        "description": "Pair your breath with sunrise colours and ripples that drift tension away.",
+        "template": "tools/simple_tool.html",
+        "count_slug": "ripple-journey",
+    },
+]
+
+
+@app.context_processor
+def inject_calming_nav():
+    return {"calming_nav_items": [{"title": tool["title"], "slug": tool["slug"]} for tool in CALMING_TOOL_PAGES]}
 
 
 def load_calming_counts():
@@ -427,7 +487,7 @@ def load_calming_counts():
         except json.JSONDecodeError:
             pass
 
-    counts = {slugify(tool["title"]): 0 for tool in CALMING_TOOLS}
+    counts = {tool.get("slug", slugify(tool["title"])): 0 for tool in CALMING_TOOLS}
     save_calming_counts(counts)
     return counts
 
@@ -444,7 +504,7 @@ def calming_tools_with_counts():
     tools_with_counts = []
 
     for tool in CALMING_TOOLS:
-        slug = slugify(tool["title"])
+        slug = tool.get("slug", slugify(tool["title"]))
         count = counts.get(slug, 0)
         updated[slug] = count
         tools_with_counts.append({**tool, "slug": slug, "completed_count": count})
@@ -453,6 +513,24 @@ def calming_tools_with_counts():
         save_calming_counts(updated)
 
     return tools_with_counts
+
+
+def calming_tool_cards():
+    counts = load_calming_counts()
+    cards = []
+
+    for page in CALMING_TOOL_PAGES:
+        count_slug = page.get("count_slug") or page["slug"]
+        cards.append({**page, "completed_count": counts.get(count_slug, 0)})
+
+    return cards
+
+
+def find_calming_tool(slug):
+    for tool in CALMING_TOOLS:
+        if tool.get("slug") == slug:
+            return tool
+    return None
 
 COMMUNITY_HIGHLIGHTS = [
     {
@@ -482,6 +560,7 @@ def index():
         charities=featured_charities,
         all_charities=charities,
         books=books,
+        tool_cards=calming_tool_cards(),
     )
 
 
@@ -504,8 +583,30 @@ def resources():
 
 @app.route("/calming-tools")
 def calming_tools():
-    tools = calming_tools_with_counts()
-    return render_template("calming_tools.html", tools=tools)
+    return render_template(
+        "calming_tools.html",
+        tool_cards=calming_tool_cards(),
+        tools=calming_tools_with_counts(),
+    )
+
+
+@app.route("/tools/<slug>")
+def calming_tool(slug):
+    page = next((tool for tool in CALMING_TOOL_PAGES if tool["slug"] == slug), None)
+    if not page:
+        return redirect(url_for("calming_tools"))
+
+    counts = load_calming_counts()
+    count_slug = page.get("count_slug") or slug
+    tool_data = find_calming_tool(count_slug)
+    completed_count = counts.get(count_slug, 0)
+
+    return render_template(
+        page["template"],
+        tool=page,
+        tool_data=tool_data,
+        completed_count=completed_count,
+    )
 
 
 @app.route("/community")

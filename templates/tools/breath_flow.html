@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<section class="calm-hero hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Find your calm</p>
+        <h1>Breath Flow</h1>
+        <p class="lede">Light, fluid breathwork you can dial in. Set the rhythm, choose the wave intensity, and glide through each inhale, hold, and exhale with the same soothing visuals.</p>
+        <div class="calm-hero__actions">
+            <a class="btn" href="#interactive-calm">Start guided flow</a>
+            <a class="btn ghost" href="{{ url_for('calming_tools') }}">Back to overview</a>
+        </div>
+        <div class="calm-hero__meta">
+            <div class="meta-card">
+                <p class="microcopy">Breath pacing</p>
+                <p class="stat-number">4s inhale • 2s hold • 5s exhale • 2s hold</p>
+            </div>
+            <div class="meta-card">
+                <p class="microcopy">Session timer</p>
+                <p class="stat-number">5:00 ready to begin</p>
+            </div>
+            <div class="meta-card">
+                <p class="microcopy">Feeling check</p>
+                <p class="body">Pick a timing that feels supportive and press “Start flow.”</p>
+            </div>
+        </div>
+    </div>
+    <div class="calm-hero__panel">
+        <div class="calm-hero__panel-inner">
+            <p class="eyebrow">Design-forward calm</p>
+            <h3>Aligned layouts, gentle gradients, instant anchors.</h3>
+            <p class="body">Everything sits on a consistent grid so nothing feels out of place. Slide into a flow, glance at the steps, and keep your focus on easing your breath.</p>
+            <div class="calm-hero__chips">
+                <span class="chip">Custom timing</span>
+                <span class="chip">Session tracker</span>
+                <span class="chip">Wave intensity</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="calm-lab" id="interactive-calm">
+    <div class="calm-lab__header">
+        <div>
+            <p class="eyebrow">Interactive</p>
+            <h2>Light, fluid breathwork you can dial in.</h2>
+            <p class="lede">Set a soft rhythm, then glide through each inhale, pause, and exhale with gentle cues. The layout keeps the controls, cues, and visuals perfectly aligned.</p>
+        </div>
+        <div class="calm-lab__badges">
+            <span class="chip">Custom timing</span>
+            <span class="chip">Session tracker</span>
+            <span class="chip">Wave intensity</span>
+        </div>
+    </div>
+    <div class="calm-lab__grid">
+        <div class="control-stack duo">
+            <div class="control-card slim">
+                <div class="control-card__header">
+                    <p class="eyebrow muted">Timing</p>
+                    <p class="microcopy" data-cycle-preview>4s inhale • 2s hold • 5s exhale • 2s hold</p>
+                </div>
+                <div class="control-row refined compact">
+                    <label class="control">
+                        <span>Inhale (seconds)</span>
+                        <input type="number" min="1" max="20" value="4" step="0.5" data-inhale-input />
+                        <span class="value">Lengthen the in-breath.</span>
+                    </label>
+                    <label class="control">
+                        <span>Hold (seconds)</span>
+                        <input type="number" min="0" max="20" value="2" step="0.5" data-hold-input />
+                        <span class="value">Linger lightly at the top.</span>
+                    </label>
+                    <label class="control">
+                        <span>Exhale (seconds)</span>
+                        <input type="number" min="1" max="20" value="5" step="0.5" data-exhale-input />
+                        <span class="value">Let the breath drift out.</span>
+                    </label>
+                </div>
+            </div>
+            <div class="control-card slim">
+                <div class="control-card__header">
+                    <p class="eyebrow muted">Session feel</p>
+                    <p class="microcopy">Keep the visuals steady and grounded.</p>
+                </div>
+                <div class="control-row refined compact">
+                    <label class="control">
+                        <span>Session length (minutes)</span>
+                        <input type="number" min="1" max="30" value="5" step="1" data-session-input />
+                        <span class="value" data-session-remaining>5:00 remaining</span>
+                    </label>
+                    <label class="control">
+                        <span>Wave intensity</span>
+                        <input type="range" min="0.8" max="1.4" value="1" step="0.1" data-wave-range />
+                        <span class="value" data-wave-value>Balanced</span>
+                    </label>
+                </div>
+            </div>
+            <div class="calm-lab__actions">
+                <button class="btn" type="button" data-calm-start>Start flow</button>
+                <button class="btn ghost" type="button" data-calm-reset>Reset</button>
+                <p class="body" data-affirmation>Pick timing that feels supportive and press “Start flow.”</p>
+            </div>
+        </div>
+        <div class="immersive-visual elevated">
+            <div class="pulse-ring" data-pulse-ring></div>
+            <div class="phase-label" data-phase-label>Ready when you are</div>
+            <div class="phase-timeline" data-phase-timeline>
+                <span class="chip">Inhale</span>
+                <span class="chip">Hold</span>
+                <span class="chip">Exhale</span>
+                <span class="chip">Hold</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/static/js/breath-flow.js"></script>
+{% endblock %}

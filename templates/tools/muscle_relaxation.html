@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<section class="calm-hero hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Body-led calm</p>
+        <h1>Progressive Muscle Relaxation</h1>
+        <p class="lede">Travel from your toes to your forehead with gentle squeezes and releases. Each zone lights up for six seconds so you never lose your place.</p>
+        <div class="calm-hero__actions">
+            <a class="btn" href="#pmr">Begin relaxation</a>
+            <a class="btn ghost" href="{{ url_for('calming_tools') }}">Back to overview</a>
+        </div>
+    </div>
+    <div class="calm-hero__panel">
+        <div class="calm-hero__panel-inner">
+            <p class="eyebrow">Guided sequence</p>
+            <h3>12 glowing zones, audio-free, loop friendly.</h3>
+            <p class="body">Follow the highlighted muscles without fumbling for cues. The original layout, timing, and visuals stay intact—now with its own route.</p>
+            <div class="calm-hero__chips">
+                <span class="chip">12 zones</span>
+                <span class="chip">Audio-free</span>
+                <span class="chip">Loop friendly</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="calm-lab pmr" id="pmr">
+    <div class="calm-lab__header">
+        <div>
+            <p class="eyebrow">Body-led calm</p>
+            <h2>Progressive muscle relaxation with a soft glow.</h2>
+            <p class="lede">Travel from your toes to your forehead with gentle squeezes and releases. Each zone lights up for six seconds so you never lose your place.</p>
+            <div class="calm-lab__actions">
+                <button class="btn" type="button" data-pmr-start>Start 72-second flow</button>
+                <button class="btn ghost" type="button" data-pmr-reset>Reset</button>
+                <div class="pmr-status">
+                    <div>
+                        <p class="microcopy muted">Current focus</p>
+                        <p class="body" data-pmr-status>Ready when you are.</p>
+                    </div>
+                    <div class="pmr-timer" data-pmr-countdown>01:12</div>
+                </div>
+            </div>
+        </div>
+        <div class="calm-lab__badges">
+            <span class="chip">12 zones</span>
+            <span class="chip">Audio-free</span>
+            <span class="chip">Loop friendly</span>
+        </div>
+    </div>
+    <div class="pmr-grid">
+        <div class="pmr-copy">
+            <ol class="pmr-steps">
+                <li data-step="feet">Feet &amp; toes</li>
+                <li data-step="calves">Calves</li>
+                <li data-step="thighs">Thighs</li>
+                <li data-step="hips">Hips &amp; glutes</li>
+                <li data-step="core">Belly &amp; lower back</li>
+                <li data-step="chest">Chest &amp; upper back</li>
+                <li data-step="hands">Hands</li>
+                <li data-step="forearms">Forearms</li>
+                <li data-step="upper-arms">Upper arms</li>
+                <li data-step="shoulders">Shoulders</li>
+                <li data-step="neck">Neck</li>
+                <li data-step="face">Jaw &amp; face</li>
+            </ol>
+        </div>
+        <div class="pmr-visual elevated">
+            <div class="pmr-backdrop"></div>
+            <svg class="pmr-figure" viewBox="0 0 200 520" role="img" aria-label="Human outline highlighting muscle groups">
+                <defs>
+                    <linearGradient id="pmr-sheen" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#8ef3c5" stop-opacity="0.9" />
+                        <stop offset="100%" stop-color="#45c78d" stop-opacity="0.9" />
+                    </linearGradient>
+                </defs>
+                <g class="figure-core">
+                    <rect data-muscle="face" x="80" y="32" width="40" height="52" rx="18" />
+                    <rect data-muscle="neck" x="90" y="84" width="20" height="26" rx="6" />
+                    <rect data-muscle="shoulders" x="60" y="108" width="80" height="30" rx="16" />
+                    <rect data-muscle="chest" x="68" y="134" width="64" height="54" rx="16" />
+                    <rect data-muscle="core" x="74" y="188" width="52" height="74" rx="12" />
+                    <rect data-muscle="hips" x="70" y="262" width="60" height="38" rx="14" />
+                    <rect data-muscle="thighs" x="74" y="300" width="24" height="110" rx="14" />
+                    <rect data-muscle="thighs" x="102" y="300" width="24" height="110" rx="14" />
+                    <rect data-muscle="calves" x="74" y="410" width="24" height="80" rx="12" />
+                    <rect data-muscle="calves" x="102" y="410" width="24" height="80" rx="12" />
+                    <rect data-muscle="feet" x="68" y="490" width="32" height="18" rx="8" />
+                    <rect data-muscle="feet" x="100" y="490" width="32" height="18" rx="8" />
+                </g>
+                <g class="figure-limbs">
+                    <rect data-muscle="upper-arms" x="40" y="128" width="20" height="64" rx="10" />
+                    <rect data-muscle="upper-arms" x="140" y="128" width="20" height="64" rx="10" />
+                    <rect data-muscle="forearms" x="34" y="192" width="18" height="70" rx="9" />
+                    <rect data-muscle="forearms" x="148" y="192" width="18" height="70" rx="9" />
+                    <rect data-muscle="hands" x="30" y="262" width="26" height="28" rx="10" />
+                    <rect data-muscle="hands" x="144" y="262" width="26" height="28" rx="10" />
+                </g>
+                <g class="figure-outline" fill="none" stroke="#d9c8f5" stroke-width="6" stroke-linecap="round">
+                    <path d="M100 18c-14 0-22 8-22 22s8 26 22 26 22-12 22-26S114 18 100 18z" />
+                    <path d="M74 66c-10 9-18 22-18 36 0 18 12 32 30 32h28c18 0 30-14 30-32 0-14-8-27-18-36" />
+                    <path d="M70 118c-22 14-34 36-34 62 0 34 28 64 64 64s64-30 64-64c0-26-12-48-34-62" />
+                    <path d="M72 242c-18 14-28 34-28 56 0 42 30 96 56 96s56-54 56-96c0-22-10-42-28-56" />
+                </g>
+            </svg>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/static/js/pmr.js"></script>
+{% endblock %}
