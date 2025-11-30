@@ -19,6 +19,28 @@
 {% endblock %}
 
 {% block content %}
+<section id="calming-tools" class="panel charity-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Find calm</p>
+        <h2>Calming tools, now on their own pages.</h2>
+        <p class="lede">Each practice keeps the same visuals, timing, and guidance—simply open the dedicated page to start.</p>
+    </div>
+    <div class="tools-gallery">
+        {% for tool in tool_cards %}
+        <article class="resource-card tool-card">
+            <div class="card-header">
+                <div class="dot"></div>
+                <h3>{{ tool.title }}</h3>
+            </div>
+            <p class="body">{{ tool.description }}</p>
+            <div class="tool-card__actions">
+                <a class="btn tiny" href="{{ url_for('calming_tool', slug=tool.slug) }}">Open tool</a>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
 <section id="talking-therapies" class="panel info-panel">
     <div class="panel-header">
         <p class="eyebrow">Talking therapies</p>

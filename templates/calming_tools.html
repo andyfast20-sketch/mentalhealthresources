@@ -5,10 +5,10 @@
     <div class="hero-copy">
         <p class="eyebrow">Find your calm</p>
         <h1>A soothing studio for breath, body, and reset.</h1>
-        <p class="lede">Move through curated micro-practices that match how you feel right now. Every element is aligned, intentional, and ready the moment you land.</p>
+        <p class="lede">Choose the tool that fits how you feel right now—each one keeps the original visuals, timing, and cues you know. Start from the overview and dive into the dedicated page for the full experience.</p>
         <div class="calm-hero__actions">
-            <a class="btn" href="#interactive-calm">Start guided flow</a>
-            <a class="btn ghost" href="#tools">Browse quick cards</a>
+            <a class="btn" href="{{ url_for('calming_tool', slug='breath-flow') }}">Start Breath Flow</a>
+            <a class="btn ghost" href="#tools">Browse every tool</a>
         </div>
         <div class="calm-hero__meta">
             <div class="meta-card">
@@ -38,322 +38,55 @@
         </div>
     </div>
 </section>
-
 {% endblock %}
 
 {% block content %}
 <section class="calm-nav" aria-label="Calming practice navigation">
     <div>
         <p class="eyebrow">Choose your path</p>
-        <h2>Everything is aligned into four calming experiences.</h2>
-        <p class="body">Jump straight to interactive breathwork, progressive muscle relaxation, the colour drop ritual, or scrollable cards with simple step-by-step prompts.</p>
+        <h2>Open any tool in its own focused page.</h2>
+        <p class="body">Each practice keeps the same visuals, timing controls, and guidance as before—now in dedicated routes for quick access.</p>
     </div>
     <div class="calm-nav__links">
-        <a class="pill" href="#interactive-calm">Breath flow</a>
-        <a class="pill ghost" href="#pmr">Muscle relaxer</a>
-        <a class="pill ghost" href="#colour-drop">Colour drop ritual</a>
-        <a class="pill ghost" href="#tools">Quick exercises</a>
-    </div>
-</section>
-
-<section class="calm-lab" id="interactive-calm">
-    <div class="calm-lab__header">
-        <div>
-            <p class="eyebrow">Interactive</p>
-            <h2>Light, fluid breathwork you can dial in.</h2>
-            <p class="lede">Set a soft rhythm, then glide through each inhale, pause, and exhale with gentle cues. The layout keeps the controls, cues, and visuals perfectly aligned.</p>
-        </div>
-        <div class="calm-lab__badges">
-            <span class="chip">Custom timing</span>
-            <span class="chip">Session tracker</span>
-            <span class="chip">Wave intensity</span>
-        </div>
-    </div>
-    <div class="calm-lab__grid">
-        <div class="control-stack duo">
-            <div class="control-card slim">
-                <div class="control-card__header">
-                    <p class="eyebrow muted">Timing</p>
-                    <p class="microcopy" data-cycle-preview>4s inhale • 2s hold • 5s exhale • 2s hold</p>
-                </div>
-                <div class="control-row refined compact">
-                    <label class="control">
-                        <span>Inhale (seconds)</span>
-                        <input type="number" min="1" max="20" value="4" step="0.5" data-inhale-input />
-                        <span class="value">Lengthen the in-breath.</span>
-                    </label>
-                    <label class="control">
-                        <span>Hold (seconds)</span>
-                        <input type="number" min="0" max="20" value="2" step="0.5" data-hold-input />
-                        <span class="value">Linger lightly at the top.</span>
-                    </label>
-                    <label class="control">
-                        <span>Exhale (seconds)</span>
-                        <input type="number" min="1" max="20" value="5" step="0.5" data-exhale-input />
-                        <span class="value">Let the breath drift out.</span>
-                    </label>
-                </div>
-            </div>
-            <div class="control-card slim">
-                <div class="control-card__header">
-                    <p class="eyebrow muted">Session feel</p>
-                    <p class="microcopy">Keep the visuals steady and grounded.</p>
-                </div>
-                <div class="control-row refined compact">
-                    <label class="control">
-                        <span>Session length (minutes)</span>
-                        <input type="number" min="1" max="30" value="5" step="1" data-session-input />
-                        <span class="value" data-session-remaining>5:00 remaining</span>
-                    </label>
-                    <label class="control">
-                        <span>Wave intensity</span>
-                        <input type="range" min="0.8" max="1.4" value="1" step="0.1" data-wave-range />
-                        <span class="value" data-wave-value>Balanced</span>
-                    </label>
-                </div>
-            </div>
-            <div class="calm-lab__actions">
-                <button class="btn" type="button" data-calm-start>Start flow</button>
-                <button class="btn ghost" type="button" data-calm-reset>Reset</button>
-                <p class="body" data-affirmation>Pick timing that feels supportive and press “Start flow.”</p>
-            </div>
-        </div>
-        <div class="immersive-visual elevated">
-            <div class="pulse-ring" data-pulse-ring></div>
-            <div class="phase-label" data-phase-label>Ready when you are</div>
-            <div class="phase-timeline" data-phase-timeline>
-                <span class="chip">Inhale</span>
-                <span class="chip">Hold</span>
-                <span class="chip">Exhale</span>
-                <span class="chip">Hold</span>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="calm-lab pmr" id="pmr">
-    <div class="calm-lab__header">
-        <div>
-            <p class="eyebrow">Body-led calm</p>
-            <h2>Progressive muscle relaxation with a soft glow.</h2>
-            <p class="lede">Travel from your toes to your forehead with gentle squeezes and releases. Each zone lights up for six seconds so you never lose your place.</p>
-            <div class="calm-lab__actions">
-                <button class="btn" type="button" data-pmr-start>Start 72-second flow</button>
-                <button class="btn ghost" type="button" data-pmr-reset>Reset</button>
-                <div class="pmr-status">
-                    <div>
-                        <p class="microcopy muted">Current focus</p>
-                        <p class="body" data-pmr-status>Ready when you are.</p>
-                    </div>
-                    <div class="pmr-timer" data-pmr-countdown>01:12</div>
-                </div>
-            </div>
-        </div>
-        <div class="calm-lab__badges">
-            <span class="chip">12 zones</span>
-            <span class="chip">Audio-free</span>
-            <span class="chip">Loop friendly</span>
-        </div>
-    </div>
-    <div class="pmr-grid">
-        <div class="pmr-copy">
-            <ol class="pmr-steps">
-                <li data-step="feet">Feet &amp; toes</li>
-                <li data-step="calves">Calves</li>
-                <li data-step="thighs">Thighs</li>
-                <li data-step="hips">Hips &amp; glutes</li>
-                <li data-step="core">Belly &amp; lower back</li>
-                <li data-step="chest">Chest &amp; upper back</li>
-                <li data-step="hands">Hands</li>
-                <li data-step="forearms">Forearms</li>
-                <li data-step="upper-arms">Upper arms</li>
-                <li data-step="shoulders">Shoulders</li>
-                <li data-step="neck">Neck</li>
-                <li data-step="face">Jaw &amp; face</li>
-            </ol>
-        </div>
-        <div class="pmr-visual elevated">
-            <div class="pmr-backdrop"></div>
-            <svg class="pmr-figure" viewBox="0 0 200 520" role="img" aria-label="Human outline highlighting muscle groups">
-                <defs>
-                    <linearGradient id="pmr-sheen" x1="0%" y1="0%" x2="100%" y2="100%">
-                        <stop offset="0%" stop-color="#8ef3c5" stop-opacity="0.9" />
-                        <stop offset="100%" stop-color="#45c78d" stop-opacity="0.9" />
-                    </linearGradient>
-                </defs>
-                <g class="figure-core">
-                    <rect data-muscle="face" x="80" y="32" width="40" height="52" rx="18" />
-                    <rect data-muscle="neck" x="90" y="84" width="20" height="26" rx="6" />
-                    <rect data-muscle="shoulders" x="60" y="108" width="80" height="30" rx="16" />
-                    <rect data-muscle="chest" x="68" y="134" width="64" height="54" rx="16" />
-                    <rect data-muscle="core" x="74" y="188" width="52" height="74" rx="12" />
-                    <rect data-muscle="hips" x="70" y="262" width="60" height="38" rx="14" />
-                    <rect data-muscle="thighs" x="74" y="300" width="24" height="110" rx="14" />
-                    <rect data-muscle="thighs" x="102" y="300" width="24" height="110" rx="14" />
-                    <rect data-muscle="calves" x="74" y="410" width="24" height="80" rx="12" />
-                    <rect data-muscle="calves" x="102" y="410" width="24" height="80" rx="12" />
-                    <rect data-muscle="feet" x="68" y="490" width="32" height="18" rx="8" />
-                    <rect data-muscle="feet" x="100" y="490" width="32" height="18" rx="8" />
-                </g>
-                <g class="figure-limbs">
-                    <rect data-muscle="upper-arms" x="40" y="128" width="20" height="64" rx="10" />
-                    <rect data-muscle="upper-arms" x="140" y="128" width="20" height="64" rx="10" />
-                    <rect data-muscle="forearms" x="34" y="192" width="18" height="70" rx="9" />
-                    <rect data-muscle="forearms" x="148" y="192" width="18" height="70" rx="9" />
-                    <rect data-muscle="hands" x="30" y="262" width="26" height="28" rx="10" />
-                    <rect data-muscle="hands" x="144" y="262" width="26" height="28" rx="10" />
-                </g>
-                <g class="figure-outline" fill="none" stroke="#d9c8f5" stroke-width="6" stroke-linecap="round">
-                    <path d="M100 18c-14 0-22 8-22 22s8 26 22 26 22-12 22-26S114 18 100 18z" />
-                    <path d="M74 66c-10 9-18 22-18 36 0 18 12 32 30 32h28c18 0 30-14 30-32 0-14-8-27-18-36" />
-                    <path d="M70 118c-22 14-34 36-34 62 0 34 28 64 64 64s64-30 64-64c0-26-12-48-34-62" />
-                    <path d="M72 242c-18 14-28 34-28 56 0 42 30 96 56 96s56-54 56-96c0-22-10-42-28-56" />
-                </g>
-            </svg>
-        </div>
-    </div>
-</section>
-
-<section class="calm-lab colour-drop" id="colour-drop">
-    <div class="calm-lab__header">
-        <div>
-            <p class="eyebrow">Symbolic release</p>
-            <h2>🎨 Anxiety Colour Drop</h2>
-            <p class="lede">Name the feeling you're carrying, pick its colour, then let it dissolve into the calm pool. Each drop fades with a soft ripple to help your body register release and bring a playful sense of control back to your breath.</p>
-            <div class="calm-lab__actions">
-                <button class="btn" type="button" data-reset-pool>Clear pool</button>
-                <div class="status-stack">
-                    <p class="body" data-drop-status>Drag a colour droplet into the pool to begin.</p>
-                    <p class="microcopy muted">You can also tap a droplet to drop it in instantly—no drag required. Rings, sparkles, and glow will linger for a few breaths.</p>
-                </div>
-            </div>
-            <ol class="ritual-steps">
-                <li>
-                    <span class="step-pill">1</span>
-                    <div>
-                        <strong>Name it.</strong>
-                        <p class="microcopy">Say the feeling quietly to yourself to anchor it in awareness.</p>
-                    </div>
-                </li>
-                <li>
-                    <span class="step-pill">2</span>
-                    <div>
-                        <strong>Pick a colour.</strong>
-                        <p class="microcopy">Choose the droplet that matches your energy or swap between them.</p>
-                    </div>
-                </li>
-                <li>
-                    <span class="step-pill">3</span>
-                    <div>
-                        <strong>Let it dissolve.</strong>
-                        <p class="microcopy">Drop it in, exhale for six, and watch the ripple fade.</p>
-                    </div>
-                </li>
-            </ol>
-        </div>
-        <div class="calm-lab__badges">
-            <span class="chip">Drag &amp; drop</span>
-            <span class="chip">Visual soothing</span>
-            <span class="chip">Emotion naming</span>
-            <span class="chip ghost">Guided breaths</span>
-        </div>
-    </div>
-    <div class="colour-drop__grid">
-        <div class="palette-card elevated">
-            <p class="eyebrow muted">Emotion droplets</p>
-            <p class="body">Pick the feeling that matches your mood. Drag it into the pool and exhale as it sinks.</p>
-            <div class="drop-palette" role="list">
-                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Frustration" data-colour="#f16b6f">
-                    <span>Frustration</span>
-                    <small>Hot coral</small>
-                </button>
-                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Worry" data-colour="#6aa9f7">
-                    <span>Worry</span>
-                    <small>Blue hush</small>
-                </button>
-                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Guilt" data-colour="#c28bf2">
-                    <span>Guilt</span>
-                    <small>Lavender dusk</small>
-                </button>
-                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Fear" data-colour="#5ed0b6">
-                    <span>Fear</span>
-                    <small>Seafoam</small>
-                </button>
-                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Overwhelm" data-colour="#f5c26b">
-                    <span>Overwhelm</span>
-                    <small>Golden glow</small>
-                </button>
-                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Tension" data-colour="#7c7ff0">
-                    <span>Tension</span>
-                    <small>Indigo wash</small>
-                </button>
-                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Numb" data-colour="#8fb6c6">
-                    <span>Numb</span>
-                    <small>Clouded teal</small>
-                </button>
-                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Hopeful" data-colour="#73e0a9">
-                    <span>Hopeful</span>
-                    <small>Spring mint</small>
-                </button>
-            </div>
-            <div class="palette-legends">
-                <p class="microcopy">Tip: say the feeling quietly to yourself before you release it.</p>
-                <p class="microcopy">Need a reset? Drop two colours in a row and picture them blending as you exhale.</p>
-            </div>
-        </div>
-        <div class="pool-card elevated" aria-label="Calm water pool" data-colour-pool>
-            <div class="pool-sheen"></div>
-            <div class="pool-water">
-                <div class="pool-rings"></div>
-                <p class="pool-prompt">Drop a feeling here</p>
-            </div>
-            <div class="pool-footer">
-                <p class="microcopy">Each ripple now lingers with glowing rings—ride three slow breaths as it dissolves.</p>
-                <div class="legend">
-                    <span class="chip tiny ghost">Drag to release</span>
-                    <span class="chip tiny">Watch it fade</span>
-                </div>
-            </div>
-        </div>
-    </div>
-</section>
-
-<section class="calm-nav calm-nav--secondary" aria-label="Quick exercise overview">
-    <div>
-        <p class="eyebrow">Quick wins</p>
-        <h2>Scrollable cards with aligned copy and steps.</h2>
-        <p class="body">Pick a card to see the steps without hunting for the right spot. The layout locks each piece into place for a smoother read.</p>
-    </div>
-    <div class="calm-nav__links">
-        <a class="pill" href="#interactive-calm">Breath flow</a>
-        <a class="pill ghost" href="#pmr">Muscle relaxer</a>
+        {% for tool in tool_cards %}
+        <a class="pill ghost" href="{{ url_for('calming_tool', slug=tool.slug) }}">{{ tool.title }}</a>
+        {% endfor %}
     </div>
 </section>
 
 <section id="tools" class="tools-gallery">
-    {% for tool in tools %}
+    {% for tool in tool_cards %}
     <article class="resource-card tool-card">
         <div class="card-header">
             <div class="dot"></div>
             <h3>{{ tool.title }}</h3>
         </div>
         <p class="body">{{ tool.description }}</p>
+        {% set matching_tool = (tools | selectattr('slug', 'equalto', tool.count_slug if tool.count_slug is defined else tool.slug) | list).0 %}
+        {% if matching_tool %}
         <p class="stat-line">
-            <span class="stat-number" data-calming-count="{{ tool.slug }}">{{ tool.completed_count }}</span>
+            <span class="stat-number" data-calming-count="{{ matching_tool.slug }}">{{ matching_tool.completed_count }}</span>
             <span class="stat-helper">times completed</span>
         </p>
         <ol class="breath">
-            {% for step in tool.steps %}
+            {% for step in matching_tool.steps %}
             <li>{{ step }}</li>
             {% endfor %}
         </ol>
+        {% endif %}
         <div class="tool-card__actions">
-            <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool.slug }}">
+            <a class="btn tiny" href="{{ url_for('calming_tool', slug=tool.slug) }}">Open tool</a>
+            {% if matching_tool %}
+            <button class="btn ghost tiny" type="button" data-calming-complete data-calming-slug="{{ matching_tool.slug }}">
                 I tried this
             </button>
-            <a class="btn ghost tiny" href="#interactive-calm">Back to top</a>
+            {% endif %}
         </div>
     </article>
     {% endfor %}
 </section>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/static/js/calming-common.js"></script>
 {% endblock %}

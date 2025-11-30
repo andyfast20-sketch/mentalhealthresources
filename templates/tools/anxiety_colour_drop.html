@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<section class="calm-hero hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Symbolic release</p>
+        <h1>🎨 Anxiety Colour Drop</h1>
+        <p class="lede">Name the feeling you're carrying, pick its colour, then let it dissolve into the calm pool. Each drop fades with a soft ripple to help your body register release and bring a playful sense of control back to your breath.</p>
+        <div class="calm-hero__actions">
+            <a class="btn" href="#colour-drop">Start colour drop</a>
+            <a class="btn ghost" href="{{ url_for('calming_tools') }}">Back to overview</a>
+        </div>
+    </div>
+    <div class="calm-hero__panel">
+        <div class="calm-hero__panel-inner">
+            <p class="eyebrow">Guided visuals</p>
+            <h3>Drag &amp; drop emotion droplets into the pool.</h3>
+            <p class="body">The pool, rings, and glow are unchanged—each droplet still lands with ripples, sparkle, and space to breathe it out.</p>
+            <div class="calm-hero__chips">
+                <span class="chip">Drag &amp; drop</span>
+                <span class="chip">Visual soothing</span>
+                <span class="chip">Emotion naming</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="calm-lab colour-drop" id="colour-drop">
+    <div class="calm-lab__header">
+        <div>
+            <p class="eyebrow">Symbolic release</p>
+            <h2>🎨 Anxiety Colour Drop</h2>
+            <p class="lede">Name the feeling you're carrying, pick its colour, then let it dissolve into the calm pool. Each drop fades with a soft ripple to help your body register release and bring a playful sense of control back to your breath.</p>
+            <div class="calm-lab__actions">
+                <button class="btn" type="button" data-reset-pool>Clear pool</button>
+                <div class="status-stack">
+                    <p class="body" data-drop-status>Drag a colour droplet into the pool to begin.</p>
+                    <p class="microcopy muted">You can also tap a droplet to drop it in instantly—no drag required. Rings, sparkles, and glow will linger for a few breaths.</p>
+                </div>
+            </div>
+            <ol class="ritual-steps">
+                <li>
+                    <span class="step-pill">1</span>
+                    <div>
+                        <strong>Name it.</strong>
+                        <p class="microcopy">Say the feeling quietly to yourself to anchor it in awareness.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-pill">2</span>
+                    <div>
+                        <strong>Pick a colour.</strong>
+                        <p class="microcopy">Choose the droplet that matches your energy or swap between them.</p>
+                    </div>
+                </li>
+                <li>
+                    <span class="step-pill">3</span>
+                    <div>
+                        <strong>Let it dissolve.</strong>
+                        <p class="microcopy">Drop it in, exhale for six, and watch the ripple fade.</p>
+                    </div>
+                </li>
+            </ol>
+        </div>
+        <div class="calm-lab__badges">
+            <span class="chip">Drag &amp; drop</span>
+            <span class="chip">Visual soothing</span>
+            <span class="chip">Emotion naming</span>
+            <span class="chip ghost">Guided breaths</span>
+        </div>
+    </div>
+    <div class="colour-drop__grid">
+        <div class="palette-card elevated">
+            <p class="eyebrow muted">Emotion droplets</p>
+            <p class="body">Pick the feeling that matches your mood. Drag it into the pool and exhale as it sinks.</p>
+            <div class="drop-palette" role="list">
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Frustration" data-colour="#f16b6f">
+                    <span>Frustration</span>
+                    <small>Hot coral</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Worry" data-colour="#6aa9f7">
+                    <span>Worry</span>
+                    <small>Blue hush</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Guilt" data-colour="#c28bf2">
+                    <span>Guilt</span>
+                    <small>Lavender dusk</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Fear" data-colour="#5ed0b6">
+                    <span>Fear</span>
+                    <small>Seafoam</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Overwhelm" data-colour="#f5c26b">
+                    <span>Overwhelm</span>
+                    <small>Golden glow</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Tension" data-colour="#7c7ff0">
+                    <span>Tension</span>
+                    <small>Indigo wash</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Numb" data-colour="#8fb6c6">
+                    <span>Numb</span>
+                    <small>Clouded teal</small>
+                </button>
+                <button class="emotion-drop" type="button" draggable="true" data-emotion-drop data-emotion="Hopeful" data-colour="#73e0a9">
+                    <span>Hopeful</span>
+                    <small>Spring mint</small>
+                </button>
+            </div>
+            <div class="palette-legends">
+                <p class="microcopy">Tip: say the feeling quietly to yourself before you release it.</p>
+                <p class="microcopy">Need a reset? Drop two colours in a row and picture them blending as you exhale.</p>
+            </div>
+        </div>
+        <div class="pool-card elevated" aria-label="Calm water pool" data-colour-pool>
+            <div class="pool-sheen"></div>
+            <div class="pool-water">
+                <div class="pool-rings"></div>
+                <p class="pool-prompt">Drop a feeling here</p>
+            </div>
+            <div class="pool-footer">
+                <p class="microcopy">Each ripple now lingers with glowing rings—ride three slow breaths as it dissolves.</p>
+                <div class="legend">
+                    <span class="chip tiny ghost">Drag to release</span>
+                    <span class="chip tiny">Watch it fade</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block scripts %}
+    <script src="/static/js/colour-drop.js"></script>
+{% endblock %}

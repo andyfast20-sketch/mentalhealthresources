@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<section class="calm-hero hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Quick grounding</p>
+        <h1>{{ tool.title }}</h1>
+        <p class="lede">{{ tool.description }}</p>
+        <div class="calm-hero__actions">
+            <a class="btn" href="#tool-steps">Start {{ tool.title }}</a>
+            <a class="btn ghost" href="{{ url_for('calming_tools') }}">Back to overview</a>
+        </div>
+    </div>
+    <div class="calm-hero__panel">
+        <div class="calm-hero__panel-inner">
+            <p class="eyebrow">Ready when you are</p>
+            <h3>Follow the original steps and pacing.</h3>
+            <p class="body">This page keeps the same copy, steps, and layout—just focused on one practice with a dedicated route.</p>
+            <div class="calm-hero__chips">
+                <span class="chip">Guided steps</span>
+                <span class="chip">Grounded palette</span>
+                <span class="chip">One-click start</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section id="tool-steps" class="tools-gallery">
+    <article class="resource-card tool-card">
+        <div class="card-header">
+            <div class="dot"></div>
+            <h3>{{ tool.title }}</h3>
+        </div>
+        <p class="body">{{ tool_data.description if tool_data else tool.description }}</p>
+        {% if tool_data %}
+        <p class="stat-line">
+            <span class="stat-number" data-calming-count="{{ tool_data.slug }}">{{ completed_count }}</span>
+            <span class="stat-helper">times completed</span>
+        </p>
+        <ol class="breath">
+            {% for step in tool_data.steps %}
+            <li>{{ step }}</li>
+            {% endfor %}
+        </ol>
+        {% endif %}
+        <div class="tool-card__actions">
+            {% if tool_data %}
+            <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool_data.slug }}">I tried this</button>
+            {% endif %}
+            <a class="btn ghost tiny" href="{{ url_for('calming_tools') }}">Back to overview</a>
+        </div>
+    </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+    {% if tool_data %}<script src="/static/js/calming-common.js"></script>{% endif %}
+{% endblock %}
