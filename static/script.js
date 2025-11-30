@@ -71,6 +71,16 @@ dropdownTriggers.forEach((trigger) => {
   });
 });
 
+dropdownTriggers.forEach((trigger) => {
+  const menu = trigger.closest('.nav-dropdown');
+  menu?.querySelectorAll('a').forEach((link) => {
+    link.addEventListener('click', () => {
+      menu.classList.remove('is-open');
+      trigger.setAttribute('aria-expanded', 'false');
+    });
+  });
+});
+
 document.addEventListener('click', (event) => {
   dropdownTriggers.forEach((trigger) => {
     const menu = trigger.closest('.nav-dropdown');
