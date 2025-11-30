@@ -1669,6 +1669,11 @@ body {
   border-bottom: 1px solid #f0e7f7;
 }
 
+.charity-table th:first-child,
+.charity-table td:first-child {
+  width: 42%;
+}
+
 .charity-table th {
   font-weight: 800;
   color: #3d2c55;
