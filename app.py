@@ -569,7 +569,6 @@ def index():
         charities=featured_charities,
         all_charities=charities,
         books=books,
-        tool_cards=calming_tool_cards(),
     )
 
 
