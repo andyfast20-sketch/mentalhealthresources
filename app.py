@@ -474,7 +474,16 @@ CALMING_TOOL_PAGES = [
 
 @app.context_processor
 def inject_calming_nav():
-    return {"calming_nav_items": [{"title": tool["title"], "slug": tool["slug"]} for tool in CALMING_TOOL_PAGES]}
+    return {
+        "calming_nav_items": [
+            {
+                "title": tool["title"],
+                "slug": tool["slug"],
+                "description": tool.get("description", ""),
+            }
+            for tool in CALMING_TOOL_PAGES
+        ]
+    }
 
 
 def load_calming_counts():

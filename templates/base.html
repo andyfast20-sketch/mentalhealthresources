@@ -43,13 +43,29 @@
                 <div class="nav-dropdown">
                     <button class="nav-link nav-link--trigger" type="button" data-dropdown-toggle aria-expanded="false">
                         Calming Tools
-                        <span aria-hidden="true">▾</span>
+                        <span class="nav-caret" aria-hidden="true">▾</span>
                     </button>
-                    <div class="dropdown-menu" role="menu">
-                        <a href="{{ url_for('calming_tools') }}" class="dropdown-link">Overview</a>
-                        {% for tool in calming_nav_items %}
-                        <a href="{{ url_for('calming_tool', slug=tool.slug if tool.slug is defined else tool['slug']) }}" class="dropdown-link">{{ tool.title }}</a>
-                        {% endfor %}
+                    <div class="dropdown-menu dropdown-menu--rich" role="menu">
+                        <div class="dropdown-heading">
+                            <div>
+                                <p class="eyebrow">Pick a practice</p>
+                                <p class="microcopy">Jump straight into a tool or browse the full studio.</p>
+                            </div>
+                            <a href="{{ url_for('calming_tools') }}" class="pill tiny ghost" role="menuitem">View all tools</a>
+                        </div>
+                        <div class="dropdown-grid">
+                            {% for tool in calming_nav_items %}
+                            <a href="{{ url_for('calming_tool', slug=tool.slug if tool.slug is defined else tool['slug']) }}" class="dropdown-card" role="menuitem">
+                                <div class="dropdown-card__title">
+                                    <span class="dot"></span>
+                                    <span>{{ tool.title }}</span>
+                                </div>
+                                {% if tool.description %}
+                                <p class="body small">{{ tool.description }}</p>
+                                {% endif %}
+                            </a>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
                 <a href="{{ url_for('charities') }}" class="nav-link">Charities</a>
