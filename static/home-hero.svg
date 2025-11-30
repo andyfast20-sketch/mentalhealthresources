@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 720" role="img" aria-labelledby="title desc">
+  <title id="title">Two people offering caring support</title>
+  <desc id="desc">Soft pastel illustration of an older woman being comforted by a younger woman holding her hands.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#f8e6d8" />
+      <stop offset="100%" stop-color="#f5dcd1" />
+    </linearGradient>
+    <radialGradient id="glow" cx="50%" cy="45%" r="65%">
+      <stop offset="0%" stop-color="#f7e7de" stop-opacity="0.7" />
+      <stop offset="100%" stop-color="#f1cfc0" stop-opacity="0.1" />
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="720" fill="url(#bg)" />
+  <rect width="1200" height="720" fill="url(#glow)" />
+
+  <ellipse cx="640" cy="610" rx="260" ry="85" fill="#e5c3b0" opacity="0.8" />
+
+  <!-- Older woman -->
+  <g transform="translate(70 10)">
+    <path d="M415 270c-18-32-4-80 38-92 32-10 72 8 90 38 17 31 10 69-23 88-28 17-74 13-105-34z" fill="#d8c7c0" />
+    <path d="M465 250c-10 6-16 24-12 42 3 14 12 26 24 32 18 9 43 1 56-18 13-18 13-48-3-64-15-16-44-19-65 8z" fill="#f0d6c8" stroke="#d5b6a5" stroke-width="4" />
+    <path d="M500 300c40 20 105 90 90 150-6 25-40 42-70 36-42-8-70-48-84-78-10-21-23-52-25-76-2-22 36-40 89-32z" fill="#c8a3ad" stroke="#b78f98" stroke-width="4" />
+    <path d="M570 395c30 16 86 56 80 94-3 18-34 30-56 24-36-11-60-44-74-70-9-16-21-42-22-60-1-15 34-13 72 12z" fill="#e9c5b7" stroke="#d2a695" stroke-width="4" />
+    <ellipse cx="620" cy="470" rx="50" ry="35" fill="#edcbbd" stroke="#d3a999" stroke-width="4" />
+  </g>
+
+  <!-- Younger woman -->
+  <g>
+    <ellipse cx="820" cy="330" rx="80" ry="85" fill="#f2ccba" stroke="#d6b09f" stroke-width="4" />
+    <path d="M755 290c25-60 120-78 155 6 8 20 7 47-3 64-15 26-49 14-67-6-33-36-76-26-85-64z" fill="#c18f79" />
+    <path d="M800 380c56 10 126 88 114 148-5 22-41 38-70 32-42-9-82-59-100-98-12-26-24-57-20-78 4-19 43-15 76-4z" fill="#e6ac91" stroke="#cf937c" stroke-width="4" />
+    <path d="M880 430c36 12 94 48 96 82 1 16-27 32-50 30-34-4-68-34-88-60-12-15-26-39-25-53 1-17 42-9 67 1z" fill="#f0c8b2" stroke="#d5a593" stroke-width="4" />
+    <path d="M750 430c-30 10-86 48-82 84 2 18 33 31 56 28 33-6 59-34 78-58 13-17 29-42 28-58-2-20-42-20-80 4z" fill="#f3cdbc" stroke="#d3a999" stroke-width="4" />
+    <ellipse cx="705" cy="500" rx="38" ry="32" fill="#e9c0aa" stroke="#c99a87" stroke-width="4" />
+    <path d="M760 560c40 12 120 56 110 106-4 22-40 36-68 30-46-10-80-52-100-88-11-20-22-46-15-60 9-18 40-11 73 12z" fill="#cba087" stroke="#b18471" stroke-width="4" />
+  </g>
+</svg>
