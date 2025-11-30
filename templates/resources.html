@@ -34,7 +34,9 @@
                     <h4>Anxiety</h4>
                 </div>
                 <ul class="attachment-list">
-                    <li>What is Anxiety?</li>
+                    <li>
+                        <button type="button" class="attachment-link" data-anxiety-trigger>What is Anxiety?</button>
+                    </li>
                     <li>Anxiety Symptoms Explained</li>
                     <li>How Correct Breathing Reduces Anxiety</li>
                     <li>The Fight, Flight or Freeze Response</li>
@@ -142,4 +144,52 @@
         {% endfor %}
     </div>
 </section>
+
+<div class="modal-backdrop info-modal" data-anxiety-modal>
+    <div class="modal-dialog info-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="anxietyModalTitle">
+        <div class="modal-glow"></div>
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">Understanding anxiety</p>
+                <h3 id="anxietyModalTitle">What is anxiety?</h3>
+            </div>
+            <button class="modal-close" type="button" aria-label="Close anxiety explainer" data-anxiety-close>&times;</button>
+        </div>
+        <div class="anxiety-modal__body">
+            <p class="body">Anxiety is our body’s built-in alarm system. It helps us stay alert in stressful moments, but it can feel overwhelming when the worry sticks around, feels out of proportion, or makes daily life harder to navigate.</p>
+
+            <div class="modal-grid">
+                <article class="anxiety-card">
+                    <p class="eyebrow">How it can show up</p>
+                    <ul>
+                        <li>Racing thoughts, constant “what ifs,” or trouble concentrating</li>
+                        <li>Restless energy, tight chest, faster heart rate, or unsettled stomach</li>
+                        <li>Feeling on edge, irritable, or wanting to avoid certain places or tasks</li>
+                    </ul>
+                </article>
+                <article class="anxiety-card">
+                    <p class="eyebrow">When to reach out</p>
+                    <ul>
+                        <li>Your sleep, appetite, or daily routines are getting harder to keep</li>
+                        <li>You’re avoiding friends, school, or work because of worry or panic</li>
+                        <li>You want support processing trauma, health worries, or social fear</li>
+                    </ul>
+                </article>
+                <article class="anxiety-card highlight">
+                    <p class="eyebrow">Quick ways to ground</p>
+                    <ul>
+                        <li>Slow, steady breathing—try a 4-2-5-2 rhythm for a few rounds</li>
+                        <li>Name five things you can see, four you can touch, three you can hear</li>
+                        <li>Take a sip of water, soften your shoulders, feel your feet on the floor</li>
+                    </ul>
+                </article>
+            </div>
+
+            <div class="anxiety-modal__actions">
+                <a class="btn tiny" href="{{ url_for('calming_tools') }}">Open calming tools</a>
+                <a class="btn ghost tiny" href="{{ url_for('crisis') }}">Find urgent support</a>
+            </div>
+        </div>
+    </div>
+</div>
 {% endblock %}
