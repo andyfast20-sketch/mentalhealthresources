@@ -30,6 +30,9 @@ const adminBookCloseButtons = Array.from(document.querySelectorAll('[data-admin-
 const adminBookEditTriggers = Array.from(document.querySelectorAll('[data-admin-book-edit-trigger]'));
 const crisisVolume = document.querySelector('[data-crisis-volume]');
 const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
+const anxietyModal = document.querySelector('[data-anxiety-modal]');
+const anxietyTriggers = Array.from(document.querySelectorAll('[data-anxiety-trigger]'));
+const anxietyCloseButtons = Array.from(document.querySelectorAll('[data-anxiety-close]'));
 let slideIndex = 0;
 let slideWidth = 0;
 let crisisPlayer;
@@ -184,7 +187,8 @@ function updateBodyModalLock() {
   const hasOpenModal =
     charityModal?.classList.contains('is-open') ||
     bookModal?.classList.contains('is-open') ||
-    adminBookModal?.classList.contains('is-open');
+    adminBookModal?.classList.contains('is-open') ||
+    anxietyModal?.classList.contains('is-open');
   document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
 }
 
@@ -356,6 +360,27 @@ adminBookModal?.addEventListener('click', (event) => {
   }
 });
 
+function openAnxietyModal() {
+  if (!anxietyModal) return;
+  anxietyModal.classList.add('is-open');
+  updateBodyModalLock();
+}
+
+function closeAnxietyModal() {
+  if (!anxietyModal) return;
+  anxietyModal.classList.remove('is-open');
+  updateBodyModalLock();
+}
+
+anxietyTriggers.forEach((trigger) => trigger.addEventListener('click', openAnxietyModal));
+anxietyCloseButtons.forEach((button) => button.addEventListener('click', closeAnxietyModal));
+
+anxietyModal?.addEventListener('click', (event) => {
+  if (event.target === anxietyModal) {
+    closeAnxietyModal();
+  }
+});
+
 function openModal() {
   if (!charityModal) return;
   charityModal.classList.add('is-open');
@@ -381,6 +406,7 @@ document.addEventListener('keydown', (event) => {
     if (charityModal?.classList.contains('is-open')) closeModal();
     if (bookModal?.classList.contains('is-open')) closeBookModal();
     if (adminBookModal?.classList.contains('is-open')) closeAdminBookModal();
+    if (anxietyModal?.classList.contains('is-open')) closeAnxietyModal();
   }
 });
 
