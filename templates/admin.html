@@ -314,6 +314,11 @@
         <h2>Add a useful book.</h2>
         <p class="lede">Include the title, author, affiliate link, and a short description. Covers are optional but make the list feel welcoming.</p>
     </div>
+    <div class="data-actions">
+        <form action="{{ url_for('delete_all_books') }}" method="post" onsubmit="return confirm('Delete all books?');">
+            <button class="btn ghost" type="submit">Delete all books</button>
+        </form>
+    </div>
     <form class="admin-form" action="{{ url_for('add_book') }}" method="post">
         <div class="form-grid">
             <label>
