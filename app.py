@@ -1,10 +1,31 @@
 import json
+import os
 import random
+import sqlite3
 from pathlib import Path
+from urllib import request as urlrequest
+from urllib.error import HTTPError, URLError
 from uuid import uuid4
 
+try:
+    from dotenv import load_dotenv
+except ModuleNotFoundError:  # pragma: no cover - fallback loader
+    def load_dotenv(dotenv_path=None):
+        path = Path(dotenv_path) if dotenv_path else Path(".env")
+        if not path.exists():
+            return
+        for line in path.read_text().splitlines():
+            stripped = line.strip()
+            if not stripped or stripped.startswith("#"):
+                continue
+            if "=" not in stripped:
+                continue
+            key, value = stripped.split("=", 1)
+            os.environ.setdefault(key.strip(), value.strip())
 from flask import Flask, redirect, render_template, request, url_for
 from werkzeug.utils import secure_filename
+
+load_dotenv()
 
 app = Flask(__name__)
 
@@ -23,6 +44,22 @@ UPLOAD_DIR = Path("static/uploads")
 ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
 CHARITY_ASPECTS_FILE = DATA_DIR / "charity_aspects.json"
 LOCAL_CHARITY_ASPECTS_FILE = LOCAL_DATA_DIR / "charity_aspects.json"
+CF_API_TOKEN = os.getenv("CF_API_TOKEN", "YOUR_TOKEN_HERE")
+CF_ACCOUNT_ID = os.getenv("CF_ACCOUNT_ID", "YOUR_ACCOUNT_ID")
+CF_D1_DATABASE_ID = os.getenv("CF_D1_DATABASE_ID", "YOUR_DATABASE_ID")
+D1_BASE_URL = (
+    f"https://api.cloudflare.com/client/v4/accounts/"
+    f"{CF_ACCOUNT_ID}/d1/database/{CF_D1_DATABASE_ID}/query"
+)
+D1_CONFIGURED = not any(
+    placeholder in value
+    for placeholder, value in {
+        "YOUR_TOKEN": CF_API_TOKEN,
+        "YOUR_ACCOUNT": CF_ACCOUNT_ID,
+        "YOUR_DATABASE": CF_D1_DATABASE_ID,
+    }.items()
+)
+LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
 
 
 DEFAULT_CHARITIES = [
@@ -198,6 +235,90 @@ def delete_logo_file(logo_url):
         file_path.unlink()
 
 
+def ensure_fallback_db():
+    ensure_local_data_dir()
+    if LOCAL_FALLBACK_DB.exists():
+        return
+
+    connection = sqlite3.connect(LOCAL_FALLBACK_DB)
+    connection.close()
+
+
+def normalize_result_set(result_payload):
+    if isinstance(result_payload, list) and result_payload:
+        first = result_payload[0]
+        if isinstance(first, dict):
+            return first.get("results", result_payload)
+    return result_payload or []
+
+
+def d1_query(sql, params=None):
+    params = params or []
+
+    if D1_CONFIGURED:
+        headers = {
+            "Authorization": f"Bearer {CF_API_TOKEN}",
+            "Content-Type": "application/json",
+        }
+        payload = json.dumps({"sql": sql, "params": params}).encode()
+
+        try:
+            request = urlrequest.Request(D1_BASE_URL, data=payload, headers=headers, method="POST")
+            with urlrequest.urlopen(request, timeout=20) as response:  # nosec B310
+                data = json.loads(response.read().decode())
+            if not data.get("success", False):
+                raise RuntimeError(data.get("errors", "Unknown D1 error"))
+            return normalize_result_set(data.get("result"))
+        except (HTTPError, URLError, TimeoutError, RuntimeError, json.JSONDecodeError) as exc:
+            print(f"D1 query failed; using local fallback database. Details: {exc}")
+
+    ensure_fallback_db()
+    connection = sqlite3.connect(LOCAL_FALLBACK_DB)
+    connection.row_factory = sqlite3.Row
+    with connection:
+        cursor = connection.execute(sql, params)
+        if cursor.description:
+            return [dict(row) for row in cursor.fetchall()]
+    return []
+
+
+def ensure_tables():
+    ensure_local_data_dir()
+    table_statements = [
+        """
+        CREATE TABLE IF NOT EXISTS charities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            description TEXT NOT NULL,
+            logo_url TEXT NOT NULL,
+            site_url TEXT NOT NULL,
+            json_aspects TEXT
+        );
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS books (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            title TEXT NOT NULL,
+            author TEXT NOT NULL,
+            description TEXT NOT NULL,
+            affiliate_url TEXT NOT NULL,
+            cover_url TEXT,
+            view_count INTEGER DEFAULT 0,
+            scroll_count INTEGER DEFAULT 0
+        );
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS calming_counts (
+            slug TEXT PRIMARY KEY,
+            count INTEGER DEFAULT 0
+        );
+        """,
+    ]
+
+    for statement in table_statements:
+        d1_query(statement)
+
+
 def save_charity_aspects(aspects):
     ensure_local_data_dir()
     with LOCAL_CHARITY_ASPECTS_FILE.open("w") as f:
@@ -258,66 +379,128 @@ def migrate_legacy_data(legacy_path, new_path):
 
 
 def load_charities():
-    ensure_local_data_dir()
-    ensure_data_dir()
-
-    migrate_legacy_data(LEGACY_LOCAL_CHARITIES_FILE, LOCAL_CHARITIES_FILE)
-
+    ensure_tables()
     charity_aspects = load_charity_aspects()
 
-    for source in (LOCAL_CHARITIES_FILE, CHARITIES_FILE):
-        if source.exists():
-            try:
-                with source.open() as f:
-                    charities = json.load(f)
-                break
-            except json.JSONDecodeError:
-                continue
-    else:
-        charities = DEFAULT_CHARITIES.copy()
+    rows = d1_query(
+        "SELECT id, name, description, logo_url, site_url, json_aspects FROM charities ORDER BY id"
+    )
+
+    if not rows:
+        charities = []
+        for charity in DEFAULT_CHARITIES:
+            charity_copy = {**charity, "aspects": {}}
+            charities.append(charity_copy)
+        ensure_charity_aspects(charities, charity_aspects)
+        save_charities(charities)
+        rows = d1_query(
+            "SELECT id, name, description, logo_url, site_url, json_aspects FROM charities ORDER BY id"
+        )
+
+    charities = []
+    for row in rows:
+        raw_aspects = row.get("json_aspects") if isinstance(row, dict) else None
+        try:
+            aspects = json.loads(raw_aspects) if raw_aspects else {}
+        except json.JSONDecodeError:
+            aspects = {}
+
+        charities.append(
+            {
+                "id": row.get("id") if isinstance(row, dict) else None,
+                "name": row.get("name", ""),
+                "description": row.get("description", ""),
+                "logo_url": row.get("logo_url", ""),
+                "site_url": row.get("site_url", ""),
+                "aspects": aspects,
+            }
+        )
 
     ensure_charity_aspects(charities, charity_aspects)
-    save_charities(charities)
     return charities
 
 
 def save_charities(charities):
-    ensure_local_data_dir()
-    with LOCAL_CHARITIES_FILE.open("w") as f:
-        json.dump(charities, f, indent=2)
+    ensure_tables()
+    d1_query("DELETE FROM charities")
+
+    for charity in charities:
+        aspects_json = json.dumps(charity.get("aspects") or {})
+        d1_query(
+            """
+            INSERT INTO charities (name, description, logo_url, site_url, json_aspects)
+            VALUES (?, ?, ?, ?, ?)
+            """,
+            [
+                charity.get("name", ""),
+                charity.get("description", ""),
+                charity.get("logo_url", ""),
+                charity.get("site_url", ""),
+                aspects_json,
+            ],
+        )
 
 
 def load_books():
-    ensure_local_data_dir()
-    ensure_data_dir()
+    ensure_tables()
 
-    migrate_legacy_data(LEGACY_LOCAL_BOOKS_FILE, LOCAL_BOOKS_FILE)
+    rows = d1_query(
+        """
+        SELECT id, title, author, description, affiliate_url, cover_url, view_count, scroll_count
+        FROM books
+        ORDER BY id
+        """
+    )
 
-    books = None
-    for source in (LOCAL_BOOKS_FILE, BOOKS_FILE):
-        if source.exists():
-            try:
-                with source.open() as f:
-                    books = json.load(f)
-                break
-            except json.JSONDecodeError:
-                continue
+    if not rows:
+        books = [book.copy() for book in DEFAULT_BOOKS]
+        save_books(books)
+        rows = d1_query(
+            """
+            SELECT id, title, author, description, affiliate_url, cover_url, view_count, scroll_count
+            FROM books
+            ORDER BY id
+            """
+        )
 
-    if books is None:
-        books = DEFAULT_BOOKS.copy()
+    books = []
+    for row in rows:
+        books.append(
+            {
+                "id": row.get("id") if isinstance(row, dict) else None,
+                "title": row.get("title", ""),
+                "author": row.get("author", ""),
+                "description": row.get("description", ""),
+                "affiliate_url": row.get("affiliate_url", ""),
+                "cover_url": row.get("cover_url", ""),
+                "view_count": (row.get("view_count", 0) or 0),
+                "scroll_count": (row.get("scroll_count", 0) or 0),
+            }
+        )
 
-    for book in books:
-        book.setdefault("view_count", 0)
-        book.setdefault("scroll_count", 0)
-
-    save_books(books)
     return books
 
 
 def save_books(books):
-    ensure_local_data_dir()
-    with LOCAL_BOOKS_FILE.open("w") as f:
-        json.dump(books, f, indent=2)
+    ensure_tables()
+    d1_query("DELETE FROM books")
+
+    for book in books:
+        d1_query(
+            """
+            INSERT INTO books (title, author, description, affiliate_url, cover_url, view_count, scroll_count)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
+            """,
+            [
+                book.get("title", ""),
+                book.get("author", ""),
+                book.get("description", ""),
+                book.get("affiliate_url", ""),
+                book.get("cover_url", ""),
+                int(book.get("view_count", 0) or 0),
+                int(book.get("scroll_count", 0) or 0),
+            ],
+        )
 
 
 def pick_featured_books(books, count=3):
@@ -548,24 +731,32 @@ def inject_calming_nav():
 
 
 def load_calming_counts():
-    ensure_local_data_dir()
+    ensure_tables()
 
-    if CALMING_COUNTS_FILE.exists():
-        try:
-            with CALMING_COUNTS_FILE.open() as f:
-                return json.load(f)
-        except json.JSONDecodeError:
-            pass
+    rows = d1_query("SELECT slug, count FROM calming_counts")
+    counts = {}
+    for row in rows:
+        slug = row.get("slug") if isinstance(row, dict) else None
+        if slug:
+            counts[slug] = int(row.get("count", 0) or 0)
 
-    counts = {tool.get("slug", slugify(tool["title"])): 0 for tool in CALMING_TOOLS}
+    for tool in CALMING_TOOLS:
+        slug = tool.get("slug", slugify(tool["title"]))
+        counts.setdefault(slug, 0)
+
     save_calming_counts(counts)
     return counts
 
 
 def save_calming_counts(counts):
-    ensure_local_data_dir()
-    with CALMING_COUNTS_FILE.open("w") as f:
-        json.dump(counts, f, indent=2)
+    ensure_tables()
+    d1_query("DELETE FROM calming_counts")
+
+    for slug, count in counts.items():
+        d1_query(
+            "INSERT INTO calming_counts (slug, count) VALUES (?, ?)",
+            [slug, int(count or 0)],
+        )
 
 
 def calming_tools_with_counts():
@@ -750,7 +941,7 @@ def snapshot_save():
     save_books(books)
 
     save_summary = build_dataset_summary(charities, books)
-    return render_admin_page(message="Data saved locally.", save_summary=save_summary)
+    return render_admin_page(message="Data saved to the database.", save_summary=save_summary)
 
 
 @app.route("/admin/load-data", methods=["POST"])
@@ -759,7 +950,7 @@ def snapshot_load():
     books = load_books()
     load_summary = build_dataset_summary(charities, books)
 
-    return render_admin_page(message="Data loaded from storage.", load_summary=load_summary)
+    return render_admin_page(message="Data loaded from the database.", load_summary=load_summary)
 
 
 @app.route("/admin/charities/aspects", methods=["POST"])
