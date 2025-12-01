@@ -318,6 +318,14 @@ def ensure_tables():
     for statement in table_statements:
         d1_query(statement)
 
+    # Always mirror the schema in the local fallback database so queries keep
+    # working even if Cloudflare D1 is configured but temporarily unreachable.
+    ensure_fallback_db()
+    connection = sqlite3.connect(LOCAL_FALLBACK_DB)
+    with connection:
+        for statement in table_statements:
+            connection.execute(statement)
+
 
 def save_charity_aspects(aspects):
     ensure_local_data_dir()
