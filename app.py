@@ -489,8 +489,41 @@ def load_books():
     return books
 
 
+def deduplicate_books(books):
+    deduped = []
+    seen = {}
+
+    for book in books:
+        key = (
+            book.get("title", "").strip().lower(),
+            book.get("author", "").strip().lower(),
+            book.get("affiliate_url", "").strip().lower(),
+        )
+
+        if key in seen:
+            existing = seen[key]
+            existing["view_count"] = (existing.get("view_count", 0) or 0) + (
+                book.get("view_count", 0) or 0
+            )
+            existing["scroll_count"] = (existing.get("scroll_count", 0) or 0) + (
+                book.get("scroll_count", 0) or 0
+            )
+            if not existing.get("cover_url") and book.get("cover_url"):
+                existing["cover_url"] = book.get("cover_url")
+            continue
+
+        clean_book = book.copy()
+        clean_book["view_count"] = int(clean_book.get("view_count", 0) or 0)
+        clean_book["scroll_count"] = int(clean_book.get("scroll_count", 0) or 0)
+        seen[key] = clean_book
+        deduped.append(clean_book)
+
+    return deduped
+
+
 def save_books(books):
     ensure_tables()
+    books = deduplicate_books(books)
     d1_query("DELETE FROM books")
 
     for book in books:
@@ -1103,6 +1136,12 @@ def delete_book(book_index):
         save_books(books)
         return redirect(url_for("admin", message="Book removed."))
     return redirect(url_for("admin", message="Book not found."))
+
+
+@app.route("/admin/books/delete-all", methods=["POST"])
+def delete_all_books():
+    save_books([])
+    return redirect(url_for("admin", message="All books removed."))
 
 
 @app.route("/admin/books/<int:book_index>/update", methods=["POST"])
