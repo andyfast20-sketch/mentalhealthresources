@@ -193,6 +193,22 @@ def ensure_local_data_dir():
     LOCAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def load_books_file():
+    ensure_local_data_dir()
+    if not LOCAL_BOOKS_FILE.exists():
+        return None
+
+    try:
+        with LOCAL_BOOKS_FILE.open() as f:
+            data = json.load(f)
+        if isinstance(data, list):
+            return data
+    except json.JSONDecodeError:
+        return None
+
+    return None
+
+
 def slugify(value):
     return "-".join(value.lower().split())
 
@@ -461,15 +477,21 @@ def load_books():
     )
 
     if not rows:
-        books = [book.copy() for book in DEFAULT_BOOKS]
-        save_books(books)
-        rows = d1_query(
-            """
-            SELECT id, title, author, description, affiliate_url, cover_url, view_count, scroll_count
-            FROM books
-            ORDER BY id
-            """
-        )
+        books_from_disk = load_books_file()
+        if books_from_disk is None:
+            books_from_disk = [book.copy() for book in DEFAULT_BOOKS]
+
+        if books_from_disk:
+            save_books(books_from_disk)
+            rows = d1_query(
+                """
+                SELECT id, title, author, description, affiliate_url, cover_url, view_count, scroll_count
+                FROM books
+                ORDER BY id
+                """
+            )
+        else:
+            return []
 
     books = []
     for row in rows:
@@ -524,6 +546,11 @@ def deduplicate_books(books):
 def save_books(books):
     ensure_tables()
     books = deduplicate_books(books)
+
+    ensure_local_data_dir()
+    with LOCAL_BOOKS_FILE.open("w") as f:
+        json.dump(books, f, indent=2)
+
     d1_query("DELETE FROM books")
 
     for book in books:
