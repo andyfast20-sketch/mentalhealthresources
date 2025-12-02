@@ -62,26 +62,7 @@ D1_CONFIGURED = not any(
 LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
 
 
-DEFAULT_CHARITIES = [
-    {
-        "name": "Mind (UK)",
-        "description": "Providing advice and empowering people experiencing mental health problems through helplines, advocacy, and community programs.",
-        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Mind.svg/320px-Mind.svg.png",
-        "site_url": "https://www.mind.org.uk/",
-    },
-    {
-        "name": "NAMI",  # National Alliance on Mental Illness
-        "description": "Education, support groups, and advocacy to build better lives for individuals and families affected by mental illness.",
-        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f8/NAMI-Logo.svg/320px-NAMI-Logo.svg.png",
-        "site_url": "https://www.nami.org/",
-    },
-    {
-        "name": "The Trevor Project",
-        "description": "Crisis intervention and suicide prevention services for LGBTQ+ young people, available 24/7 via phone, chat, and text.",
-        "logo_url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9f/The_Trevor_Project_logo.svg/320px-The_Trevor_Project_logo.svg.png",
-        "site_url": "https://www.thetrevorproject.org/",
-    },
-]
+DEFAULT_CHARITIES = []
 
 DEFAULT_CHARITY_ASPECTS = [
     "Website",
@@ -469,16 +450,12 @@ def load_charities():
 
     if not rows:
         charities_from_disk = load_charities_file()
-        if charities_from_disk is None:
-            charities_from_disk = [
-                {**charity, "aspects": {}} for charity in DEFAULT_CHARITIES
-            ]
-
-        charities_from_disk = deduplicate_charities(charities_from_disk, charity_aspects)
-        save_charities(charities_from_disk)
-        rows = d1_query(
-            "SELECT id, name, description, logo_url, site_url, json_aspects FROM charities ORDER BY id"
-        )
+        if charities_from_disk:
+            charities_from_disk = deduplicate_charities(charities_from_disk, charity_aspects)
+            save_charities(charities_from_disk)
+            rows = d1_query(
+                "SELECT id, name, description, logo_url, site_url, json_aspects FROM charities ORDER BY id"
+            )
 
     charities = []
     for row in rows:
