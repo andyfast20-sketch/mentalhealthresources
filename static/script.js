@@ -48,7 +48,6 @@ const anxietyVideoFrame = document.querySelector('[data-anxiety-video]');
 let crisisPlayer;
 let activeBookTrigger = null;
 let activeAdminTrigger = null;
-const trackedScrollBooks = new Set();
 
 function applyFilter(tag) {
   cards.forEach((card) => {
@@ -169,28 +168,6 @@ function updateBodyModalLock() {
   document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
 }
 
-function trackBookView(card) {
-  const index = card?.dataset.bookIndex;
-  if (index === undefined) return;
-
-  fetch(`/books/${index}/view`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-  }).catch(() => {});
-}
-
-function trackBookScroll(card) {
-  const index = card?.dataset.bookIndex;
-  if (index === undefined || trackedScrollBooks.has(index)) return;
-
-  trackedScrollBooks.add(index);
-
-  fetch(`/books/${index}/scroll`, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-  }).catch(() => {});
-}
-
 function populateBookModal(data) {
   if (!bookModal) return;
 
@@ -233,8 +210,6 @@ function populateBookModal(data) {
 function openBookModalFromCard(card, trigger) {
   if (!card) return;
 
-  trackBookView(card);
-
   const data = {
     title: card.dataset.bookTitle || card.querySelector('h3')?.textContent || '',
     author: card.dataset.bookAuthor || '',
@@ -257,33 +232,11 @@ function closeBookModal() {
   updateBodyModalLock();
 }
 
-function initBookScrollTracking() {
-  if (!bookCards.length) return;
-
-  const observer = new IntersectionObserver(
-    (entries) => {
-      entries.forEach((entry) => {
-        if (entry.isIntersecting) {
-          trackBookScroll(entry.target);
-        }
-      });
-    },
-    {
-      root: bookTrack || null,
-      threshold: 0.6,
-    }
-  );
-
-  bookCards.forEach((card) => observer.observe(card));
-}
-
 bookTriggerButtons.forEach((button) => {
   button.addEventListener('click', () => {
     openBookModalFromCard(button.closest('.book-card'), button);
   });
 });
-
-initBookScrollTracking();
 
 bookModalCloseButtons.forEach((button) => button.addEventListener('click', closeBookModal));
 

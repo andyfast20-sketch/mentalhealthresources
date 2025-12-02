@@ -335,11 +335,6 @@
             <p class="stat-number">{{ books_with_covers }}/{{ books|length }}</p>
             <p class="stat-helper">{{ books_without_covers }} missing covers</p>
         </div>
-        <div class="stat-card">
-            <p class="eyebrow">Total interactions</p>
-            <p class="stat-number">{{ total_book_interactions }}</p>
-            <p class="stat-helper">"View book" clicks + scrolls</p>
-        </div>
     </div>
 
     <div class="book-metrics-table-wrapper">
@@ -367,44 +362,6 @@
             </table>
         </div>
     </div>
-    <div class="book-metrics-table-wrapper">
-        <div class="panel-header compact">
-            <p class="eyebrow">Engagement</p>
-            <h3>Who looked at each book</h3>
-            <p class="lede">Counts increase when visitors open the book modal or scroll to a card in the home shelf.</p>
-        </div>
-        <div class="table-scroll">
-            <table class="book-metrics-table">
-                <thead>
-                    <tr>
-                        <th scope="col">Book</th>
-                        <th scope="col">"View book" clicks</th>
-                        <th scope="col">Scrolled-to cards</th>
-                        <th scope="col">Total interactions</th>
-                        <th scope="col" class="text-right">Reset</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for book in books %}
-                    <tr>
-                        <td>
-                            <div class="table-title">{{ book.title }}</div>
-                            <div class="eyebrow">{{ book.author }}</div>
-                        </td>
-                        <td>{{ book.view_count | default(0) }}</td>
-                        <td>{{ book.scroll_count | default(0) }}</td>
-                        <td>{{ (book.view_count | default(0)) + (book.scroll_count | default(0)) }}</td>
-                        <td class="text-right">
-                            <form action="{{ url_for('reset_book_views', book_index=loop.index0) }}" method="post">
-                                <button class="btn tiny secondary" type="submit">Reset counters</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-        </div>
-    </div>
     <div class="book-grid" style="--admin-book-columns: {{ books_per_row }}">
         {% for book in books %}
         <article class="book-card">
@@ -421,9 +378,6 @@
                 <p class="body book-admin-description">{{ book.description }}</p>
             </div>
             <div class="book-admin-footer">
-                <p class="body muted">
-                    Views: {{ book.view_count | default(0) }} · Scrolled: {{ book.scroll_count | default(0) }}
-                </p>
                 <div class="book-actions">
                     <a class="btn tiny" href="{{ book.affiliate_url }}" target="_blank" rel="noopener">View book</a>
                     <form action="{{ url_for('delete_book', book_index=loop.index0) }}" method="post">
@@ -442,9 +396,6 @@
                     >
                         Edit book
                     </button>
-                    <form action="{{ url_for('reset_book_views', book_index=loop.index0) }}" method="post">
-                        <button class="btn tiny secondary" type="submit">Reset counters</button>
-                    </form>
                     <div class="halo"></div>
                 </div>
             </div>
