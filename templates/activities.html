@@ -22,13 +22,16 @@
     <form class="admin-form" method="get" action="{{ url_for('activities_page') }}">
         <label>
             <span>Choose an activity</span>
-            <select name="activity_id" onchange="this.form.submit()">
-                {% for activity in activities %}
-                <option value="{{ activity.id }}" {% if selected_activity and selected_activity.id == activity.id %}selected{% endif %}>
-                    {{ activity.activity_name }} — {{ activity.organisation_name }}
-                </option>
-                {% endfor %}
-            </select>
+            <div class="select-wrapper">
+                <select class="radiant-select" name="activity_id" onchange="this.form.submit()">
+                    {% for activity in activities %}
+                    <option value="{{ activity.id }}" {% if selected_activity and selected_activity.id == activity.id %}selected{% endif %}>
+                        {{ activity.activity_name }} — {{ activity.organisation_name }}
+                    </option>
+                    {% endfor %}
+                </select>
+                <div class="select-embellishment" aria-hidden="true"></div>
+            </div>
         </label>
     </form>
 
