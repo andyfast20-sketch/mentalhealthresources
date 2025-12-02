@@ -1,15 +1,7 @@
 const tags = Array.from(document.querySelectorAll('.tag'));
 const cards = Array.from(document.querySelectorAll('.resource-card'));
 const resetBtn = document.getElementById('filter-reset');
-const sliderTrack = document.querySelector('[data-charity-track]');
-const sliderProgress = document.querySelector('[data-slide-progress]');
-const sliderPrev = document.querySelector('[data-slide-prev]');
-const sliderNext = document.querySelector('[data-slide-next]');
-const sliderWindow = document.querySelector('.slider-window');
 const dropdownTriggers = Array.from(document.querySelectorAll('[data-dropdown-toggle]'));
-const showCharitiesBtn = document.querySelector('[data-show-charities]');
-const charityModal = document.querySelector('[data-charity-modal]');
-const modalClose = document.querySelector('[data-modal-close]');
 const bookTrack = document.querySelector('[data-book-track]');
 const bookPrev = document.querySelector('[data-book-prev]');
 const bookNext = document.querySelector('[data-book-next]');
@@ -33,8 +25,6 @@ const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
 const anxietyModal = document.querySelector('[data-anxiety-modal]');
 const anxietyTriggers = Array.from(document.querySelectorAll('[data-anxiety-trigger]'));
 const anxietyCloseButtons = Array.from(document.querySelectorAll('[data-anxiety-close]'));
-let slideIndex = 0;
-let slideWidth = 0;
 let crisisPlayer;
 let activeBookTrigger = null;
 let activeAdminTrigger = null;
@@ -94,41 +84,6 @@ document.addEventListener('click', (event) => {
   });
 });
 
-function setSlide(index) {
-  if (!sliderTrack) return;
-  const slides = Array.from(sliderTrack.children);
-  if (!slides.length) return;
-  slideIndex = (index + slides.length) % slides.length;
-  slideWidth = sliderWindow?.getBoundingClientRect().width || slides[0].getBoundingClientRect().width;
-  sliderTrack.style.transform = `translateX(-${slideIndex * slideWidth}px)`;
-  const progressValue = ((slideIndex + 1) / slides.length) * 100;
-  if (sliderProgress) sliderProgress.style.width = `${progressValue}%`;
-  slides.forEach((slide, idx) => {
-    slide.classList.toggle('is-active', idx === slideIndex);
-  });
-}
-
-function initSlider() {
-  if (!sliderTrack) return;
-  setSlide(0);
-  sliderPrev?.addEventListener('click', () => setSlide(slideIndex - 1));
-  sliderNext?.addEventListener('click', () => setSlide(slideIndex + 1));
-  window.addEventListener('resize', () => setSlide(slideIndex));
-
-  let startX = 0;
-  sliderTrack.addEventListener('touchstart', (e) => {
-    startX = e.touches[0].clientX;
-  });
-  sliderTrack.addEventListener('touchend', (e) => {
-    const delta = e.changedTouches[0].clientX - startX;
-    if (Math.abs(delta) > 40) {
-      setSlide(slideIndex + (delta < 0 ? 1 : -1));
-    }
-  });
-}
-
-initSlider();
-
 function scrollBooks(direction = 1) {
   if (!bookTrack) return;
   const card = bookTrack.querySelector('.book-card');
@@ -185,7 +140,6 @@ if (window.YT && typeof window.YT.Player === 'function') {
 
 function updateBodyModalLock() {
   const hasOpenModal =
-    charityModal?.classList.contains('is-open') ||
     bookModal?.classList.contains('is-open') ||
     adminBookModal?.classList.contains('is-open') ||
     anxietyModal?.classList.contains('is-open');
@@ -381,29 +335,8 @@ anxietyModal?.addEventListener('click', (event) => {
   }
 });
 
-function openModal() {
-  if (!charityModal) return;
-  charityModal.classList.add('is-open');
-  updateBodyModalLock();
-}
-
-function closeModal() {
-  if (!charityModal) return;
-  charityModal.classList.remove('is-open');
-  updateBodyModalLock();
-}
-
-showCharitiesBtn?.addEventListener('click', openModal);
-modalClose?.addEventListener('click', closeModal);
-charityModal?.addEventListener('click', (event) => {
-  if (event.target === charityModal) {
-    closeModal();
-  }
-});
-
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
-    if (charityModal?.classList.contains('is-open')) closeModal();
     if (bookModal?.classList.contains('is-open')) closeBookModal();
     if (adminBookModal?.classList.contains('is-open')) closeAdminBookModal();
     if (anxietyModal?.classList.contains('is-open')) closeAnxietyModal();

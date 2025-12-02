@@ -1,11 +1,9 @@
 import json
 import os
-import random
 import sqlite3
 from pathlib import Path
 from urllib import request as urlrequest
 from urllib.error import HTTPError, URLError
-from uuid import uuid4
 
 try:
     from dotenv import load_dotenv
@@ -23,7 +21,6 @@ except ModuleNotFoundError:  # pragma: no cover - fallback loader
             key, value = stripped.split("=", 1)
             os.environ.setdefault(key.strip(), value.strip())
 from flask import Flask, redirect, render_template, request, url_for
-from werkzeug.utils import secure_filename
 
 load_dotenv()
 
@@ -33,17 +30,10 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 LOCAL_DATA_DIR = Path.home() / ".mentalhealthresources"
 LEGACY_LOCAL_DATA_DIR = BASE_DIR / "local_data"
-CHARITIES_FILE = DATA_DIR / "charities.json"
 BOOKS_FILE = DATA_DIR / "books.json"
-LOCAL_CHARITIES_FILE = LOCAL_DATA_DIR / "charities.json"
 LOCAL_BOOKS_FILE = LOCAL_DATA_DIR / "books.json"
-LEGACY_LOCAL_CHARITIES_FILE = LEGACY_LOCAL_DATA_DIR / "charities.json"
 LEGACY_LOCAL_BOOKS_FILE = LEGACY_LOCAL_DATA_DIR / "books.json"
 CALMING_COUNTS_FILE = LOCAL_DATA_DIR / "calming_counts.json"
-UPLOAD_DIR = BASE_DIR / "static" / "uploads"
-ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
-CHARITY_ASPECTS_FILE = DATA_DIR / "charity_aspects.json"
-LOCAL_CHARITY_ASPECTS_FILE = LOCAL_DATA_DIR / "charity_aspects.json"
 CF_API_TOKEN = os.getenv("CF_API_TOKEN", "YOUR_TOKEN_HERE")
 CF_ACCOUNT_ID = os.getenv("CF_ACCOUNT_ID", "YOUR_ACCOUNT_ID")
 CF_D1_DATABASE_ID = os.getenv("CF_D1_DATABASE_ID", "YOUR_DATABASE_ID")
@@ -62,16 +52,6 @@ D1_CONFIGURED = not any(
 LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
 SQLITE_TIMEOUT = 30
 
-
-DEFAULT_CHARITIES = []
-
-DEFAULT_CHARITY_ASPECTS = [
-    "Website",
-    "Helpline",
-    "Live Chat",
-    "Textline",
-    "Resource Library",
-]
 
 DEFAULT_BOOKS = [
     {
@@ -167,10 +147,6 @@ DEFAULT_BOOKS = [
 ]
 
 
-def ensure_data_dir():
-    DATA_DIR.mkdir(exist_ok=True)
-
-
 def ensure_local_data_dir():
     LOCAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -191,35 +167,8 @@ def load_books_file():
     return None
 
 
-def load_charities_file():
-    ensure_local_data_dir()
-    ensure_data_dir()
-
-    migrate_legacy_data(LEGACY_LOCAL_CHARITIES_FILE, LOCAL_CHARITIES_FILE)
-
-    for source in (LOCAL_CHARITIES_FILE, CHARITIES_FILE):
-        if source.exists():
-            try:
-                with source.open() as f:
-                    data = json.load(f)
-                if isinstance(data, list):
-                    return data
-            except json.JSONDecodeError:
-                continue
-
-    return None
-
-
 def slugify(value):
     return "-".join(value.lower().split())
-
-
-def ensure_upload_dir():
-    UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
-
-
-def allowed_logo(filename):
-    return "." in filename and filename.rsplit(".", 1)[1].lower() in ALLOWED_LOGO_EXTENSIONS
 
 
 def normalize_url(url):
@@ -229,54 +178,6 @@ def normalize_url(url):
     if url.startswith("http://") or url.startswith("https://"):
         return url
     return f"https://{url}"
-
-
-def normalize_logo_url(url):
-    """Normalize logo URLs while accepting local and data URIs.
-
-    The previous implementation coerced everything through ``normalize_url``
-    which adds an ``https://`` prefix. That broke valid logo paths such as
-    ``/static/uploads/...`` or data URIs and would result in broken logos on
-    the admin page. This helper now preserves already absolute/relative paths
-    and only prefixes ``https://`` when the input looks like a bare domain.
-    """
-
-    if not url:
-        return ""
-
-    cleaned = url.strip()
-
-    # Keep already absolute or protocol-relative references as-is.
-    if cleaned.startswith(("/", "data:", "http://", "https://")):
-        return cleaned
-
-    # Allow explicit upload folder references without double-normalizing.
-    if cleaned.startswith("static/uploads/"):
-        return f"/{cleaned}"
-
-    # Fallback to a safe HTTPS-prefixed URL for bare domains or paths.
-    return normalize_url(cleaned)
-
-
-def store_logo_file(logo_file):
-    if not logo_file or not logo_file.filename:
-        return None
-    if not allowed_logo(logo_file.filename):
-        return None
-
-    ensure_upload_dir()
-    filename = f"{uuid4().hex}_{secure_filename(logo_file.filename)}"
-    logo_file.save(UPLOAD_DIR / filename)
-    return f"/static/uploads/{filename}"
-
-
-def delete_logo_file(logo_url):
-    if not logo_url or not logo_url.startswith("/static/uploads/"):
-        return
-
-    file_path = BASE_DIR / logo_url.lstrip("/")
-    if file_path.exists() and file_path.is_file():
-        file_path.unlink()
 
 
 def ensure_fallback_db():
@@ -338,16 +239,6 @@ def ensure_tables():
     ensure_local_data_dir()
     table_statements = [
         """
-        CREATE TABLE IF NOT EXISTS charities (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL,
-            description TEXT NOT NULL,
-            logo_url TEXT NOT NULL,
-            site_url TEXT NOT NULL,
-            json_aspects TEXT
-        );
-        """,
-        """
         CREATE TABLE IF NOT EXISTS books (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             title TEXT NOT NULL,
@@ -376,199 +267,6 @@ def ensure_tables():
     with connection:
         for statement in table_statements:
             connection.execute(statement)
-
-
-def save_charity_aspects(aspects):
-    ensure_local_data_dir()
-    with LOCAL_CHARITY_ASPECTS_FILE.open("w") as f:
-        json.dump(aspects, f, indent=2)
-
-
-def load_charity_aspects():
-    ensure_local_data_dir()
-    ensure_data_dir()
-
-    for source in (LOCAL_CHARITY_ASPECTS_FILE, CHARITY_ASPECTS_FILE):
-        if source.exists():
-            try:
-                with source.open() as f:
-                    aspects = json.load(f)
-                if isinstance(aspects, list) and aspects:
-                    cleaned = []
-                    seen = set()
-                    for aspect in aspects:
-                        label = str(aspect).strip()
-                        if label and label not in seen:
-                            cleaned.append(label)
-                            seen.add(label)
-                    if cleaned:
-                        save_charity_aspects(cleaned)
-                        return cleaned
-            except json.JSONDecodeError:
-                continue
-
-    save_charity_aspects(DEFAULT_CHARITY_ASPECTS)
-    return DEFAULT_CHARITY_ASPECTS
-
-
-def parse_charity_aspects(form, aspects):
-    return {aspect: form.get(f"aspect_{slugify(aspect)}") == "on" for aspect in aspects}
-
-
-def ensure_charity_aspects(charities, aspects):
-    for charity in charities:
-        current = charity.get("aspects") or {}
-        normalized = {}
-        for aspect in aspects:
-            default_value = aspect.lower() == "website" and bool(charity.get("site_url"))
-            normalized[aspect] = bool(current.get(aspect, default_value))
-        charity["aspects"] = normalized
-    return charities
-
-
-def deduplicate_charities(charities, aspects):
-    deduped = []
-    seen = {}
-
-    for charity in charities:
-        name = charity.get("name", "").strip()
-        site_url = normalize_url(charity.get("site_url", ""))
-        description = charity.get("description", "").strip()
-        key = (name.lower(), site_url.lower())
-
-        if key in seen:
-            existing = seen[key]
-            merged_aspects = {}
-            existing_aspects = existing.get("aspects") or {}
-            new_aspects = charity.get("aspects") or {}
-
-            for aspect in aspects:
-                merged_aspects[aspect] = bool(
-                    existing_aspects.get(aspect) or new_aspects.get(aspect)
-                )
-
-            existing["aspects"] = merged_aspects
-            if description and not existing.get("description"):
-                existing["description"] = description
-            if site_url and not existing.get("site_url"):
-                existing["site_url"] = site_url
-            if charity.get("logo_url") and not existing.get("logo_url"):
-                existing["logo_url"] = charity.get("logo_url")
-            continue
-
-        clean_charity = {**charity, "name": name, "description": description, "site_url": site_url}
-        deduped.append(clean_charity)
-        seen[key] = clean_charity
-
-    ensure_charity_aspects(deduped, aspects)
-    return deduped
-
-
-def migrate_legacy_data(legacy_path, new_path):
-    if new_path.exists() or not legacy_path.exists():
-        return
-
-    new_path.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        new_path.write_bytes(legacy_path.read_bytes())
-    except OSError:
-        return
-
-
-def load_charities():
-    ensure_tables()
-    charity_aspects = load_charity_aspects()
-
-    rows = d1_query(
-        "SELECT id, name, description, logo_url, site_url, json_aspects FROM charities ORDER BY id"
-    )
-
-    if not rows:
-        charities_from_disk = load_charities_file()
-        if charities_from_disk:
-            charities_from_disk = deduplicate_charities(charities_from_disk, charity_aspects)
-            save_charities(charities_from_disk)
-            rows = d1_query(
-                "SELECT id, name, description, logo_url, site_url, json_aspects FROM charities ORDER BY id"
-            )
-
-    charities = []
-    for row in rows:
-        raw_aspects = row.get("json_aspects") if isinstance(row, dict) else None
-        try:
-            aspects = json.loads(raw_aspects) if raw_aspects else {}
-        except json.JSONDecodeError:
-            aspects = {}
-
-        charities.append(
-            {
-                "id": row.get("id") if isinstance(row, dict) else None,
-                "name": row.get("name", ""),
-                "description": row.get("description", ""),
-                "logo_url": row.get("logo_url", ""),
-                "site_url": row.get("site_url", ""),
-                "aspects": aspects,
-            }
-        )
-
-    cleaned_charities = deduplicate_charities(charities, charity_aspects)
-    if len(cleaned_charities) != len(charities):
-        save_charities(cleaned_charities)
-
-    return cleaned_charities
-
-
-def save_charities(charities):
-    ensure_tables()
-    charity_aspects = load_charity_aspects()
-    charities = deduplicate_charities(charities, charity_aspects)
-
-    ensure_local_data_dir()
-    with LOCAL_CHARITIES_FILE.open("w") as f:
-        json.dump(charities, f, indent=2)
-
-    # Rewrite the table in both Cloudflare D1 (if configured) and the local
-    # fallback database so deletes and logo updates stay in sync regardless of
-    # which backend is active.
-    if D1_CONFIGURED:
-        d1_query("DELETE FROM charities")
-
-    fallback_connection = open_local_db(sqlite3.Row)
-
-    with fallback_connection:
-        fallback_connection.execute("DELETE FROM charities")
-
-        for charity in charities:
-            aspects_json = json.dumps(charity.get("aspects") or {})
-            params = [
-                charity.get("id"),
-                charity.get("name", ""),
-                charity.get("description", ""),
-                charity.get("logo_url", ""),
-                charity.get("site_url", ""),
-                aspects_json,
-            ]
-
-            if D1_CONFIGURED:
-                d1_query(
-                    """
-                    INSERT INTO charities (id, name, description, logo_url, site_url, json_aspects)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                    """,
-                    params,
-                )
-
-            # Keep the local fallback DB mirrored even when D1 is configured.
-            fallback_connection.execute(
-                """
-                INSERT INTO charities (id, name, description, logo_url, site_url, json_aspects)
-                VALUES (?, ?, ?, ?, ?, ?)
-                """,
-                params,
-            )
-
-    fallback_connection.close()
-
 
 def load_books():
     ensure_tables()
@@ -984,24 +682,8 @@ COMMUNITY_HIGHLIGHTS = [
 
 @app.route("/")
 def index():
-    charities = load_charities()
-    featured_charities = random.sample(charities, min(3, len(charities))) if charities else []
-    books = load_books()
-    books = books_with_indices(books)
-    return render_template(
-        "home.html",
-        resources=RESOURCES,
-        charities=featured_charities,
-        all_charities=charities,
-        books=books,
-    )
-
-
-@app.route("/charities")
-def charities():
-    charities = load_charities()
-    charity_aspects = load_charity_aspects()
-    return render_template("charities.html", charities=charities, charity_aspects=charity_aspects)
+    books = books_with_indices(load_books())
+    return render_template("home.html", resources=RESOURCES, books=books)
 
 
 @app.route("/books")
@@ -1054,12 +736,8 @@ def crisis_info():
 
 
 
-def build_dataset_summary(charities, books):
+def build_dataset_summary(books):
     return {
-        "charities": [
-            {"name": charity.get("name", "Untitled"), "site_url": charity.get("site_url", "")}
-            for charity in charities
-        ],
         "books": [
             {
                 "title": book.get("title", "Untitled"),
@@ -1067,14 +745,12 @@ def build_dataset_summary(charities, books):
                 "affiliate_url": book.get("affiliate_url", ""),
             }
             for book in books
-        ],
+        ]
     }
 
 
 def render_admin_page(message=None, save_summary=None, load_summary=None):
-    charities = load_charities()
     books = load_books()
-    charity_aspects = load_charity_aspects()
     calming_tools = calming_tools_with_counts()
     total_book_interactions = sum(
         (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
@@ -1086,7 +762,6 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
 
     return render_template(
         "admin.html",
-        charities=charities,
         books=books,
         message=message,
         total_book_interactions=total_book_interactions,
@@ -1094,7 +769,6 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         books_without_covers=books_without_covers,
         books_per_row=books_per_row,
         calming_tools=calming_tools,
-        charity_aspects=charity_aspects,
         save_summary=save_summary,
         load_summary=load_summary,
     )
@@ -1108,152 +782,19 @@ def admin():
 
 @app.route("/admin/save-data", methods=["POST"])
 def snapshot_save():
-    charities = load_charities()
     books = load_books()
-    save_charities(charities)
     save_books(books)
 
-    save_summary = build_dataset_summary(charities, books)
+    save_summary = build_dataset_summary(books)
     return render_admin_page(message="Data saved to the database.", save_summary=save_summary)
 
 
 @app.route("/admin/load-data", methods=["POST"])
 def snapshot_load():
-    charities = load_charities()
     books = load_books()
-    load_summary = build_dataset_summary(charities, books)
+    load_summary = build_dataset_summary(books)
 
     return render_admin_page(message="Data loaded from the database.", load_summary=load_summary)
-
-
-@app.route("/admin/charities/aspects", methods=["POST"])
-def update_charity_aspects():
-    raw_aspects = request.form.get("aspect_list", "")
-    aspect_candidates = raw_aspects.replace("\n", ",").split(",")
-
-    cleaned = []
-    seen = set()
-    for aspect in aspect_candidates:
-        label = aspect.strip()
-        if label and label not in seen:
-            cleaned.append(label)
-            seen.add(label)
-
-    if not cleaned:
-        cleaned = DEFAULT_CHARITY_ASPECTS
-
-    save_charity_aspects(cleaned)
-
-    charities = load_charities()
-    ensure_charity_aspects(charities, cleaned)
-    save_charities(charities)
-
-    return redirect(url_for("admin", message="Charity columns updated."))
-
-
-@app.route("/admin/charities", methods=["POST"])
-def add_charity():
-    charity_aspects = load_charity_aspects()
-    name = request.form.get("name", "").strip()
-    description = request.form.get("description", "").strip()
-    logo_url = normalize_logo_url(request.form.get("logo_url", ""))
-    site_url = normalize_url(request.form.get("site_url", ""))
-    aspect_values = parse_charity_aspects(request.form, charity_aspects)
-
-    logo_file = request.files.get("logo_file")
-
-    if logo_file and logo_file.filename:
-        if not allowed_logo(logo_file.filename):
-            return redirect(url_for("admin", message="Logo must be an image file."))
-        logo_url = store_logo_file(logo_file)
-
-    if not all([name, description, site_url]) or not logo_url:
-        return redirect(url_for("admin", message="Please fill in all fields."))
-
-    charities = load_charities()
-    charities.append(
-        {
-            "name": name,
-            "description": description,
-            "logo_url": logo_url,
-            "site_url": site_url,
-            "aspects": aspect_values,
-        }
-    )
-    save_charities(charities)
-    return redirect(url_for("admin", message="Charity added successfully."))
-
-
-@app.route("/admin/charities/<int:charity_index>/delete", methods=["POST"])
-def delete_charity(charity_index):
-    charities = load_charities()
-    charity_id = request.form.get("charity_id")
-    target_index = None
-
-    if charity_id:
-        try:
-            charity_id_int = int(charity_id)
-        except ValueError:
-            charity_id_int = None
-        if charity_id_int is not None:
-            for idx, charity in enumerate(charities):
-                if charity.get("id") == charity_id_int:
-                    target_index = idx
-                    break
-
-    if target_index is None and 0 <= charity_index < len(charities):
-        target_index = charity_index
-
-    if target_index is not None and 0 <= target_index < len(charities):
-        removed = charities.pop(target_index)
-        save_charities(charities)
-        delete_logo_file(removed.get("logo_url"))
-        return redirect(url_for("admin", message="Charity removed."))
-    return redirect(url_for("admin", message="Charity not found."))
-
-
-@app.route("/admin/charities/delete-all", methods=["POST"])
-def delete_all_charities():
-    save_charities([])
-    return redirect(url_for("admin", message="All charities removed."))
-
-
-@app.route("/admin/charities/<int:charity_index>/update", methods=["POST"])
-def update_charity(charity_index):
-    charity_aspects = load_charity_aspects()
-    charities = load_charities()
-    if not (0 <= charity_index < len(charities)):
-        return redirect(url_for("admin", message="Charity not found."))
-
-    name = request.form.get("name", "").strip()
-    description = request.form.get("description", "").strip()
-    site_url = normalize_url(request.form.get("site_url", ""))
-    logo_url = normalize_logo_url(request.form.get("logo_url", ""))
-    logo_file = request.files.get("logo_file")
-    aspect_values = parse_charity_aspects(request.form, charity_aspects)
-
-    if logo_file and logo_file.filename:
-        if not allowed_logo(logo_file.filename):
-            return redirect(url_for("admin", message="Logo must be an image file."))
-        new_logo_url = store_logo_file(logo_file)
-        delete_logo_file(charities[charity_index].get("logo_url"))
-    elif logo_url:
-        new_logo_url = logo_url
-    else:
-        new_logo_url = charities[charity_index].get("logo_url")
-
-    if not all([name, description, site_url, new_logo_url]):
-        return redirect(url_for("admin", message="Please complete all fields to update."))
-
-    charities[charity_index] = {
-        "name": name,
-        "description": description,
-        "logo_url": new_logo_url,
-        "site_url": site_url,
-        "aspects": aspect_values,
-    }
-    save_charities(charities)
-    return redirect(url_for("admin", message="Charity updated."))
 
 
 @app.route("/admin/books", methods=["POST"])
