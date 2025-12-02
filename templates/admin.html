@@ -142,6 +142,13 @@
                         data-charity-description="{{ charity.description }}"
                         data-charity-logo="{{ charity.logo_url }}"
                         data-charity-website="{{ charity.website_url }}"
+                        data-charity-telephone="{{ charity.telephone }}"
+                        data-charity-has-helpline="{{ charity.has_helpline }}"
+                        data-charity-has-volunteers="{{ charity.has_volunteers }}"
+                        data-charity-has-crisis-info="{{ charity.has_crisis_info }}"
+                        data-charity-has-text-support="{{ charity.has_text_support }}"
+                        data-charity-has-email-support="{{ charity.has_email_support }}"
+                        data-charity-has-live-chat="{{ charity.has_live_chat }}"
                     >
                         Edit
                     </button>
@@ -415,6 +422,38 @@
                     <span>Website link</span>
                     <input type="url" name="website_url" placeholder="https://" required />
                 </label>
+            </div>
+            <div class="modal-grid">
+                <label>
+                    <span>Telephone (optional)</span>
+                    <input type="text" name="telephone" placeholder="+44 1234 567890" />
+                </label>
+                <div class="checkbox-grid">
+                    <label class="checkbox-field">
+                        <input type="checkbox" name="has_helpline" />
+                        <span>Helpline</span>
+                    </label>
+                    <label class="checkbox-field">
+                        <input type="checkbox" name="has_volunteers" />
+                        <span>Volunteers</span>
+                    </label>
+                    <label class="checkbox-field">
+                        <input type="checkbox" name="has_crisis_info" />
+                        <span>Crisis info</span>
+                    </label>
+                    <label class="checkbox-field">
+                        <input type="checkbox" name="has_text_support" />
+                        <span>Text support</span>
+                    </label>
+                    <label class="checkbox-field">
+                        <input type="checkbox" name="has_email_support" />
+                        <span>Email support</span>
+                    </label>
+                    <label class="checkbox-field">
+                        <input type="checkbox" name="has_live_chat" />
+                        <span>Live chat</span>
+                    </label>
+                </div>
             </div>
             <div class="form-actions">
                 <button class="btn" type="submit" data-admin-charity-submit>Save charity</button>

@@ -124,6 +124,29 @@
             </div>
         </div>
     </div>
+    <div class="modal-backdrop charity-modal-backdrop" data-charity-modal>
+        <div class="modal-dialog charity-modal" role="dialog" aria-modal="true" aria-labelledby="charityModalTitle">
+            <div class="modal-header">
+                <div>
+                    <p class="eyebrow">Charity</p>
+                    <h3 id="charityModalTitle" data-charity-modal-title></h3>
+                    <div class="charity-meta" data-charity-telephone-wrapper hidden>
+                        <span class="feature-icon" aria-hidden="true">☎️</span>
+                        <span data-charity-modal-telephone></span>
+                    </div>
+                </div>
+                <button class="modal-close" type="button" aria-label="Close charity details" data-charity-modal-close>&times;</button>
+            </div>
+            <div class="charity-modal-body">
+                <p class="body charity-modal-description" data-charity-modal-description></p>
+                <div class="charity-feature-list" data-charity-feature-list></div>
+                <div class="charity-modal-actions">
+                    <a class="btn" href="#" target="_blank" rel="noopener" data-charity-modal-link>Visit site</a>
+                    <button class="btn ghost" type="button" data-charity-modal-close>Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <script src="/static/script.js"></script>
     {% block scripts %}{% endblock %}
 </body>

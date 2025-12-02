@@ -213,6 +213,20 @@ def migrate_charities_schema_local(connection):
         migrations.append("ALTER TABLE charities ADD COLUMN website_url TEXT NOT NULL DEFAULT ''")
     if "created_at" not in columns:
         migrations.append("ALTER TABLE charities ADD COLUMN created_at DATETIME")
+    if "telephone" not in columns:
+        migrations.append("ALTER TABLE charities ADD COLUMN telephone TEXT DEFAULT ''")
+    for feature_column in [
+        "has_helpline",
+        "has_volunteers",
+        "has_crisis_info",
+        "has_text_support",
+        "has_email_support",
+        "has_live_chat",
+    ]:
+        if feature_column not in columns:
+            migrations.append(
+                f"ALTER TABLE charities ADD COLUMN {feature_column} INTEGER NOT NULL DEFAULT 0"
+            )
 
     for statement in migrations:
         connection.execute(statement)
@@ -240,6 +254,20 @@ def migrate_charities_schema_remote():
         d1_query(
             "UPDATE charities SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"
         )
+    if "telephone" not in columns:
+        d1_query("ALTER TABLE charities ADD COLUMN telephone TEXT DEFAULT ''")
+    for feature_column in [
+        "has_helpline",
+        "has_volunteers",
+        "has_crisis_info",
+        "has_text_support",
+        "has_email_support",
+        "has_live_chat",
+    ]:
+        if feature_column not in columns:
+            d1_query(
+                f"ALTER TABLE charities ADD COLUMN {feature_column} INTEGER NOT NULL DEFAULT 0"
+            )
 
 
 def normalize_result_set(result_payload):
@@ -306,7 +334,14 @@ def ensure_tables():
             logo_url TEXT,
             description TEXT NOT NULL,
             website_url TEXT NOT NULL,
-            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            telephone TEXT DEFAULT '',
+            has_helpline INTEGER NOT NULL DEFAULT 0,
+            has_volunteers INTEGER NOT NULL DEFAULT 0,
+            has_crisis_info INTEGER NOT NULL DEFAULT 0,
+            has_text_support INTEGER NOT NULL DEFAULT 0,
+            has_email_support INTEGER NOT NULL DEFAULT 0,
+            has_live_chat INTEGER NOT NULL DEFAULT 0
         );
         """,
     ]
@@ -438,7 +473,20 @@ def load_charities():
 
     rows = d1_query(
         """
-        SELECT id, name, logo_url, description, website_url, created_at
+        SELECT
+            id,
+            name,
+            logo_url,
+            description,
+            website_url,
+            created_at,
+            telephone,
+            has_helpline,
+            has_volunteers,
+            has_crisis_info,
+            has_text_support,
+            has_email_support,
+            has_live_chat
         FROM charities
         ORDER BY created_at DESC, id DESC
         """
@@ -454,6 +502,13 @@ def load_charities():
                 "description": row.get("description", ""),
                 "website_url": row.get("website_url", ""),
                 "created_at": row.get("created_at"),
+                "telephone": row.get("telephone", ""),
+                "has_helpline": bool(row.get("has_helpline")),
+                "has_volunteers": bool(row.get("has_volunteers")),
+                "has_crisis_info": bool(row.get("has_crisis_info")),
+                "has_text_support": bool(row.get("has_text_support")),
+                "has_email_support": bool(row.get("has_email_support")),
+                "has_live_chat": bool(row.get("has_live_chat")),
             }
         )
 
@@ -880,6 +935,13 @@ def add_charity():
     description = request.form.get("description", "").strip()
     website_url = normalize_url(request.form.get("website_url", ""))
     logo_url = normalize_url(request.form.get("logo_url", ""))
+    telephone = request.form.get("telephone", "").strip()
+    has_helpline = 1 if request.form.get("has_helpline") else 0
+    has_volunteers = 1 if request.form.get("has_volunteers") else 0
+    has_crisis_info = 1 if request.form.get("has_crisis_info") else 0
+    has_text_support = 1 if request.form.get("has_text_support") else 0
+    has_email_support = 1 if request.form.get("has_email_support") else 0
+    has_live_chat = 1 if request.form.get("has_live_chat") else 0
     created_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
     if not all([name, description, website_url]):
@@ -887,10 +949,36 @@ def add_charity():
 
     d1_query(
         """
-        INSERT INTO charities (name, logo_url, description, website_url, created_at)
-        VALUES (?, ?, ?, ?, ?)
+        INSERT INTO charities (
+            name,
+            logo_url,
+            description,
+            website_url,
+            created_at,
+            telephone,
+            has_helpline,
+            has_volunteers,
+            has_crisis_info,
+            has_text_support,
+            has_email_support,
+            has_live_chat
+        )
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
-        [name, logo_url, description, website_url, created_at],
+        [
+            name,
+            logo_url,
+            description,
+            website_url,
+            created_at,
+            telephone,
+            has_helpline,
+            has_volunteers,
+            has_crisis_info,
+            has_text_support,
+            has_email_support,
+            has_live_chat,
+        ],
     )
     return redirect(url_for("admin", message="Charity added."))
 
@@ -911,16 +999,48 @@ def update_charity(charity_id):
     logo_input = request.form.get("logo_url", "").strip()
     logo_url = normalize_url(logo_input) if logo_input else existing.get("logo_url", "")
 
+    telephone = request.form.get("telephone", "").strip()
+    has_helpline = 1 if request.form.get("has_helpline") else 0
+    has_volunteers = 1 if request.form.get("has_volunteers") else 0
+    has_crisis_info = 1 if request.form.get("has_crisis_info") else 0
+    has_text_support = 1 if request.form.get("has_text_support") else 0
+    has_email_support = 1 if request.form.get("has_email_support") else 0
+    has_live_chat = 1 if request.form.get("has_live_chat") else 0
+
     if not all([name, description, website_url]):
         return redirect(url_for("admin", message="Please complete all charity fields."))
 
     d1_query(
         """
         UPDATE charities
-        SET name = ?, logo_url = ?, description = ?, website_url = ?
+        SET
+            name = ?,
+            logo_url = ?,
+            description = ?,
+            website_url = ?,
+            telephone = ?,
+            has_helpline = ?,
+            has_volunteers = ?,
+            has_crisis_info = ?,
+            has_text_support = ?,
+            has_email_support = ?,
+            has_live_chat = ?
         WHERE id = ?
         """,
-        [name, logo_url, description, website_url, charity_id],
+        [
+            name,
+            logo_url,
+            description,
+            website_url,
+            telephone,
+            has_helpline,
+            has_volunteers,
+            has_crisis_info,
+            has_text_support,
+            has_email_support,
+            has_live_chat,
+            charity_id,
+        ],
     )
     return redirect(url_for("admin", message="Charity updated."))
 
