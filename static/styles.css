@@ -198,6 +198,12 @@ body {
   gap: 6px;
 }
 
+.nav-caret {
+  font-size: 12px;
+  opacity: 0.8;
+  transform: translateY(1px);
+}
+
 .dropdown-menu {
   position: absolute;
   top: calc(100% + 8px);
@@ -2134,6 +2140,74 @@ body {
   font-size: 15px;
   background: rgba(255, 255, 255, 0.95);
   box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
+.admin-form select {
+  border-radius: 14px;
+  border: 1px solid rgba(176, 125, 252, 0.4);
+  padding: 14px 48px 14px 14px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 700;
+  color: #2b1726;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.92), rgba(248, 232, 255, 0.88));
+  box-shadow: 0 14px 30px rgba(176, 125, 252, 0.2), 0 10px 24px rgba(62, 23, 52, 0.18);
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  backdrop-filter: blur(6px);
+  border-image: linear-gradient(120deg, rgba(245, 163, 181, 0.6), rgba(176, 125, 252, 0.7)) 1;
+}
+
+.admin-form select:focus-visible {
+  outline: none;
+  border-color: rgba(176, 125, 252, 0.75);
+  box-shadow: 0 16px 34px rgba(176, 125, 252, 0.26), 0 12px 26px rgba(62, 23, 52, 0.18);
+}
+
+.select-wrapper {
+  position: relative;
+  display: block;
+  isolation: isolate;
+}
+
+.select-wrapper::after {
+  content: "";
+  position: absolute;
+  right: 14px;
+  top: 50%;
+  width: 28px;
+  height: 28px;
+  border-radius: 10px;
+  background: linear-gradient(145deg, rgba(245, 163, 181, 0.85), rgba(176, 125, 252, 0.85));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.select-wrapper::before {
+  content: "▾";
+  position: absolute;
+  right: 22px;
+  top: 50%;
+  transform: translateY(-56%);
+  font-size: 12px;
+  font-weight: 800;
+  color: #2b1726;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.select-embellishment {
+  position: absolute;
+  inset: 8px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 20% 20%, rgba(245, 163, 181, 0.24), transparent 40%),
+    radial-gradient(circle at 80% 10%, rgba(176, 125, 252, 0.24), transparent 42%);
+  filter: blur(16px);
+  opacity: 0.8;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .admin-form textarea {
