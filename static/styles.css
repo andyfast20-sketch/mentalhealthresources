@@ -2488,6 +2488,26 @@ body {
   margin-top: 8px;
 }
 
+.calm-video-link {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 8px 14px;
+  border-radius: 999px;
+  backdrop-filter: blur(6px);
+  background: rgba(255, 255, 255, 0.9);
+  color: #3a2632;
+  box-shadow: 0 10px 22px rgba(195, 122, 117, 0.18);
+  border: 1px solid rgba(90, 56, 71, 0.14);
+}
+
+.calm-video-link:hover,
+.calm-video-link:focus-visible {
+  background: rgba(255, 255, 255, 0.98);
+  box-shadow: 0 14px 28px rgba(195, 122, 117, 0.24);
+}
+
 .pulse-ring {
   width: clamp(90px, 11vw, 110px);
   height: clamp(90px, 11vw, 110px);
