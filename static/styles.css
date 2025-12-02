@@ -1746,7 +1746,7 @@ body {
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.96), rgba(255, 247, 240, 0.92));
   border: 1px solid rgba(255, 255, 255, 0.92);
   box-shadow: 0 26px 70px rgba(54, 19, 35, 0.28);
-  overflow: hidden;
+  overflow: auto;
 }
 
 .book-modal {
