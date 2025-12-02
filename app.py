@@ -1,6 +1,7 @@
 import json
 import os
 import sqlite3
+from datetime import datetime
 from pathlib import Path
 from urllib import request as urlrequest
 from urllib.error import HTTPError, URLError
@@ -211,12 +212,15 @@ def migrate_charities_schema_local(connection):
     if "website_url" not in columns:
         migrations.append("ALTER TABLE charities ADD COLUMN website_url TEXT NOT NULL DEFAULT ''")
     if "created_at" not in columns:
-        migrations.append(
-            "ALTER TABLE charities ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
-        )
+        migrations.append("ALTER TABLE charities ADD COLUMN created_at DATETIME")
 
     for statement in migrations:
         connection.execute(statement)
+
+    if "created_at" not in columns:
+        connection.execute(
+            "UPDATE charities SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"
+        )
 
 
 def migrate_charities_schema_remote():
@@ -232,8 +236,9 @@ def migrate_charities_schema_remote():
     if "website_url" not in columns:
         d1_query("ALTER TABLE charities ADD COLUMN website_url TEXT NOT NULL DEFAULT ''")
     if "created_at" not in columns:
+        d1_query("ALTER TABLE charities ADD COLUMN created_at DATETIME")
         d1_query(
-            "ALTER TABLE charities ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+            "UPDATE charities SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"
         )
 
 
@@ -875,16 +880,17 @@ def add_charity():
     description = request.form.get("description", "").strip()
     website_url = normalize_url(request.form.get("website_url", ""))
     logo_url = normalize_url(request.form.get("logo_url", ""))
+    created_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
     if not all([name, description, website_url]):
         return redirect(url_for("admin", message="Please complete all charity fields."))
 
     d1_query(
         """
-        INSERT INTO charities (name, logo_url, description, website_url)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO charities (name, logo_url, description, website_url, created_at)
+        VALUES (?, ?, ?, ?, ?)
         """,
-        [name, logo_url, description, website_url],
+        [name, logo_url, description, website_url, created_at],
     )
     return redirect(url_for("admin", message="Charity added."))
 
