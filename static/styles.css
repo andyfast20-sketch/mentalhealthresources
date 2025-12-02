@@ -1759,7 +1759,8 @@ body {
   background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(242, 230, 255, 0.96));
   border: 1px solid rgba(255, 255, 255, 0.9);
   box-shadow: 0 30px 80px rgba(70, 35, 70, 0.3);
-  overflow: hidden;
+  overflow: auto;
+  scrollbar-gutter: stable;
 }
 
 .charity-modal-backdrop {
@@ -1971,7 +1972,12 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: 6px;
+  margin-top: auto;
+  padding-top: 10px;
+  position: sticky;
+  bottom: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(242, 230, 255, 0.95) 60%);
+  backdrop-filter: blur(2px);
 }
 
 .book-modal-actions .btn {
