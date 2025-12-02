@@ -199,6 +199,44 @@ def open_local_db(row_factory=None):
     return connection
 
 
+def get_table_columns(connection, table_name):
+    cursor = connection.execute(f"PRAGMA table_info({table_name})")
+    return {row[1] for row in cursor.fetchall()}
+
+
+def migrate_charities_schema_local(connection):
+    columns = get_table_columns(connection, "charities")
+
+    migrations = []
+    if "website_url" not in columns:
+        migrations.append("ALTER TABLE charities ADD COLUMN website_url TEXT NOT NULL DEFAULT ''")
+    if "created_at" not in columns:
+        migrations.append(
+            "ALTER TABLE charities ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+        )
+
+    for statement in migrations:
+        connection.execute(statement)
+
+
+def migrate_charities_schema_remote():
+    if not D1_CONFIGURED:
+        return
+
+    try:
+        columns = {row.get("name") for row in d1_query("PRAGMA table_info(charities)")}
+    except Exception as exc:  # pragma: no cover - best-effort logging
+        print(f"Skipping D1 schema migration; unable to inspect schema. Details: {exc}")
+        return
+
+    if "website_url" not in columns:
+        d1_query("ALTER TABLE charities ADD COLUMN website_url TEXT NOT NULL DEFAULT ''")
+    if "created_at" not in columns:
+        d1_query(
+            "ALTER TABLE charities ADD COLUMN created_at DATETIME DEFAULT CURRENT_TIMESTAMP"
+        )
+
+
 def normalize_result_set(result_payload):
     if isinstance(result_payload, list) and result_payload:
         first = result_payload[0]
@@ -277,6 +315,12 @@ def ensure_tables():
     with connection:
         for statement in table_statements:
             connection.execute(statement)
+
+    # Apply schema migrations to keep legacy databases aligned with the current model.
+    with open_local_db() as connection:
+        migrate_charities_schema_local(connection)
+
+    migrate_charities_schema_remote()
 
 def load_books():
     ensure_tables()
