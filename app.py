@@ -231,13 +231,29 @@ def normalize_url(url):
 
 
 def normalize_logo_url(url):
+    """Normalize logo URLs while accepting local and data URIs.
+
+    The previous implementation coerced everything through ``normalize_url``
+    which adds an ``https://`` prefix. That broke valid logo paths such as
+    ``/static/uploads/...`` or data URIs and would result in broken logos on
+    the admin page. This helper now preserves already absolute/relative paths
+    and only prefixes ``https://`` when the input looks like a bare domain.
+    """
+
     if not url:
         return ""
 
     cleaned = url.strip()
-    if cleaned.startswith("/static/uploads/"):
+
+    # Keep already absolute or protocol-relative references as-is.
+    if cleaned.startswith(("/", "data:", "http://", "https://")):
         return cleaned
 
+    # Allow explicit upload folder references without double-normalizing.
+    if cleaned.startswith("static/uploads/"):
+        return f"/{cleaned}"
+
+    # Fallback to a safe HTTPS-prefixed URL for bare domains or paths.
     return normalize_url(cleaned)
 
 
@@ -503,23 +519,48 @@ def save_charities(charities):
     with LOCAL_CHARITIES_FILE.open("w") as f:
         json.dump(charities, f, indent=2)
 
-    d1_query("DELETE FROM charities")
+    # Rewrite the table in both Cloudflare D1 (if configured) and the local
+    # fallback database so deletes and logo updates stay in sync regardless of
+    # which backend is active.
+    if D1_CONFIGURED:
+        d1_query("DELETE FROM charities")
 
-    for charity in charities:
-        aspects_json = json.dumps(charity.get("aspects") or {})
-        d1_query(
-            """
-            INSERT INTO charities (name, description, logo_url, site_url, json_aspects)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            [
+    fallback_connection = sqlite3.connect(LOCAL_FALLBACK_DB)
+    fallback_connection.row_factory = sqlite3.Row
+
+    with fallback_connection:
+        fallback_connection.execute("DELETE FROM charities")
+
+        for charity in charities:
+            aspects_json = json.dumps(charity.get("aspects") or {})
+            params = [
+                charity.get("id"),
                 charity.get("name", ""),
                 charity.get("description", ""),
                 charity.get("logo_url", ""),
                 charity.get("site_url", ""),
                 aspects_json,
-            ],
-        )
+            ]
+
+            if D1_CONFIGURED:
+                d1_query(
+                    """
+                    INSERT INTO charities (id, name, description, logo_url, site_url, json_aspects)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    params,
+                )
+
+            # Keep the local fallback DB mirrored even when D1 is configured.
+            fallback_connection.execute(
+                """
+                INSERT INTO charities (id, name, description, logo_url, site_url, json_aspects)
+                VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                params,
+            )
+
+    fallback_connection.close()
 
 
 def load_books():
