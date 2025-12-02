@@ -60,6 +60,7 @@ D1_CONFIGURED = not any(
     }.items()
 )
 LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
+SQLITE_TIMEOUT = 30
 
 
 DEFAULT_CHARITIES = []
@@ -283,8 +284,18 @@ def ensure_fallback_db():
     if LOCAL_FALLBACK_DB.exists():
         return
 
-    connection = sqlite3.connect(LOCAL_FALLBACK_DB)
+    connection = sqlite3.connect(LOCAL_FALLBACK_DB, timeout=SQLITE_TIMEOUT)
     connection.close()
+
+
+def open_local_db(row_factory=None):
+    """Open a connection to the local fallback database with a generous timeout."""
+
+    ensure_fallback_db()
+    connection = sqlite3.connect(LOCAL_FALLBACK_DB, timeout=SQLITE_TIMEOUT)
+    if row_factory:
+        connection.row_factory = row_factory
+    return connection
 
 
 def normalize_result_set(result_payload):
@@ -315,9 +326,7 @@ def d1_query(sql, params=None):
         except (HTTPError, URLError, TimeoutError, RuntimeError, json.JSONDecodeError) as exc:
             print(f"D1 query failed; using local fallback database. Details: {exc}")
 
-    ensure_fallback_db()
-    connection = sqlite3.connect(LOCAL_FALLBACK_DB)
-    connection.row_factory = sqlite3.Row
+    connection = open_local_db(sqlite3.Row)
     with connection:
         cursor = connection.execute(sql, params)
         if cursor.description:
@@ -363,8 +372,7 @@ def ensure_tables():
 
     # Always mirror the schema in the local fallback database so queries keep
     # working even if Cloudflare D1 is configured but temporarily unreachable.
-    ensure_fallback_db()
-    connection = sqlite3.connect(LOCAL_FALLBACK_DB)
+    connection = open_local_db()
     with connection:
         for statement in table_statements:
             connection.execute(statement)
@@ -525,8 +533,7 @@ def save_charities(charities):
     if D1_CONFIGURED:
         d1_query("DELETE FROM charities")
 
-    fallback_connection = sqlite3.connect(LOCAL_FALLBACK_DB)
-    fallback_connection.row_factory = sqlite3.Row
+    fallback_connection = open_local_db(sqlite3.Row)
 
     with fallback_connection:
         fallback_connection.execute("DELETE FROM charities")
