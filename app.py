@@ -209,6 +209,25 @@ def load_books_file():
     return None
 
 
+def load_charities_file():
+    ensure_local_data_dir()
+    ensure_data_dir()
+
+    migrate_legacy_data(LEGACY_LOCAL_CHARITIES_FILE, LOCAL_CHARITIES_FILE)
+
+    for source in (LOCAL_CHARITIES_FILE, CHARITIES_FILE):
+        if source.exists():
+            try:
+                with source.open() as f:
+                    data = json.load(f)
+                if isinstance(data, list):
+                    return data
+            except json.JSONDecodeError:
+                continue
+
+    return None
+
+
 def slugify(value):
     return "-".join(value.lower().split())
 
@@ -391,6 +410,44 @@ def ensure_charity_aspects(charities, aspects):
     return charities
 
 
+def deduplicate_charities(charities, aspects):
+    deduped = []
+    seen = {}
+
+    for charity in charities:
+        name = charity.get("name", "").strip()
+        site_url = normalize_url(charity.get("site_url", ""))
+        description = charity.get("description", "").strip()
+        key = (name.lower(), site_url.lower())
+
+        if key in seen:
+            existing = seen[key]
+            merged_aspects = {}
+            existing_aspects = existing.get("aspects") or {}
+            new_aspects = charity.get("aspects") or {}
+
+            for aspect in aspects:
+                merged_aspects[aspect] = bool(
+                    existing_aspects.get(aspect) or new_aspects.get(aspect)
+                )
+
+            existing["aspects"] = merged_aspects
+            if description and not existing.get("description"):
+                existing["description"] = description
+            if site_url and not existing.get("site_url"):
+                existing["site_url"] = site_url
+            if charity.get("logo_url") and not existing.get("logo_url"):
+                existing["logo_url"] = charity.get("logo_url")
+            continue
+
+        clean_charity = {**charity, "name": name, "description": description, "site_url": site_url}
+        deduped.append(clean_charity)
+        seen[key] = clean_charity
+
+    ensure_charity_aspects(deduped, aspects)
+    return deduped
+
+
 def migrate_legacy_data(legacy_path, new_path):
     if new_path.exists() or not legacy_path.exists():
         return
@@ -411,12 +468,14 @@ def load_charities():
     )
 
     if not rows:
-        charities = []
-        for charity in DEFAULT_CHARITIES:
-            charity_copy = {**charity, "aspects": {}}
-            charities.append(charity_copy)
-        ensure_charity_aspects(charities, charity_aspects)
-        save_charities(charities)
+        charities_from_disk = load_charities_file()
+        if charities_from_disk is None:
+            charities_from_disk = [
+                {**charity, "aspects": {}} for charity in DEFAULT_CHARITIES
+            ]
+
+        charities_from_disk = deduplicate_charities(charities_from_disk, charity_aspects)
+        save_charities(charities_from_disk)
         rows = d1_query(
             "SELECT id, name, description, logo_url, site_url, json_aspects FROM charities ORDER BY id"
         )
@@ -440,12 +499,22 @@ def load_charities():
             }
         )
 
-    ensure_charity_aspects(charities, charity_aspects)
-    return charities
+    cleaned_charities = deduplicate_charities(charities, charity_aspects)
+    if len(cleaned_charities) != len(charities):
+        save_charities(cleaned_charities)
+
+    return cleaned_charities
 
 
 def save_charities(charities):
     ensure_tables()
+    charity_aspects = load_charity_aspects()
+    charities = deduplicate_charities(charities, charity_aspects)
+
+    ensure_local_data_dir()
+    with LOCAL_CHARITIES_FILE.open("w") as f:
+        json.dump(charities, f, indent=2)
+
     d1_query("DELETE FROM charities")
 
     for charity in charities:
@@ -1088,6 +1157,12 @@ def delete_charity(charity_index):
         delete_logo_file(removed.get("logo_url"))
         return redirect(url_for("admin", message="Charity removed."))
     return redirect(url_for("admin", message="Charity not found."))
+
+
+@app.route("/admin/charities/delete-all", methods=["POST"])
+def delete_all_charities():
+    save_charities([])
+    return redirect(url_for("admin", message="All charities removed."))
 
 
 @app.route("/admin/charities/<int:charity_index>/update", methods=["POST"])
