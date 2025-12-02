@@ -221,6 +221,9 @@
             <div class="charity-actions">
                 <a class="btn tiny" href="{{ charity.site_url }}" target="_blank" rel="noopener">Visit site</a>
                 <form action="{{ url_for('delete_charity', charity_index=loop.index0) }}" method="post">
+                    {% if charity.id %}
+                    <input type="hidden" name="charity_id" value="{{ charity.id }}" />
+                    {% endif %}
                     <button class="btn tiny ghost" type="submit">Remove</button>
                 </form>
                 <div class="halo"></div>
