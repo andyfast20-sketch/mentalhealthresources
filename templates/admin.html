@@ -136,11 +136,58 @@
             </div>
             <p class="body">{{ activity.details or "No details provided yet." }}</p>
             <div class="book-actions">
+                <button
+                    class="btn tiny secondary"
+                    type="button"
+                    data-activity-edit-toggle
+                    data-target="activity-{{ activity.id }}"
+                    aria-expanded="false"
+                >
+                    Edit
+                </button>
                 <form action="{{ url_for('delete_charity_activity', activity_id=activity.id) }}" method="post" onsubmit="return confirm('Delete this activity?');">
                     <button class="btn tiny ghost" type="submit">Delete</button>
                 </form>
                 <div class="halo"></div>
             </div>
+            <form
+                class="admin-inline-form hidden"
+                data-activity-form="activity-{{ activity.id }}"
+                action="{{ url_for('update_charity_activity', activity_id=activity.id) }}"
+                method="post"
+            >
+                <div class="form-grid">
+                    <label>
+                        <span>Organisation</span>
+                        <input type="text" name="organisation_name" value="{{ activity.organisation_name }}" required />
+                    </label>
+                    <label>
+                        <span>Activity</span>
+                        <input type="text" name="activity_name" value="{{ activity.activity_name }}" required />
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <label>
+                        <span>Type or format (optional)</span>
+                        <input type="text" name="activity_type" value="{{ activity.activity_type or '' }}" />
+                    </label>
+                    <label>
+                        <span>Details</span>
+                        <input type="text" name="details" value="{{ activity.details or '' }}" />
+                    </label>
+                </div>
+                <div class="book-actions">
+                    <button class="btn tiny" type="submit">Save changes</button>
+                    <button
+                        class="btn tiny ghost"
+                        type="button"
+                        data-activity-edit-toggle
+                        data-target="activity-{{ activity.id }}"
+                    >
+                        Cancel
+                    </button>
+                </div>
+            </form>
         </article>
         {% else %}
         <p class="body">No activities yet. Add one to populate the dropdown on the Activities page.</p>
