@@ -42,7 +42,23 @@
             </div>
             <p class="body">{{ charity.description }}</p>
             <div class="charity-actions">
-                <a class="btn tiny" href="{{ charity.website_url }}" target="_blank" rel="noopener">Visit site</a>
+                <button
+                    class="btn tiny"
+                    type="button"
+                    data-charity-trigger
+                    data-charity-name="{{ charity.name }}"
+                    data-charity-description="{{ charity.description }}"
+                    data-charity-telephone="{{ charity.telephone }}"
+                    data-charity-website="{{ charity.website_url }}"
+                    data-charity-has-helpline="{{ charity.has_helpline }}"
+                    data-charity-has-volunteers="{{ charity.has_volunteers }}"
+                    data-charity-has-crisis-info="{{ charity.has_crisis_info }}"
+                    data-charity-has-text-support="{{ charity.has_text_support }}"
+                    data-charity-has-email-support="{{ charity.has_email_support }}"
+                    data-charity-has-live-chat="{{ charity.has_live_chat }}"
+                >
+                    Visit site
+                </button>
             </div>
         </article>
         {% else %}

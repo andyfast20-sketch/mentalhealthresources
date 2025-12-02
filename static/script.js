@@ -26,6 +26,15 @@ const adminCharityTriggers = Array.from(document.querySelectorAll('[data-admin-c
 const adminCharityCloseButtons = Array.from(document.querySelectorAll('[data-admin-charity-close]'));
 const adminCharityTitle = document.querySelector('[data-admin-charity-modal-title]');
 const adminCharitySubmit = document.querySelector('[data-admin-charity-submit]');
+const charityModal = document.querySelector('[data-charity-modal]');
+const charityModalTitle = document.querySelector('[data-charity-modal-title]');
+const charityModalTelephone = document.querySelector('[data-charity-modal-telephone]');
+const charityModalTelephoneWrapper = document.querySelector('[data-charity-telephone-wrapper]');
+const charityModalDescription = document.querySelector('[data-charity-modal-description]');
+const charityFeatureList = document.querySelector('[data-charity-feature-list]');
+const charityModalLink = document.querySelector('[data-charity-modal-link]');
+const charityModalCloseButtons = Array.from(document.querySelectorAll('[data-charity-modal-close]'));
+const charityTriggerButtons = Array.from(document.querySelectorAll('[data-charity-trigger]'));
 const crisisVolume = document.querySelector('[data-crisis-volume]');
 const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
 const anxietyModal = document.querySelector('[data-anxiety-modal]');
@@ -149,6 +158,7 @@ function updateBodyModalLock() {
     bookModal?.classList.contains('is-open') ||
     adminBookModal?.classList.contains('is-open') ||
     adminCharityModal?.classList.contains('is-open') ||
+    charityModal?.classList.contains('is-open') ||
     anxietyModal?.classList.contains('is-open');
   document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
 }
@@ -329,11 +339,31 @@ function populateAdminCharityForm(trigger) {
   const descriptionInput = adminCharityForm.querySelector('textarea[name="description"]');
   const logoInput = adminCharityForm.querySelector('input[name="logo_url"]');
   const websiteInput = adminCharityForm.querySelector('input[name="website_url"]');
+  const telephoneInput = adminCharityForm.querySelector('input[name="telephone"]');
+  const charityFeatureInputs = {
+    has_helpline: adminCharityForm.querySelector('input[name="has_helpline"]'),
+    has_volunteers: adminCharityForm.querySelector('input[name="has_volunteers"]'),
+    has_crisis_info: adminCharityForm.querySelector('input[name="has_crisis_info"]'),
+    has_text_support: adminCharityForm.querySelector('input[name="has_text_support"]'),
+    has_email_support: adminCharityForm.querySelector('input[name="has_email_support"]'),
+    has_live_chat: adminCharityForm.querySelector('input[name="has_live_chat"]'),
+  };
 
   if (nameInput) nameInput.value = trigger.dataset.charityName || '';
   if (descriptionInput) descriptionInput.value = trigger.dataset.charityDescription || '';
   if (logoInput) logoInput.value = trigger.dataset.charityLogo || '';
   if (websiteInput) websiteInput.value = trigger.dataset.charityWebsite || '';
+  if (telephoneInput) telephoneInput.value = trigger.dataset.charityTelephone || '';
+
+  Object.entries(charityFeatureInputs).forEach(([key, input]) => {
+    if (!input) return;
+    const datasetKey = key.replace(/_(\w)/g, (_, char) => char.toUpperCase());
+    const rawValue = trigger.dataset[`charity${datasetKey.charAt(0).toUpperCase()}${datasetKey.slice(1)}`];
+    input.checked = rawValue === 'True' || rawValue === 'true' || rawValue === '1';
+    if (!trigger.dataset.charityName) {
+      input.checked = false;
+    }
+  });
 
   if (adminCharityTitle && trigger.dataset.modalTitle) {
     adminCharityTitle.textContent = trigger.dataset.modalTitle;
@@ -367,6 +397,76 @@ adminCharityCloseButtons.forEach((button) => button.addEventListener('click', cl
 adminCharityModal?.addEventListener('click', (event) => {
   if (event.target === adminCharityModal) {
     closeAdminCharityModal();
+  }
+});
+
+const charityFeatureConfig = [
+  { key: 'charityHasHelpline', label: 'Helpline' },
+  { key: 'charityHasVolunteers', label: 'Volunteers' },
+  { key: 'charityHasCrisisInfo', label: 'Crisis info' },
+  { key: 'charityHasTextSupport', label: 'Text support' },
+  { key: 'charityHasEmailSupport', label: 'Email support' },
+  { key: 'charityHasLiveChat', label: 'Live chat' },
+];
+
+function parseDatasetBoolean(value) {
+  return value === 'True' || value === 'true' || value === '1';
+}
+
+function renderCharityFeatures(trigger) {
+  if (!charityFeatureList) return;
+  charityFeatureList.innerHTML = '';
+
+  charityFeatureConfig
+    .filter(({ key }) => parseDatasetBoolean(trigger.dataset[key]))
+    .forEach(({ label }) => {
+      const feature = document.createElement('div');
+      feature.className = 'charity-feature';
+      feature.innerHTML = `<span class="feature-icon" aria-hidden="true">✓</span><span>${label}</span>`;
+      charityFeatureList.appendChild(feature);
+    });
+}
+
+function openCharityModal(trigger) {
+  if (!charityModal || !trigger) return;
+
+  if (charityModalTitle) charityModalTitle.textContent = trigger.dataset.charityName || 'Charity';
+  if (charityModalDescription)
+    charityModalDescription.textContent = trigger.dataset.charityDescription || 'Learn more about this organisation.';
+
+  const telephone = trigger.dataset.charityTelephone || '';
+  if (charityModalTelephoneWrapper) {
+    charityModalTelephoneWrapper.hidden = !telephone;
+  }
+  if (charityModalTelephone) {
+    charityModalTelephone.textContent = telephone;
+  }
+
+  if (charityModalLink) {
+    charityModalLink.href = trigger.dataset.charityWebsite || '#';
+  }
+
+  renderCharityFeatures(trigger);
+
+  charityModal.classList.add('is-open');
+  updateBodyModalLock();
+}
+
+function closeCharityModal() {
+  if (!charityModal) return;
+  charityModal.classList.remove('is-open');
+  updateBodyModalLock();
+}
+
+charityTriggerButtons.forEach((trigger) => {
+  trigger.addEventListener('click', () => openCharityModal(trigger));
+});
+
+charityModalCloseButtons.forEach((button) => button.addEventListener('click', closeCharityModal));
+
+charityModal?.addEventListener('click', (event) => {
+  if (event.target === charityModal) {
+    closeCharityModal();
   }
 });
 
