@@ -1960,12 +1960,11 @@ body {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin-top: auto;
-  padding-top: 12px;
-  position: sticky;
-  bottom: 0;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0), #fff 65%);
-  border-top: 1px solid rgba(67, 35, 63, 0.08);
+  margin-top: 8px;
+  padding-top: 8px;
+  align-self: flex-start;
+  background: none;
+  border-top: 0;
 }
 
 .book-modal-actions .btn {
