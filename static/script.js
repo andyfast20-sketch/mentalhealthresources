@@ -26,6 +26,7 @@ const adminCharityTriggers = Array.from(document.querySelectorAll('[data-admin-c
 const adminCharityCloseButtons = Array.from(document.querySelectorAll('[data-admin-charity-close]'));
 const adminCharityTitle = document.querySelector('[data-admin-charity-modal-title]');
 const adminCharitySubmit = document.querySelector('[data-admin-charity-submit]');
+const activityEditToggles = Array.from(document.querySelectorAll('[data-activity-edit-toggle]'));
 const charityModal = document.querySelector('[data-charity-modal]');
 const charityModalTitle = document.querySelector('[data-charity-modal-title]');
 const charityModalTelephone = document.querySelector('[data-charity-modal-telephone]');
@@ -398,6 +399,32 @@ adminCharityModal?.addEventListener('click', (event) => {
   if (event.target === adminCharityModal) {
     closeAdminCharityModal();
   }
+});
+
+function toggleActivityEditForm(targetId) {
+  if (!targetId) return;
+
+  const form = document.querySelector(`[data-activity-form="${targetId}"]`);
+  const toggles = Array.from(
+    document.querySelectorAll(`[data-activity-edit-toggle][data-target="${targetId}"]`)
+  );
+
+  if (!form) return;
+
+  const isHidden = form.classList.toggle('hidden');
+
+  toggles.forEach((toggle) => {
+    toggle.textContent = isHidden ? 'Edit' : 'Close edit';
+    toggle.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+  });
+
+  if (!isHidden) {
+    form.querySelector('input, textarea')?.focus();
+  }
+}
+
+activityEditToggles.forEach((toggle) => {
+  toggle.addEventListener('click', () => toggleActivityEditForm(toggle.dataset.target));
 });
 
 const charityFeatureConfig = [

@@ -22,8 +22,12 @@
     <form class="admin-form" method="get" action="{{ url_for('activities_page') }}">
         <label>
             <span>Choose an activity</span>
+            <p class="form-hint">Use the dropdown to preview a specific listing.</p>
             <div class="select-wrapper">
                 <select class="radiant-select" name="activity_id" onchange="this.form.submit()">
+                    <option value="" disabled {% if not selected_activity %}selected{% endif %}>
+                        Pick an activity to see the details
+                    </option>
                     {% for activity in activities %}
                     <option value="{{ activity.id }}" {% if selected_activity and selected_activity.id == activity.id %}selected{% endif %}>
                         {{ activity.activity_name }} — {{ activity.organisation_name }}

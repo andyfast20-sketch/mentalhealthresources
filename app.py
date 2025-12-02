@@ -1016,6 +1016,33 @@ def delete_charity_activity(activity_id):
     return redirect(url_for("admin", message="Activity removed."))
 
 
+@app.route("/admin/activities/<int:activity_id>/update", methods=["POST"])
+def update_charity_activity(activity_id):
+    organisation_name = request.form.get("organisation_name", "").strip()
+    activity_name = request.form.get("activity_name", "").strip()
+    activity_type = request.form.get("activity_type", "").strip()
+    details = request.form.get("details", "").strip()
+
+    if not organisation_name or not activity_name:
+        return redirect(
+            url_for(
+                "admin",
+                message="Please include both an organisation and an activity name.",
+            )
+        )
+
+    d1_query(
+        """
+        UPDATE charity_activities
+        SET organisation_name = ?, activity_name = ?, activity_type = ?, details = ?
+        WHERE id = ?
+        """,
+        [organisation_name, activity_name, activity_type, details, activity_id],
+    )
+
+    return redirect(url_for("admin", message="Activity updated."))
+
+
 @app.route("/admin/charities", methods=["POST"])
 def add_charity():
     name = request.form.get("name", "").strip()
