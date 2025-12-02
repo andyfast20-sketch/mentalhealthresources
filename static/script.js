@@ -20,6 +20,12 @@ const adminBookModal = document.querySelector('[data-admin-book-modal]');
 const adminBookForm = document.querySelector('[data-admin-book-form]');
 const adminBookCloseButtons = Array.from(document.querySelectorAll('[data-admin-book-modal-close]'));
 const adminBookEditTriggers = Array.from(document.querySelectorAll('[data-admin-book-edit-trigger]'));
+const adminCharityModal = document.querySelector('[data-admin-charity-modal]');
+const adminCharityForm = document.querySelector('[data-admin-charity-form]');
+const adminCharityTriggers = Array.from(document.querySelectorAll('[data-admin-charity-open]'));
+const adminCharityCloseButtons = Array.from(document.querySelectorAll('[data-admin-charity-close]'));
+const adminCharityTitle = document.querySelector('[data-admin-charity-modal-title]');
+const adminCharitySubmit = document.querySelector('[data-admin-charity-submit]');
 const crisisVolume = document.querySelector('[data-crisis-volume]');
 const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
 const anxietyModal = document.querySelector('[data-anxiety-modal]');
@@ -142,6 +148,7 @@ function updateBodyModalLock() {
   const hasOpenModal =
     bookModal?.classList.contains('is-open') ||
     adminBookModal?.classList.contains('is-open') ||
+    adminCharityModal?.classList.contains('is-open') ||
     anxietyModal?.classList.contains('is-open');
   document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
 }
@@ -314,6 +321,55 @@ adminBookModal?.addEventListener('click', (event) => {
   }
 });
 
+function populateAdminCharityForm(trigger) {
+  if (!adminCharityForm || !trigger) return;
+  adminCharityForm.action = trigger.dataset.action || adminCharityForm.action;
+
+  const nameInput = adminCharityForm.querySelector('input[name="name"]');
+  const descriptionInput = adminCharityForm.querySelector('textarea[name="description"]');
+  const logoInput = adminCharityForm.querySelector('input[name="logo_url"]');
+  const websiteInput = adminCharityForm.querySelector('input[name="website_url"]');
+
+  if (nameInput) nameInput.value = trigger.dataset.charityName || '';
+  if (descriptionInput) descriptionInput.value = trigger.dataset.charityDescription || '';
+  if (logoInput) logoInput.value = trigger.dataset.charityLogo || '';
+  if (websiteInput) websiteInput.value = trigger.dataset.charityWebsite || '';
+
+  if (adminCharityTitle && trigger.dataset.modalTitle) {
+    adminCharityTitle.textContent = trigger.dataset.modalTitle;
+  }
+
+  if (adminCharitySubmit && trigger.dataset.submitLabel) {
+    adminCharitySubmit.textContent = trigger.dataset.submitLabel;
+  }
+}
+
+function openAdminCharityModal(trigger) {
+  if (!adminCharityModal) return;
+  populateAdminCharityForm(trigger);
+  adminCharityModal.classList.add('is-open');
+  updateBodyModalLock();
+  adminCharityForm?.querySelector('input[name="name"]')?.focus();
+}
+
+function closeAdminCharityModal() {
+  if (!adminCharityModal) return;
+  adminCharityModal.classList.remove('is-open');
+  updateBodyModalLock();
+}
+
+adminCharityTriggers.forEach((trigger) => {
+  trigger.addEventListener('click', () => openAdminCharityModal(trigger));
+});
+
+adminCharityCloseButtons.forEach((button) => button.addEventListener('click', closeAdminCharityModal));
+
+adminCharityModal?.addEventListener('click', (event) => {
+  if (event.target === adminCharityModal) {
+    closeAdminCharityModal();
+  }
+});
+
 function openAnxietyModal() {
   if (!anxietyModal) return;
   anxietyModal.classList.add('is-open');
@@ -339,6 +395,7 @@ document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     if (bookModal?.classList.contains('is-open')) closeBookModal();
     if (adminBookModal?.classList.contains('is-open')) closeAdminBookModal();
+    if (adminCharityModal?.classList.contains('is-open')) closeAdminCharityModal();
     if (anxietyModal?.classList.contains('is-open')) closeAnxietyModal();
   }
 });

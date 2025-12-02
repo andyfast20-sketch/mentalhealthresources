@@ -256,6 +256,16 @@ def ensure_tables():
             count INTEGER DEFAULT 0
         );
         """,
+        """
+        CREATE TABLE IF NOT EXISTS charities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            logo_url TEXT,
+            description TEXT NOT NULL,
+            website_url TEXT NOT NULL,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        """,
     ]
 
     for statement in table_statements:
@@ -372,6 +382,33 @@ def save_books(books):
                 int(book.get("scroll_count", 0) or 0),
             ],
         )
+
+
+def load_charities():
+    ensure_tables()
+
+    rows = d1_query(
+        """
+        SELECT id, name, logo_url, description, website_url, created_at
+        FROM charities
+        ORDER BY created_at DESC, id DESC
+        """
+    )
+
+    charities = []
+    for row in rows:
+        charities.append(
+            {
+                "id": row.get("id") if isinstance(row, dict) else None,
+                "name": row.get("name", ""),
+                "logo_url": row.get("logo_url", ""),
+                "description": row.get("description", ""),
+                "website_url": row.get("website_url", ""),
+                "created_at": row.get("created_at"),
+            }
+        )
+
+    return charities
 
 
 def pick_featured_books(books, count=3):
@@ -683,13 +720,19 @@ COMMUNITY_HIGHLIGHTS = [
 @app.route("/")
 def index():
     books = books_with_indices(load_books())
-    return render_template("home.html", resources=RESOURCES, books=books)
+    charities = load_charities()
+    return render_template("home.html", resources=RESOURCES, books=books, charities=charities)
 
 
 @app.route("/books")
 def books():
     book_list = books_with_indices(load_books())
     return render_template("books.html", books=book_list)
+
+
+@app.route("/charities")
+def charities_page():
+    return render_template("charities.html", charities=load_charities())
 
 
 @app.route("/resources")
@@ -751,6 +794,7 @@ def build_dataset_summary(books):
 
 def render_admin_page(message=None, save_summary=None, load_summary=None):
     books = load_books()
+    charities = load_charities()
     calming_tools = calming_tools_with_counts()
     total_book_interactions = sum(
         (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
@@ -769,6 +813,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         books_without_covers=books_without_covers,
         books_per_row=books_per_row,
         calming_tools=calming_tools,
+        charities=charities,
         save_summary=save_summary,
         load_summary=load_summary,
     )
@@ -778,6 +823,62 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
 def admin():
     message = request.args.get("message")
     return render_admin_page(message=message)
+
+
+@app.route("/admin/charities", methods=["POST"])
+def add_charity():
+    name = request.form.get("name", "").strip()
+    description = request.form.get("description", "").strip()
+    website_url = normalize_url(request.form.get("website_url", ""))
+    logo_url = normalize_url(request.form.get("logo_url", ""))
+
+    if not all([name, description, website_url]):
+        return redirect(url_for("admin", message="Please complete all charity fields."))
+
+    d1_query(
+        """
+        INSERT INTO charities (name, logo_url, description, website_url)
+        VALUES (?, ?, ?, ?)
+        """,
+        [name, logo_url, description, website_url],
+    )
+    return redirect(url_for("admin", message="Charity added."))
+
+
+@app.route("/admin/charities/<int:charity_id>/update", methods=["POST"])
+def update_charity(charity_id):
+    charities = load_charities()
+    existing = next((c for c in charities if c.get("id") == charity_id), None)
+    if not existing:
+        return redirect(url_for("admin", message="Charity not found."))
+
+    name = request.form.get("name", "").strip() or existing.get("name", "")
+    description = request.form.get("description", "").strip() or existing.get("description", "")
+
+    website_input = request.form.get("website_url", "").strip()
+    website_url = normalize_url(website_input) if website_input else existing.get("website_url", "")
+
+    logo_input = request.form.get("logo_url", "").strip()
+    logo_url = normalize_url(logo_input) if logo_input else existing.get("logo_url", "")
+
+    if not all([name, description, website_url]):
+        return redirect(url_for("admin", message="Please complete all charity fields."))
+
+    d1_query(
+        """
+        UPDATE charities
+        SET name = ?, logo_url = ?, description = ?, website_url = ?
+        WHERE id = ?
+        """,
+        [name, logo_url, description, website_url, charity_id],
+    )
+    return redirect(url_for("admin", message="Charity updated."))
+
+
+@app.route("/admin/charities/<int:charity_id>/delete", methods=["POST"])
+def delete_charity(charity_id):
+    d1_query("DELETE FROM charities WHERE id = ?", [charity_id])
+    return redirect(url_for("admin", message="Charity removed."))
 
 
 @app.route("/admin/save-data", methods=["POST"])
