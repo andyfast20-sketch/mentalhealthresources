@@ -61,8 +61,6 @@ DEFAULT_BOOKS = [
         "description": "A compassionate guide through 87 emotions and experiences, helping readers name what they feel and find language for connection.",
         "affiliate_url": "https://amzn.to/3K6C0Lk",
         "cover_url": "https://m.media-amazon.com/images/I/71+Jx1gIdwL._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "Maybe You Should Talk to Someone",
@@ -70,8 +68,6 @@ DEFAULT_BOOKS = [
         "description": "A therapist pulls back the curtain on her own sessions and reminds us therapy is a courageous act of care.",
         "affiliate_url": "https://amzn.to/4bj8QEv",
         "cover_url": "https://m.media-amazon.com/images/I/81PxgyrpFZL._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "The Body Keeps the Score",
@@ -79,8 +75,6 @@ DEFAULT_BOOKS = [
         "description": "Evidence-based insights on how trauma lives in the body and the healing pathways that restore safety.",
         "affiliate_url": "https://amzn.to/3yOaYDh",
         "cover_url": "https://m.media-amazon.com/images/I/81dQwQlmAXL._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "Set Boundaries, Find Peace",
@@ -88,8 +82,6 @@ DEFAULT_BOOKS = [
         "description": "Practical scripts and exercises to set limits with compassion, reduce overwhelm, and protect your energy.",
         "affiliate_url": "https://amzn.to/3YVn1ch",
         "cover_url": "https://m.media-amazon.com/images/I/71m3C1AI+8L._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "Burnout: The Secret to Unlocking the Stress Cycle",
@@ -97,8 +89,6 @@ DEFAULT_BOOKS = [
         "description": "Research-backed strategies for completing the stress cycle, especially for caregivers and high achievers.",
         "affiliate_url": "https://amzn.to/3WklwZg",
         "cover_url": "https://m.media-amazon.com/images/I/71A4HVWjQBL._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "Emotional Agility",
@@ -106,8 +96,6 @@ DEFAULT_BOOKS = [
         "description": "Science-backed tools to navigate emotions with curiosity and courage instead of getting stuck.",
         "affiliate_url": "https://amzn.to/3WOO5RW",
         "cover_url": "https://m.media-amazon.com/images/I/71kN7vR-4cL._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "The Happiness Trap",
@@ -115,8 +103,6 @@ DEFAULT_BOOKS = [
         "description": "An introduction to Acceptance and Commitment Therapy that shows how to unhook from unhelpful thoughts.",
         "affiliate_url": "https://amzn.to/4c8gZNh",
         "cover_url": "https://m.media-amazon.com/images/I/71K9CsgY1QL._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "What Happened to You?",
@@ -124,8 +110,6 @@ DEFAULT_BOOKS = [
         "description": "A compassionate conversation about trauma, resilience, and the healing power of understanding.",
         "affiliate_url": "https://amzn.to/3KMV3r9",
         "cover_url": "https://m.media-amazon.com/images/I/81xG0LknQ+L._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "The Comfort Book",
@@ -133,8 +117,6 @@ DEFAULT_BOOKS = [
         "description": "Short, soothing reflections and reminders that hope can be found in small, everyday moments.",
         "affiliate_url": "https://amzn.to/3KJP3qH",
         "cover_url": "https://m.media-amazon.com/images/I/71lz6h6hysL._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
     {
         "title": "Self-Compassion",
@@ -142,8 +124,6 @@ DEFAULT_BOOKS = [
         "description": "Practical exercises for treating yourself with the same kindness you offer others.",
         "affiliate_url": "https://amzn.to/3WUgJRl",
         "cover_url": "https://m.media-amazon.com/images/I/71pPpM9VfNL._SL1500_.jpg",
-        "view_count": 0,
-        "scroll_count": 0,
     },
 ]
 
@@ -316,9 +296,7 @@ def ensure_tables():
             author TEXT NOT NULL,
             description TEXT NOT NULL,
             affiliate_url TEXT NOT NULL,
-            cover_url TEXT,
-            view_count INTEGER DEFAULT 0,
-            scroll_count INTEGER DEFAULT 0
+            cover_url TEXT
         );
         """,
         """
@@ -377,7 +355,7 @@ def load_books():
 
     rows = d1_query(
         """
-        SELECT id, title, author, description, affiliate_url, cover_url, view_count, scroll_count
+        SELECT id, title, author, description, affiliate_url, cover_url
         FROM books
         ORDER BY id
         """
@@ -392,7 +370,7 @@ def load_books():
             save_books(books_from_disk)
             rows = d1_query(
                 """
-                SELECT id, title, author, description, affiliate_url, cover_url, view_count, scroll_count
+                SELECT id, title, author, description, affiliate_url, cover_url
                 FROM books
                 ORDER BY id
                 """
@@ -400,22 +378,24 @@ def load_books():
         else:
             return []
 
-    books = []
-    for row in rows:
-        books.append(
-            {
-                "id": row.get("id") if isinstance(row, dict) else None,
-                "title": row.get("title", ""),
-                "author": row.get("author", ""),
-                "description": row.get("description", ""),
-                "affiliate_url": row.get("affiliate_url", ""),
-                "cover_url": row.get("cover_url", ""),
-                "view_count": (row.get("view_count", 0) or 0),
-                "scroll_count": (row.get("scroll_count", 0) or 0),
-            }
-        )
+    books = [
+        {
+            "id": row.get("id") if isinstance(row, dict) else None,
+            "title": row.get("title", ""),
+            "author": row.get("author", ""),
+            "description": row.get("description", ""),
+            "affiliate_url": row.get("affiliate_url", ""),
+            "cover_url": row.get("cover_url", ""),
+        }
+        for row in rows
+    ]
 
-    return books
+    deduped_books = deduplicate_books(books)
+    if len(deduped_books) != len(books):
+        save_books(deduped_books)
+        return deduped_books
+
+    return deduped_books
 
 
 def deduplicate_books(books):
@@ -431,19 +411,17 @@ def deduplicate_books(books):
 
         if key in seen:
             existing = seen[key]
-            existing["view_count"] = (existing.get("view_count", 0) or 0) + (
-                book.get("view_count", 0) or 0
-            )
-            existing["scroll_count"] = (existing.get("scroll_count", 0) or 0) + (
-                book.get("scroll_count", 0) or 0
-            )
             if not existing.get("cover_url") and book.get("cover_url"):
                 existing["cover_url"] = book.get("cover_url")
             continue
 
-        clean_book = book.copy()
-        clean_book["view_count"] = int(clean_book.get("view_count", 0) or 0)
-        clean_book["scroll_count"] = int(clean_book.get("scroll_count", 0) or 0)
+        clean_book = {
+            "title": book.get("title", ""),
+            "author": book.get("author", ""),
+            "description": book.get("description", ""),
+            "affiliate_url": book.get("affiliate_url", ""),
+            "cover_url": book.get("cover_url", ""),
+        }
         seen[key] = clean_book
         deduped.append(clean_book)
 
@@ -463,8 +441,8 @@ def save_books(books):
     for book in books:
         d1_query(
             """
-            INSERT INTO books (title, author, description, affiliate_url, cover_url, view_count, scroll_count)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO books (title, author, description, affiliate_url, cover_url)
+            VALUES (?, ?, ?, ?, ?)
             """,
             [
                 book.get("title", ""),
@@ -472,8 +450,6 @@ def save_books(books):
                 book.get("description", ""),
                 book.get("affiliate_url", ""),
                 book.get("cover_url", ""),
-                int(book.get("view_count", 0) or 0),
-                int(book.get("scroll_count", 0) or 0),
             ],
         )
 
@@ -556,16 +532,7 @@ def pick_featured_books(books, count=3):
     if len(books) <= count:
         return list(range(len(books)))
 
-    weights = [(book.get("view_count", 0) or 0) + 1 for book in books]
-    selected_indices = []
-    available_indices = list(range(len(books)))
-
-    while len(selected_indices) < count and available_indices:
-        choice = random.choices(available_indices, weights=[weights[i] for i in available_indices], k=1)[0]
-        selected_indices.append(choice)
-        available_indices.remove(choice)
-
-    return selected_indices
+    return list(range(count))
 
 
 def books_with_indices(books):
@@ -957,10 +924,6 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
     charities = load_charities()
     charity_activities = load_charity_activities()
     calming_tools = calming_tools_with_counts()
-    total_book_interactions = sum(
-        (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
-        for book in books
-    )
     books_with_covers = sum(1 for book in books if book.get("cover_url"))
     books_without_covers = len(books) - books_with_covers
     books_per_row = 4
@@ -969,7 +932,6 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         "admin.html",
         books=books,
         message=message,
-        total_book_interactions=total_book_interactions,
         books_with_covers=books_with_covers,
         books_without_covers=books_without_covers,
         books_per_row=books_per_row,
@@ -1201,8 +1163,6 @@ def add_book():
             "description": description,
             "affiliate_url": affiliate_url,
             "cover_url": cover_url,
-            "view_count": 0,
-            "scroll_count": 0,
         }
     )
     save_books(books)
@@ -1254,45 +1214,9 @@ def update_book(book_index):
         "description": description,
         "affiliate_url": affiliate_url,
         "cover_url": cover_url,
-        "view_count": existing_book.get("view_count", 0),
-        "scroll_count": existing_book.get("scroll_count", 0),
     }
     save_books(books)
     return redirect(url_for("admin", message="Book updated."))
-
-
-@app.route("/books/<int:book_index>/view", methods=["POST"])
-def track_book_view(book_index):
-    books = load_books()
-    if not (0 <= book_index < len(books)):
-        return {"success": False, "message": "Book not found."}, 404
-
-    books[book_index]["view_count"] = (books[book_index].get("view_count", 0) or 0) + 1
-    save_books(books)
-    return {"success": True, "view_count": books[book_index]["view_count"]}
-
-
-@app.route("/books/<int:book_index>/scroll", methods=["POST"])
-def track_book_scroll(book_index):
-    books = load_books()
-    if not (0 <= book_index < len(books)):
-        return {"success": False, "message": "Book not found."}, 404
-
-    books[book_index]["scroll_count"] = (books[book_index].get("scroll_count", 0) or 0) + 1
-    save_books(books)
-    return {"success": True, "scroll_count": books[book_index]["scroll_count"]}
-
-
-@app.route("/admin/books/<int:book_index>/reset_views", methods=["POST"])
-def reset_book_views(book_index):
-    books = load_books()
-    if not (0 <= book_index < len(books)):
-        return redirect(url_for("admin", message="Book not found."))
-
-    books[book_index]["view_count"] = 0
-    books[book_index]["scroll_count"] = 0
-    save_books(books)
-    return redirect(url_for("admin", message="Book counters reset."))
 
 
 @app.route("/calming-tools/<slug>/complete", methods=["POST"])
