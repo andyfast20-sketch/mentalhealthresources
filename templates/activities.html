@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Activity guide</p>
+        <h1>See what charities offer</h1>
+        <p class="lede">Browse a simple list of group sessions, coffee mornings, and other activities—without needing a specific charity profile.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="panel admin-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Explore</p>
+        <h2>Pick an activity to learn more.</h2>
+        <p class="lede">These entries are stored in the database separately from the charity directory so you can feature offers from any organisation.</p>
+    </div>
+
+    {% if activities %}
+    <form class="admin-form" method="get" action="{{ url_for('activities_page') }}">
+        <label>
+            <span>Choose an activity</span>
+            <select name="activity_id" onchange="this.form.submit()">
+                {% for activity in activities %}
+                <option value="{{ activity.id }}" {% if selected_activity and selected_activity.id == activity.id %}selected{% endif %}>
+                    {{ activity.activity_name }} — {{ activity.organisation_name }}
+                </option>
+                {% endfor %}
+            </select>
+        </label>
+    </form>
+
+    {% if selected_activity %}
+    <article class="charity-card admin-card">
+        <div class="charity-header">
+            <div>
+                <p class="eyebrow">{{ selected_activity.organisation_name }}</p>
+                <h3>{{ selected_activity.activity_name }}</h3>
+            </div>
+            {% if selected_activity.activity_type %}
+            <span class="pill tiny secondary">{{ selected_activity.activity_type }}</span>
+            {% endif %}
+        </div>
+        <p class="body">{{ selected_activity.details or "No details provided yet." }}</p>
+    </article>
+    {% endif %}
+
+    <div class="charity-admin-grid">
+        {% for activity in activities %}
+        <article class="charity-card admin-card">
+            <div class="charity-header">
+                <div>
+                    <p class="eyebrow">{{ activity.organisation_name }}</p>
+                    <h3>{{ activity.activity_name }}</h3>
+                </div>
+                {% if activity.activity_type %}
+                <span class="pill tiny ghost">{{ activity.activity_type }}</span>
+                {% endif %}
+            </div>
+            <p class="body">{{ activity.details or "No details provided yet." }}</p>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="body">No activities have been added yet. Use the admin dashboard to list sessions, coffee mornings, and more.</p>
+    {% endif %}
+</section>
+{% endblock %}

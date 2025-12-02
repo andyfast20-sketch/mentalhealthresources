@@ -344,6 +344,16 @@ def ensure_tables():
             has_live_chat INTEGER NOT NULL DEFAULT 0
         );
         """,
+        """
+        CREATE TABLE IF NOT EXISTS charity_activities (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            organisation_name TEXT NOT NULL,
+            activity_name TEXT NOT NULL,
+            activity_type TEXT DEFAULT '',
+            details TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        """,
     ]
 
     for statement in table_statements:
@@ -513,6 +523,33 @@ def load_charities():
         )
 
     return charities
+
+
+def load_charity_activities():
+    ensure_tables()
+
+    rows = d1_query(
+        """
+        SELECT id, organisation_name, activity_name, activity_type, details, created_at
+        FROM charity_activities
+        ORDER BY created_at DESC, id DESC
+        """
+    )
+
+    activities = []
+    for row in rows:
+        activities.append(
+            {
+                "id": row.get("id") if isinstance(row, dict) else None,
+                "organisation_name": row.get("organisation_name", ""),
+                "activity_name": row.get("activity_name", ""),
+                "activity_type": row.get("activity_type", ""),
+                "details": row.get("details", ""),
+                "created_at": row.get("created_at"),
+            }
+        )
+
+    return activities
 
 
 def pick_featured_books(books, count=3):
@@ -839,6 +876,25 @@ def charities_page():
     return render_template("charities.html", charities=load_charities())
 
 
+@app.route("/activities")
+def activities_page():
+    activities = load_charity_activities()
+    selected_id = request.args.get("activity_id", type=int)
+    selected_activity = None
+
+    if activities:
+        selected_activity = next(
+            (activity for activity in activities if activity.get("id") == selected_id),
+            None,
+        )
+        if not selected_activity:
+            selected_activity = activities[0]
+
+    return render_template(
+        "activities.html", activities=activities, selected_activity=selected_activity
+    )
+
+
 @app.route("/resources")
 def resources():
     return render_template("resources.html", resources=RESOURCES)
@@ -899,6 +955,7 @@ def build_dataset_summary(books):
 def render_admin_page(message=None, save_summary=None, load_summary=None):
     books = load_books()
     charities = load_charities()
+    charity_activities = load_charity_activities()
     calming_tools = calming_tools_with_counts()
     total_book_interactions = sum(
         (book.get("view_count", 0) or 0) + (book.get("scroll_count", 0) or 0)
@@ -918,6 +975,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         books_per_row=books_per_row,
         calming_tools=calming_tools,
         charities=charities,
+        charity_activities=charity_activities,
         save_summary=save_summary,
         load_summary=load_summary,
     )
@@ -927,6 +985,35 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
 def admin():
     message = request.args.get("message")
     return render_admin_page(message=message)
+
+
+@app.route("/admin/activities", methods=["POST"])
+def add_charity_activity():
+    organisation_name = request.form.get("organisation_name", "").strip()
+    activity_name = request.form.get("activity_name", "").strip()
+    activity_type = request.form.get("activity_type", "").strip()
+    details = request.form.get("details", "").strip()
+
+    if not organisation_name or not activity_name:
+        return redirect(
+            url_for("admin", message="Please provide an organisation and activity name."),
+        )
+
+    d1_query(
+        """
+        INSERT INTO charity_activities (organisation_name, activity_name, activity_type, details)
+        VALUES (?, ?, ?, ?)
+        """,
+        [organisation_name, activity_name, activity_type, details],
+    )
+
+    return redirect(url_for("admin", message="Activity added."))
+
+
+@app.route("/admin/activities/<int:activity_id>/delete", methods=["POST"])
+def delete_charity_activity(activity_id):
+    d1_query("DELETE FROM charity_activities WHERE id = ?", [activity_id])
+    return redirect(url_for("admin", message="Activity removed."))
 
 
 @app.route("/admin/charities", methods=["POST"])
