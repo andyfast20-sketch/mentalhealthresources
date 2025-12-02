@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Trusted organisations</p>
+        <h1>Charities ready to support you.</h1>
+        <p class="lede">Explore helplines, community spaces, and specialist services handpicked for care and reliability.</p>
+        <div class="cta-row">
+            <a class="btn" href="#charity-list">Browse charities</a>
+            <a class="btn ghost" href="{{ url_for('resources') }}">See more resources</a>
+        </div>
+    </div>
+    <div class="hero-panel hero-image">
+        <img src="https://files.catbox.moe/6sih1r.png" alt="Illustration of supportive hands" loading="lazy" />
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section id="charity-list" class="panel charity-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Directory</p>
+        <h2>Aligned, accessible support networks.</h2>
+        <p class="lede">Every listing includes a quick description and a direct link so visitors can get help without extra clicks.</p>
+    </div>
+    <div class="charity-grid">
+        {% for charity in charities %}
+        <article class="charity-card">
+            <div class="charity-header">
+                <div class="charity-logo" aria-hidden="true">
+                    {% if charity.logo_url %}
+                    <img src="{{ charity.logo_url }}" alt="" loading="lazy" />
+                    {% else %}
+                    <div class="logo-fallback">🤝</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="eyebrow">Charity</p>
+                    <h3>{{ charity.name }}</h3>
+                </div>
+            </div>
+            <p class="body">{{ charity.description }}</p>
+            <div class="charity-actions">
+                <a class="btn tiny" href="{{ charity.website_url }}" target="_blank" rel="noopener">Visit site</a>
+            </div>
+        </article>
+        {% else %}
+        <p class="body">Add a charity from the admin page to see it here.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

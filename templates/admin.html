@@ -92,6 +92,74 @@
 
 <section class="panel admin-panel">
     <div class="panel-header">
+        <p class="eyebrow">Charities</p>
+        <h2>Highlight trusted organisations.</h2>
+        <p class="lede">Add logos, descriptions, and links. These appear on the homepage and the dedicated charities page.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <div class="data-actions">
+        <button
+            class="btn"
+            type="button"
+            data-admin-charity-open
+            data-action="{{ url_for('add_charity') }}"
+            data-modal-title="Add a charity"
+            data-submit-label="Save charity"
+        >
+            Add charity
+        </button>
+    </div>
+    <div class="charity-admin-grid">
+        {% for charity in charities %}
+        <article class="charity-card admin-card">
+            <div class="charity-header">
+                <div class="charity-logo" aria-hidden="true">
+                    {% if charity.logo_url %}
+                    <img src="{{ charity.logo_url }}" alt="" loading="lazy" />
+                    {% else %}
+                    <div class="logo-fallback">🤝</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="eyebrow">Charity</p>
+                    <h3>{{ charity.name }}</h3>
+                </div>
+            </div>
+            <p class="body">{{ charity.description }}</p>
+            <div class="charity-actions">
+                <a class="btn tiny" href="{{ charity.website_url }}" target="_blank" rel="noopener">Open link</a>
+                <div class="book-actions">
+                    <button
+                        class="btn tiny secondary"
+                        type="button"
+                        data-admin-charity-open
+                        data-action="{{ url_for('update_charity', charity_id=charity.id) }}"
+                        data-modal-title="Edit charity"
+                        data-submit-label="Update charity"
+                        data-charity-name="{{ charity.name }}"
+                        data-charity-description="{{ charity.description }}"
+                        data-charity-logo="{{ charity.logo_url }}"
+                        data-charity-website="{{ charity.website_url }}"
+                    >
+                        Edit
+                    </button>
+                    <form action="{{ url_for('delete_charity', charity_id=charity.id) }}" method="post" onsubmit="return confirm('Delete this charity?');">
+                        <button class="btn tiny ghost" type="submit">Delete</button>
+                    </form>
+                    <div class="halo"></div>
+                </div>
+            </div>
+        </article>
+        {% else %}
+        <p class="body">No charities yet. Add one to spotlight it on the homepage.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel admin-panel">
+    <div class="panel-header">
         <p class="eyebrow">Books</p>
         <h2>Add a useful book.</h2>
         <p class="lede">Include the title, author, affiliate link, and a short description. Covers are optional but make the list feel welcoming.</p>
@@ -313,6 +381,44 @@
                 <button class="btn" type="submit">Save changes</button>
                 <button class="btn ghost" type="button" data-admin-book-modal-close>Cancel</button>
                 <span class="helper">Leave the cover field empty to keep the current image.</span>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="modal-backdrop admin-edit-modal" data-admin-charity-modal>
+    <div class="modal-dialog admin-modal" role="dialog" aria-modal="true" aria-labelledby="adminCharityModalTitle">
+        <div class="book-modal-glow"></div>
+        <div class="modal-header">
+            <div>
+                <p class="eyebrow">Charity</p>
+                <h3 id="adminCharityModalTitle" data-admin-charity-modal-title>Add a charity</h3>
+                <p class="body muted">Share the essentials: name, logo, a short description, and where to learn more.</p>
+            </div>
+            <button class="modal-close" type="button" aria-label="Close charity dialog" data-admin-charity-close>&times;</button>
+        </div>
+        <form class="admin-form compact" method="post" data-admin-charity-form action="{{ url_for('add_charity') }}">
+            <label>
+                <span>Name</span>
+                <input type="text" name="name" required />
+            </label>
+            <label>
+                <span>Description</span>
+                <textarea name="description" rows="3" required></textarea>
+            </label>
+            <div class="modal-grid">
+                <label>
+                    <span>Logo URL (optional)</span>
+                    <input type="url" name="logo_url" placeholder="https://.../logo.png" />
+                </label>
+                <label>
+                    <span>Website link</span>
+                    <input type="url" name="website_url" placeholder="https://" required />
+                </label>
+            </div>
+            <div class="form-actions">
+                <button class="btn" type="submit" data-admin-charity-submit>Save charity</button>
+                <button class="btn ghost" type="button" data-admin-charity-close>Cancel</button>
             </div>
         </form>
     </div>

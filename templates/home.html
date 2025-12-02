@@ -101,6 +101,43 @@
     </div>
 </section>
 
+<section class="panel charity-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Community partners</p>
+        <h2>Charities offering direct support.</h2>
+        <p class="lede">Explore trusted organisations that provide helplines, peer spaces, and culturally informed care.</p>
+    </div>
+    <div class="charity-grid">
+        {% for charity in charities[:4] %}
+        <article class="charity-card">
+            <div class="charity-header">
+                <div class="charity-logo" aria-hidden="true">
+                    {% if charity.logo_url %}
+                    <img src="{{ charity.logo_url }}" alt="" loading="lazy" />
+                    {% else %}
+                    <div class="logo-fallback">🤝</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="eyebrow">Charity</p>
+                    <h3>{{ charity.name }}</h3>
+                </div>
+            </div>
+            <p class="body">{{ charity.description }}</p>
+            <div class="charity-actions">
+                <a class="btn tiny" href="{{ charity.website_url }}" target="_blank" rel="noopener">Visit site</a>
+            </div>
+        </article>
+        {% else %}
+        <p class="body">Charities added in admin will appear here.</p>
+        {% endfor %}
+    </div>
+    <div class="book-footer charity-footer">
+        <p class="body">Want to see everything we’ve curated?</p>
+        <a class="btn ghost tiny" href="{{ url_for('charities_page') }}">View all charities</a>
+    </div>
+</section>
+
 <section class="panel gradient-panel">
     <div class="panel-header">
         <p class="eyebrow">Staying safe</p>
