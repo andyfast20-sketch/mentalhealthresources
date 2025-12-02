@@ -92,6 +92,64 @@
 
 <section class="panel admin-panel">
     <div class="panel-header">
+        <p class="eyebrow">Activities</p>
+        <h2>List what different charities offer.</h2>
+        <p class="lede">Add group sessions, coffee mornings, workshops, and more without tying them to the main charity directory.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('add_charity_activity') }}" method="post">
+        <div class="form-grid">
+            <label>
+                <span>Organisation</span>
+                <input type="text" name="organisation_name" placeholder="Charity or group name" required />
+            </label>
+            <label>
+                <span>Activity</span>
+                <input type="text" name="activity_name" placeholder="e.g., Coffee morning" required />
+            </label>
+        </div>
+        <div class="form-grid">
+            <label>
+                <span>Type or format (optional)</span>
+                <input type="text" name="activity_type" placeholder="Drop-in, online, weekly" />
+            </label>
+            <label>
+                <span>Details</span>
+                <input type="text" name="details" placeholder="What to expect or how to join" />
+            </label>
+        </div>
+        <button class="btn" type="submit">Add activity</button>
+    </form>
+    <div class="charity-admin-grid">
+        {% for activity in charity_activities %}
+        <article class="charity-card admin-card">
+            <div class="charity-header">
+                <div>
+                    <p class="eyebrow">{{ activity.organisation_name }}</p>
+                    <h3>{{ activity.activity_name }}</h3>
+                </div>
+                {% if activity.activity_type %}
+                <span class="pill tiny ghost">{{ activity.activity_type }}</span>
+                {% endif %}
+            </div>
+            <p class="body">{{ activity.details or "No details provided yet." }}</p>
+            <div class="book-actions">
+                <form action="{{ url_for('delete_charity_activity', activity_id=activity.id) }}" method="post" onsubmit="return confirm('Delete this activity?');">
+                    <button class="btn tiny ghost" type="submit">Delete</button>
+                </form>
+                <div class="halo"></div>
+            </div>
+        </article>
+        {% else %}
+        <p class="body">No activities yet. Add one to populate the dropdown on the Activities page.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel admin-panel">
+    <div class="panel-header">
         <p class="eyebrow">Charities</p>
         <h2>Highlight trusted organisations.</h2>
         <p class="lede">Add logos, descriptions, and links. These appear on the homepage and the dedicated charities page.</p>
