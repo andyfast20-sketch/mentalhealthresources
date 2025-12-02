@@ -12,7 +12,7 @@ const bookModalDescription = document.querySelector('[data-book-modal-descriptio
 const bookModalCover = document.querySelector('[data-book-modal-cover]');
 const bookModalCoverWrapper = document.querySelector('[data-book-modal-cover-wrapper]');
 const bookModalCoverFallback = document.querySelector('[data-book-modal-cover-fallback]');
-const bookModalLink = document.querySelector('[data-book-modal-link]');
+const bookModalLinks = Array.from(document.querySelectorAll('[data-book-modal-link]'));
 const bookTriggerButtons = Array.from(document.querySelectorAll('[data-book-trigger]'));
 const bookCards = Array.from(document.querySelectorAll('.book-card[data-book-index]'));
 const bookModalCloseButtons = Array.from(document.querySelectorAll('[data-book-modal-close]'));
@@ -183,8 +183,10 @@ function populateBookModal(data) {
     bookModalDescription.textContent = data.description || 'Description coming soon.';
   }
 
-  if (bookModalLink) {
-    bookModalLink.href = data.link || '#';
+  if (bookModalLinks.length) {
+    bookModalLinks.forEach((link) => {
+      link.href = data.link || '#';
+    });
   }
 
   if (bookModalCover) {

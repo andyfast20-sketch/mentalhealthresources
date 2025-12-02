@@ -121,10 +121,23 @@
                             <p class="eyebrow" data-book-modal-author></p>
                             <h3 id="bookModalTitle" data-book-modal-title></h3>
                         </div>
-                        <button class="modal-close" type="button" aria-label="Close book details" data-book-modal-close>&times;</button>
+                        <div class="book-modal-top-actions">
+                            <a
+                                class="btn tiny book-affiliate-button"
+                                href="#"
+                                target="_blank"
+                                rel="noopener"
+                                data-book-modal-link
+                            >
+                                Visit affiliate link
+                            </a>
+                            <button class="modal-close" type="button" aria-label="Close book details" data-book-modal-close>&times;</button>
+                        </div>
                     </div>
                     <p class="body bold pill featured-pill">Featured shelf pick</p>
-                    <p class="body" data-book-modal-description></p>
+                    <div class="book-modal-description-shell" role="region" aria-label="Book description">
+                        <p class="body" data-book-modal-description></p>
+                    </div>
                     <div class="book-modal-actions">
                         <a class="btn" href="#" target="_blank" rel="noopener" data-book-modal-link>Buy with affiliate link</a>
                         <button class="btn ghost" type="button" data-book-modal-close>Close</button>
