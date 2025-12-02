@@ -41,6 +41,10 @@ const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
 const anxietyModal = document.querySelector('[data-anxiety-modal]');
 const anxietyTriggers = Array.from(document.querySelectorAll('[data-anxiety-trigger]'));
 const anxietyCloseButtons = Array.from(document.querySelectorAll('[data-anxiety-close]'));
+const anxietyVideoModal = document.querySelector('[data-anxiety-video-modal]');
+const anxietyVideoTriggers = Array.from(document.querySelectorAll('[data-anxiety-video-trigger]'));
+const anxietyVideoCloseButtons = Array.from(document.querySelectorAll('[data-anxiety-video-close]'));
+const anxietyVideoFrame = document.querySelector('[data-anxiety-video]');
 let crisisPlayer;
 let activeBookTrigger = null;
 let activeAdminTrigger = null;
@@ -160,7 +164,8 @@ function updateBodyModalLock() {
     adminBookModal?.classList.contains('is-open') ||
     adminCharityModal?.classList.contains('is-open') ||
     charityModal?.classList.contains('is-open') ||
-    anxietyModal?.classList.contains('is-open');
+    anxietyModal?.classList.contains('is-open') ||
+    anxietyVideoModal?.classList.contains('is-open');
   document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
 }
 
@@ -518,12 +523,47 @@ anxietyModal?.addEventListener('click', (event) => {
   }
 });
 
+function playAnxietyVideo() {
+  if (!anxietyVideoFrame) return;
+  const baseSrc = anxietyVideoFrame.dataset.videoSrc || '';
+  anxietyVideoFrame.src = baseSrc ? `${baseSrc}&autoplay=1` : '';
+}
+
+function stopAnxietyVideo() {
+  if (!anxietyVideoFrame) return;
+  anxietyVideoFrame.src = anxietyVideoFrame.dataset.videoSrc || '';
+}
+
+function openAnxietyVideoModal() {
+  if (!anxietyVideoModal) return;
+  playAnxietyVideo();
+  anxietyVideoModal.classList.add('is-open');
+  updateBodyModalLock();
+}
+
+function closeAnxietyVideoModal() {
+  if (!anxietyVideoModal) return;
+  stopAnxietyVideo();
+  anxietyVideoModal.classList.remove('is-open');
+  updateBodyModalLock();
+}
+
+anxietyVideoTriggers.forEach((trigger) => trigger.addEventListener('click', openAnxietyVideoModal));
+anxietyVideoCloseButtons.forEach((button) => button.addEventListener('click', closeAnxietyVideoModal));
+
+anxietyVideoModal?.addEventListener('click', (event) => {
+  if (event.target === anxietyVideoModal) {
+    closeAnxietyVideoModal();
+  }
+});
+
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     if (bookModal?.classList.contains('is-open')) closeBookModal();
     if (adminBookModal?.classList.contains('is-open')) closeAdminBookModal();
     if (adminCharityModal?.classList.contains('is-open')) closeAdminCharityModal();
     if (anxietyModal?.classList.contains('is-open')) closeAnxietyModal();
+    if (anxietyVideoModal?.classList.contains('is-open')) closeAnxietyVideoModal();
   }
 });
 
