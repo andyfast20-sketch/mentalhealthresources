@@ -40,7 +40,7 @@ LOCAL_BOOKS_FILE = LOCAL_DATA_DIR / "books.json"
 LEGACY_LOCAL_CHARITIES_FILE = LEGACY_LOCAL_DATA_DIR / "charities.json"
 LEGACY_LOCAL_BOOKS_FILE = LEGACY_LOCAL_DATA_DIR / "books.json"
 CALMING_COUNTS_FILE = LOCAL_DATA_DIR / "calming_counts.json"
-UPLOAD_DIR = Path("static/uploads")
+UPLOAD_DIR = BASE_DIR / "static" / "uploads"
 ALLOWED_LOGO_EXTENSIONS = {"png", "jpg", "jpeg", "gif", "svg", "webp"}
 CHARITY_ASPECTS_FILE = DATA_DIR / "charity_aspects.json"
 LOCAL_CHARITY_ASPECTS_FILE = LOCAL_DATA_DIR / "charity_aspects.json"
@@ -246,7 +246,7 @@ def delete_logo_file(logo_url):
     if not logo_url or not logo_url.startswith("/static/uploads/"):
         return
 
-    file_path = Path(logo_url.lstrip("/"))
+    file_path = BASE_DIR / logo_url.lstrip("/")
     if file_path.exists() and file_path.is_file():
         file_path.unlink()
 
