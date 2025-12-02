@@ -230,6 +230,17 @@ def normalize_url(url):
     return f"https://{url}"
 
 
+def normalize_logo_url(url):
+    if not url:
+        return ""
+
+    cleaned = url.strip()
+    if cleaned.startswith("/static/uploads/"):
+        return cleaned
+
+    return normalize_url(cleaned)
+
+
 def store_logo_file(logo_file):
     if not logo_file or not logo_file.filename:
         return None
@@ -1097,7 +1108,7 @@ def add_charity():
     charity_aspects = load_charity_aspects()
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
-    logo_url = request.form.get("logo_url", "").strip()
+    logo_url = normalize_logo_url(request.form.get("logo_url", ""))
     site_url = normalize_url(request.form.get("site_url", ""))
     aspect_values = parse_charity_aspects(request.form, charity_aspects)
 
@@ -1128,8 +1139,25 @@ def add_charity():
 @app.route("/admin/charities/<int:charity_index>/delete", methods=["POST"])
 def delete_charity(charity_index):
     charities = load_charities()
-    if 0 <= charity_index < len(charities):
-        removed = charities.pop(charity_index)
+    charity_id = request.form.get("charity_id")
+    target_index = None
+
+    if charity_id:
+        try:
+            charity_id_int = int(charity_id)
+        except ValueError:
+            charity_id_int = None
+        if charity_id_int is not None:
+            for idx, charity in enumerate(charities):
+                if charity.get("id") == charity_id_int:
+                    target_index = idx
+                    break
+
+    if target_index is None and 0 <= charity_index < len(charities):
+        target_index = charity_index
+
+    if target_index is not None and 0 <= target_index < len(charities):
+        removed = charities.pop(target_index)
         save_charities(charities)
         delete_logo_file(removed.get("logo_url"))
         return redirect(url_for("admin", message="Charity removed."))
@@ -1152,7 +1180,7 @@ def update_charity(charity_index):
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
     site_url = normalize_url(request.form.get("site_url", ""))
-    logo_url = request.form.get("logo_url", "").strip()
+    logo_url = normalize_logo_url(request.form.get("logo_url", ""))
     logo_file = request.files.get("logo_file")
     aspect_values = parse_charity_aspects(request.form, charity_aspects)
 
