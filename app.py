@@ -500,7 +500,7 @@ def load_charities():
                 "name": row.get("name", ""),
                 "logo_url": row.get("logo_url", ""),
                 "description": row.get("description", ""),
-                "website_url": row.get("website_url", ""),
+                "website_url": normalize_url(row.get("website_url", "")),
                 "created_at": row.get("created_at"),
                 "telephone": row.get("telephone", ""),
                 "has_helpline": bool(row.get("has_helpline")),
