@@ -4226,18 +4226,18 @@ body {
 .did-you-know-panel {
   position: relative;
   overflow: hidden;
-  background: radial-gradient(circle at 20% 20%, rgba(255, 214, 0, 0.18), transparent 35%),
-    radial-gradient(circle at 80% 0%, rgba(149, 117, 255, 0.16), transparent 30%),
-    linear-gradient(135deg, rgba(15, 19, 51, 0.75), rgba(18, 28, 70, 0.8));
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 30px 60px rgba(5, 9, 33, 0.45);
+  background: radial-gradient(circle at 20% 20%, rgba(255, 214, 0, 0.2), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(176, 125, 252, 0.22), transparent 30%),
+    linear-gradient(135deg, rgba(255, 247, 243, 0.92), rgba(247, 236, 255, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.65);
+  box-shadow: 0 18px 40px rgba(195, 122, 117, 0.18);
 }
 
 .did-you-know-panel::after {
   content: "";
   position: absolute;
   inset: 0;
-  background: radial-gradient(circle at 60% 70%, rgba(255, 115, 141, 0.12), transparent 35%);
+  background: radial-gradient(circle at 60% 70%, rgba(255, 115, 141, 0.16), transparent 35%);
   pointer-events: none;
 }
 
@@ -4250,8 +4250,8 @@ body {
 }
 
 .did-you-know-card {
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.9);
   border-radius: 16px;
   padding: 1.2rem;
   position: relative;
@@ -4260,15 +4260,15 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.6rem;
-  box-shadow: 0 20px 45px rgba(4, 8, 28, 0.35);
-  backdrop-filter: blur(6px);
+  box-shadow: 0 16px 36px rgba(216, 149, 135, 0.22);
+  backdrop-filter: blur(8px);
 }
 
 .did-you-know-accent {
   position: absolute;
   inset: 0;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
-  opacity: 0.6;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
+  opacity: 0.75;
 }
 
 .did-you-know-content {
