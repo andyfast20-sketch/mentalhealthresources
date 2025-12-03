@@ -4076,6 +4076,58 @@ body {
   background: radial-gradient(circle, rgba(158, 210, 255, 0.2), transparent 60%);
 }
 
+.live-spinner {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.spinner-stage {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 205, 214, 0.25), rgba(255, 205, 214, 0)),
+    radial-gradient(circle at 80% 10%, rgba(168, 215, 255, 0.18), rgba(168, 215, 255, 0)),
+    radial-gradient(circle at 70% 80%, rgba(210, 186, 255, 0.14), rgba(210, 186, 255, 0));
+  border-radius: 20px;
+  border: 1px solid rgba(77, 48, 101, 0.1);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 18px 40px rgba(13, 11, 18, 0.18);
+  overflow: hidden;
+}
+
+.spinner-stage canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.spinner-status {
+  position: absolute;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(43, 23, 38, 0.78);
+  color: #fff7fb;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 700;
+  letter-spacing: 0.2px;
+  box-shadow: 0 10px 24px rgba(43, 23, 38, 0.22);
+  backdrop-filter: blur(8px);
+}
+
+.spinner-legend {
+  border-top: 1px dashed rgba(77, 48, 101, 0.18);
+  padding-top: 6px;
+}
+
+.spinner-legend ul {
+  padding-left: 20px;
+  margin: 8px 0 0;
+  color: #4b2e45;
+  line-height: 1.6;
+}
+
 .code-block {
   background: #0d0b12;
   color: #f7f5ff;
