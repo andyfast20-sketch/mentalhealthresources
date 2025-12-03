@@ -3103,6 +3103,22 @@ body {
   display: block;
 }
 
+.crisis-inline-video {
+  margin-top: 4px;
+}
+
+.crisis-inline-video .crisis-video-controls {
+  width: 100%;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.crisis-inline-video input[type='range'] {
+  flex: 1;
+  min-width: 140px;
+}
+
 .grounding-list {
   list-style: none;
   padding: 0;
