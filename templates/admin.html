@@ -13,6 +13,29 @@
 {% block content %}
 <section class="panel admin-panel">
     <div class="panel-header">
+        <p class="eyebrow">Announcements</p>
+        <h2>Control the site banner.</h2>
+        <p class="lede">Toggle a sitewide notice for visitors.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('update_site_banner') }}" method="post">
+        <div class="checkbox-grid">
+            <label class="checkbox-field">
+                <input type="checkbox" name="construction_banner" {% if construction_banner_enabled %}checked{% endif %} />
+                <span>Display “THIS SITE IS UNDER CONSTRUCTION”</span>
+            </label>
+        </div>
+        <p class="form-hint">Appears above the navigation on every page.</p>
+        <button class="btn" type="submit">
+            {% if construction_banner_enabled %}Turn banner off{% else %}Turn banner on{% endif %}
+        </button>
+    </form>
+</section>
+
+<section class="panel admin-panel">
+    <div class="panel-header">
         <p class="eyebrow">Data</p>
         <h2>Manage saved content.</h2>
         <p class="lede">Save the current catalog to local storage or reload the last snapshot. Messages below confirm what changed.</p>
