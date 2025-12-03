@@ -4100,8 +4100,8 @@ body {
 .spinner-grid {
   display: grid;
   grid-template-columns: minmax(0, 1.1fr) minmax(0, 1fr);
-  gap: 18px;
-  margin-top: 18px;
+  gap: 12px;
+  margin-top: 12px;
 }
 
 .spinner-card,
@@ -4132,12 +4132,12 @@ body {
 .live-spinner {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
 
 .spinner-stage {
   position: relative;
-  width: 100%;
+  width: min(100%, 380px);
   aspect-ratio: 1 / 1;
   background: radial-gradient(circle at 20% 20%, rgba(255, 205, 214, 0.25), rgba(255, 205, 214, 0)),
     radial-gradient(circle at 80% 10%, rgba(168, 215, 255, 0.18), rgba(168, 215, 255, 0)),
@@ -4156,12 +4156,12 @@ body {
 
 .spinner-status {
   position: absolute;
-  bottom: 14px;
+  bottom: 12px;
   left: 50%;
   transform: translateX(-50%);
   background: rgba(43, 23, 38, 0.78);
   color: #fff7fb;
-  padding: 10px 14px;
+  padding: 8px 12px;
   border-radius: 999px;
   font-weight: 700;
   letter-spacing: 0.2px;
@@ -4171,7 +4171,7 @@ body {
 
 .spinner-legend {
   border-top: 1px dashed rgba(77, 48, 101, 0.18);
-  padding-top: 6px;
+  padding-top: 4px;
 }
 
 .spinner-legend ul {
@@ -4179,6 +4179,27 @@ body {
   margin: 8px 0 0;
   color: #4b2e45;
   line-height: 1.6;
+}
+
+.spinner-grid .resource-card {
+  padding: 16px 18px;
+}
+
+.spinner-grid .card-header {
+  margin-bottom: 6px;
+}
+
+.spinner-grid .body {
+  margin: 6px 0 10px;
+  line-height: 1.45;
+}
+
+.flow-grid {
+  gap: 10px;
+}
+
+.flow-summary .microchips {
+  gap: 6px;
 }
 
 .code-block {
