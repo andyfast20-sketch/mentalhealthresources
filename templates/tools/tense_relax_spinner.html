@@ -1,0 +1,104 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<section class="spinner-hero hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">New calming lab</p>
+        <h1>{{ tool.title }}</h1>
+        <p class="lede">{{ tool.description }}</p>
+        <div class="calm-hero__actions">
+            {% if tool_data %}
+            <button class="btn" type="button" data-calming-complete data-calming-slug="{{ tool_data.slug }}">
+                I tried this spin
+            </button>
+            {% endif %}
+            <a class="btn ghost" href="{{ url_for('calming_tools') }}">Back to overview</a>
+        </div>
+        <div class="meta-row">
+            <div class="meta-pill">
+                <span class="pill-dot"></span>
+                Auto-spins 20 rounds with soft deceleration
+            </div>
+            <div class="meta-pill">
+                <span class="pill-dot"></span>
+                Flashing highlight for the winning muscle group
+            </div>
+            <div class="meta-pill">
+                <span class="pill-dot"></span>
+                Warm pastel palette to keep everything gentle
+            </div>
+        </div>
+    </div>
+    <div class="spinner-hero__panel">
+        <div class="spinner-hero__inner">
+            <p class="eyebrow">Interactive focus</p>
+            <h3>Let the pointer choose where to tense and relax next.</h3>
+            <p class="body">Follow the highlighted slice, take a slow inhale while you squeeze that muscle group, then exhale as
+                you release. Each flash is your cue to soften a little more.</p>
+            <div class="hero-stats">
+                {% if tool_data %}
+                <div class="hero-stat">
+                    <p class="microcopy">Times people have spun</p>
+                    <p class="stat-number" data-calming-count="{{ tool_data.slug }}">{{ completed_count }}</p>
+                </div>
+                {% endif %}
+                <div class="hero-stat">
+                    <p class="microcopy">Body focus areas</p>
+                    <p class="stat-number">8 slices • Neck to Feet</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block content %}
+<section class="spinner-grid">
+    <article class="resource-card spinner-card">
+        <div class="card-header">
+            <div class="dot"></div>
+            <h3>How to flow with the spinner</h3>
+        </div>
+        <p class="body">Move with the visuals: squeeze the highlighted area for five seconds, then melt on the exhale. Stay with
+            the pastel glow and let the rhythm slow your thoughts.</p>
+        {% if tool_data %}
+        <ol class="breath">
+            {% for step in tool_data.steps %}
+            <li>{{ step }}</li>
+            {% endfor %}
+        </ol>
+        {% endif %}
+        <div class="tool-card__actions">
+            {% if tool_data %}
+            <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool_data.slug }}">I spun it</button>
+            {% endif %}
+            <a class="btn ghost tiny" href="{{ url_for('calming_tools') }}">Explore other tools</a>
+        </div>
+    </article>
+
+    <article class="resource-card code-card live-spinner">
+        <div class="card-header">
+            <div class="dot"></div>
+            <h3>See the spinner run</h3>
+        </div>
+        <p class="body">Watch the wheel pick a focus area automatically—no code block here, just the calming experience. The slices
+            glow softly while the pointer flashes on the winning muscle group so you can squeeze, hold, and melt away.</p>
+        <div class="spinner-stage">
+            <canvas id="spinnerCanvas" aria-label="Tense and relax spinner" role="img"></canvas>
+            <div class="spinner-status" data-spinner-status>Auto spins running…</div>
+        </div>
+        <div class="spinner-legend">
+            <p class="microcopy">What you're seeing</p>
+            <ul>
+                <li>20 gentle auto-spins with slowing momentum between each pick.</li>
+                <li>Flashing highlight on the chosen slice to cue your inhale and exhale.</li>
+                <li>Warm pastel colourway that mirrors the original Python spinner visuals.</li>
+            </ul>
+        </div>
+    </article>
+</section>
+{% endblock %}
+
+{% block scripts %}
+<script src="{{ url_for('static', filename='tense_relax_spinner.js') }}" defer></script>
+{% endblock %}
