@@ -19,6 +19,30 @@
 {% endblock %}
 
 {% block content %}
+<section class="panel did-you-know-panel">
+    <div class="panel-header">
+        <p class="eyebrow">Fresh reminders</p>
+        <h2>Did you know?</h2>
+        <p class="lede">Quick truths that make it easier to reach out. Update these anytime in the admin dashboard and they’ll refresh here instantly.</p>
+    </div>
+    <div class="did-you-know-grid">
+        {% for item in did_you_know_items %}
+        <article class="did-you-know-card">
+            <div class="did-you-know-accent" aria-hidden="true"></div>
+            <div class="did-you-know-content">
+                <p class="eyebrow">{{ loop.index | string | zfill(2) }}</p>
+                <h3>{{ item.headline }}</h3>
+                <p class="body">{{ item.detail or "Add more context so people know what to expect." }}</p>
+                {% if item.cta_label and item.cta_url %}
+                <a class="btn tiny ghost" href="{{ item.cta_url }}">{{ item.cta_label }}</a>
+                {% endif %}
+            </div>
+        </article>
+        {% else %}
+        <p class="body">Add a “Did you know?” in admin to spotlight fast, practical ways to get help.</p>
+        {% endfor %}
+    </div>
+</section>
 <section id="talking-therapies" class="panel info-panel">
     <div class="panel-header">
         <p class="eyebrow">Talking therapies</p>
