@@ -58,6 +58,7 @@ def _d1_configured():
 
 
 D1_CONFIGURED = _d1_configured()
+D1_AVAILABLE = True
 LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
 SQLITE_TIMEOUT = 30
 CONSTRUCTION_BANNER_KEY = "construction_banner"
@@ -310,7 +311,9 @@ def normalize_result_set(result_payload):
 def d1_query(sql, params=None):
     params = params or []
 
-    if D1_CONFIGURED:
+    global D1_AVAILABLE
+
+    if D1_CONFIGURED and D1_AVAILABLE:
         headers = {
             "Authorization": f"Bearer {CF_API_TOKEN}",
             "Content-Type": "application/json",
@@ -319,13 +322,14 @@ def d1_query(sql, params=None):
 
         try:
             request = urlrequest.Request(D1_BASE_URL, data=payload, headers=headers, method="POST")
-            with urlrequest.urlopen(request, timeout=20) as response:  # nosec B310
+            with urlrequest.urlopen(request, timeout=5) as response:  # nosec B310
                 data = json.loads(response.read().decode())
             if not data.get("success", False):
                 raise RuntimeError(data.get("errors", "Unknown D1 error"))
             return normalize_result_set(data.get("result"))
         except (HTTPError, URLError, TimeoutError, RuntimeError, json.JSONDecodeError) as exc:
             print(f"D1 query failed; using local fallback database. Details: {exc}")
+            D1_AVAILABLE = False
 
     connection = open_local_db(sqlite3.Row)
     with connection:
