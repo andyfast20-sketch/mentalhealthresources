@@ -3972,6 +3972,59 @@ body {
   flex-wrap: wrap;
 }
 
+.flow-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 0.95fr) minmax(0, 1fr);
+  gap: 14px;
+  align-items: start;
+}
+
+.flow-summary {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.microchips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.microchip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(77, 48, 101, 0.06);
+  border: 1px solid rgba(77, 48, 101, 0.08);
+  font-weight: 700;
+  color: #4b2e45;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.microchip::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffa9bc, #9dd3ff);
+}
+
+.flow-steps {
+  border: 1px dashed rgba(77, 48, 101, 0.15);
+  border-radius: 14px;
+  padding: 12px 14px;
+  background: linear-gradient(165deg, rgba(255, 245, 249, 0.75), rgba(231, 240, 255, 0.6));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.65);
+}
+
+.breath.tight {
+  margin: 8px 0 0;
+  gap: 8px;
+}
+
 .spinner-hero {
   position: relative;
   isolation: isolate;
@@ -4163,6 +4216,10 @@ body {
   .pmr-grid,
   .colour-drop__grid,
   .spinner-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .flow-grid {
     grid-template-columns: 1fr;
   }
 
