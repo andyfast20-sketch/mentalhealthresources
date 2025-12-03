@@ -22,6 +22,7 @@
         <article
             class="book-card"
             data-book-index="{{ book.index }}"
+            data-book-slug="{{ book.slug }}"
             data-book-title="{{ book.title }}"
             data-book-author="{{ book.author }}"
             data-book-description="{{ book.description }}"
@@ -36,6 +37,9 @@
                 {% endif %}
             </div>
             <div class="book-meta">
+                {% if book.is_most_viewed %}
+                <span class="pill tiny">Most Viewed</span>
+                {% endif %}
                 <p class="eyebrow">{{ book.author }}</p>
                 <h3>{{ book.title }}</h3>
                 <p class="body book-description">{{ book.description }}</p>

@@ -152,6 +152,14 @@ def slugify(value):
     return "-".join(value.lower().split())
 
 
+def book_slug(book, fallback=None):
+    title = book.get("title", "").strip()
+    author = book.get("author", "").strip()
+    combined = "-".join(filter(None, [title, author]))
+    slug = slugify(combined)
+    return slug or (fallback or "book")
+
+
 def normalize_url(url):
     if not url:
         return ""
@@ -300,6 +308,12 @@ def ensure_tables():
         );
         """,
         """
+        CREATE TABLE IF NOT EXISTS book_views (
+            slug TEXT PRIMARY KEY,
+            count INTEGER DEFAULT 0
+        );
+        """,
+        """
         CREATE TABLE IF NOT EXISTS calming_counts (
             slug TEXT PRIMARY KEY,
             count INTEGER DEFAULT 0
@@ -428,6 +442,36 @@ def deduplicate_books(books):
     return deduped
 
 
+def load_book_view_counts():
+    ensure_tables()
+
+    rows = d1_query("SELECT slug, count FROM book_views")
+    counts = {row.get("slug"): row.get("count", 0) for row in rows if row.get("slug")}
+
+    if counts:
+        return counts
+
+    with open_local_db(sqlite3.Row) as connection:
+        cursor = connection.execute("SELECT slug, count FROM book_views")
+        return {row["slug"]: row["count"] for row in cursor.fetchall()}
+
+
+def increment_book_view(slug):
+    if not slug:
+        return
+
+    ensure_tables()
+    sql = """
+    INSERT INTO book_views (slug, count)
+    VALUES (?, 1)
+    ON CONFLICT(slug) DO UPDATE SET count = book_views.count + 1
+    """
+
+    d1_query(sql, [slug])
+    with open_local_db() as connection:
+        connection.execute(sql, [slug])
+
+
 def save_books(books):
     ensure_tables()
     books = deduplicate_books(books)
@@ -535,8 +579,31 @@ def pick_featured_books(books, count=3):
     return list(range(count))
 
 
-def books_with_indices(books):
-    return [{**book, "index": idx} for idx, book in enumerate(books)]
+def books_with_indices(books, view_counts=None):
+    view_counts = view_counts or load_book_view_counts()
+    max_views = max(view_counts.values(), default=0)
+    max_viewed_slug = None
+
+    if max_views > 0:
+        leaders = [slug for slug, count in view_counts.items() if count == max_views]
+        if len(leaders) == 1:
+            max_viewed_slug = leaders[0]
+
+    books_with_data = []
+    for idx, book in enumerate(books):
+        slug = book.get("slug") or book_slug(book, f"book-{idx}")
+        view_count = view_counts.get(slug, 0)
+        books_with_data.append(
+            {
+                **book,
+                "index": idx,
+                "slug": slug,
+                "view_count": view_count,
+                "is_most_viewed": slug == max_viewed_slug,
+            }
+        )
+
+    return books_with_data
 
 RESOURCES = [
     {
@@ -838,6 +905,12 @@ def books():
     return render_template("books.html", books=book_list)
 
 
+@app.route("/books/<slug>/view", methods=["POST"])
+def track_book_view(slug):
+    increment_book_view(slug)
+    return {"success": True}
+
+
 @app.route("/charities")
 def charities_page():
     return render_template("charities.html", charities=load_charities())
@@ -920,7 +993,8 @@ def build_dataset_summary(books):
 
 
 def render_admin_page(message=None, save_summary=None, load_summary=None):
-    books = load_books()
+    view_counts = load_book_view_counts()
+    books = books_with_indices(load_books(), view_counts=view_counts)
     charities = load_charities()
     charity_activities = load_charity_activities()
     calming_tools = calming_tools_with_counts()
