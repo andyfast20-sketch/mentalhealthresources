@@ -789,6 +789,17 @@ CALMING_TOOLS = [
             "Repeat with any remaining emotions until the pool looks lighter.",
         ],
     },
+    {
+        "slug": "tense-relax-spinner",
+        "title": "Tense / Relax Spinner",
+        "description": "Let the wheel pick a body area to gently tense and soften while the colours dance.",
+        "steps": [
+            "Watch the spinner choose a muscle group like shoulders, hands, or calves.",
+            "On the highlighted area, tense for five seconds, then melt the tension away.",
+            "Track the flashes—each one is your cue to breathe out and soften further.",
+            "Repeat each spin or pause to notice warmth and heaviness spreading through you.",
+        ],
+    },
 ]
 
 CALMING_TOOL_PAGES = [
@@ -839,6 +850,13 @@ CALMING_TOOL_PAGES = [
         "template": "tools/simple_tool.html",
         "count_slug": "ripple-journey",
     },
+    {
+        "slug": "tense-relax-spinner",
+        "title": "Tense / Relax Spinner",
+        "description": "A colour-soaked spinner that picks where to squeeze and release next.",
+        "template": "tools/tense_relax_spinner.html",
+        "count_slug": "tense-relax-spinner",
+    },
 ]
 
 
@@ -846,6 +864,7 @@ CALMING_NAV_SLUGS = {
     "breath-flow",
     "progressive-muscle-relaxation",
     "anxiety-colour-drop",
+    "tense-relax-spinner",
 }
 
 
