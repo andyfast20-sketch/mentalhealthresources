@@ -52,6 +52,22 @@ body {
   right: -5%;
 }
 
+.site-banner {
+  position: relative;
+  z-index: 9;
+  margin: 0 auto 12px;
+  padding: 12px clamp(18px, 4vw, 28px);
+  max-width: 1180px;
+  background: linear-gradient(120deg, rgba(247, 176, 131, 0.16), rgba(176, 125, 252, 0.16));
+  border: 1px solid rgba(113, 64, 77, 0.16);
+  border-radius: 14px;
+  box-shadow: 0 12px 32px rgba(88, 44, 77, 0.12);
+  color: #3c2130;
+  font-weight: 700;
+  letter-spacing: 0.4px;
+  text-align: center;
+}
+
 .hero {
   padding: 26px clamp(20px, 5vw, 64px) 40px;
   position: relative;

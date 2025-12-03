@@ -52,6 +52,7 @@ D1_CONFIGURED = not any(
 )
 LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
 SQLITE_TIMEOUT = 30
+CONSTRUCTION_BANNER_KEY = "construction_banner"
 
 
 DEFAULT_BOOKS = [
@@ -346,6 +347,12 @@ def ensure_tables():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         """,
+        """
+        CREATE TABLE IF NOT EXISTS site_settings (
+            setting_key TEXT PRIMARY KEY,
+            setting_value TEXT NOT NULL DEFAULT ''
+        );
+        """,
     ]
 
     for statement in table_statements:
@@ -363,6 +370,42 @@ def ensure_tables():
         migrate_charities_schema_local(connection)
 
     migrate_charities_schema_remote()
+
+
+def load_site_settings():
+    ensure_tables()
+
+    rows = d1_query("SELECT setting_key, setting_value FROM site_settings")
+    settings = {}
+
+    for row in rows:
+        key = row.get("setting_key") if isinstance(row, dict) else None
+        if key:
+            settings[key] = str(row.get("setting_value", ""))
+
+    return settings
+
+
+def save_site_setting(key, value):
+    ensure_tables()
+
+    d1_query(
+        """
+        INSERT INTO site_settings (setting_key, setting_value)
+        VALUES (?, ?)
+        ON CONFLICT(setting_key) DO UPDATE SET setting_value=excluded.setting_value
+        """,
+        [key, value],
+    )
+
+
+def construction_banner_enabled():
+    value = load_site_settings().get(CONSTRUCTION_BANNER_KEY, "0")
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def set_construction_banner(enabled):
+    save_site_setting(CONSTRUCTION_BANNER_KEY, "1" if enabled else "0")
 
 def load_books():
     ensure_tables()
@@ -813,6 +856,11 @@ def inject_calming_nav():
     }
 
 
+@app.context_processor
+def inject_site_flags():
+    return {"construction_banner_enabled": construction_banner_enabled()}
+
+
 def load_calming_counts():
     ensure_tables()
 
@@ -1014,6 +1062,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         charity_activities=charity_activities,
         save_summary=save_summary,
         load_summary=load_summary,
+        construction_banner_enabled=construction_banner_enabled(),
     )
 
 
@@ -1021,6 +1070,15 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
 def admin():
     message = request.args.get("message")
     return render_admin_page(message=message)
+
+
+@app.route("/admin/site-banner", methods=["POST"])
+def update_site_banner():
+    enabled = bool(request.form.get("construction_banner"))
+    set_construction_banner(enabled)
+    banner_message = "Construction banner turned on." if enabled else "Construction banner turned off."
+
+    return redirect(url_for("admin", message=banner_message))
 
 
 @app.route("/admin/activities", methods=["POST"])
