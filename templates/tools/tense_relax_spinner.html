@@ -59,20 +59,32 @@
             <div class="dot"></div>
             <h3>How to flow with the spinner</h3>
         </div>
-        <p class="body">Move with the visuals: squeeze the highlighted area for five seconds, then melt on the exhale. Stay with
-            the pastel glow and let the rhythm slow your thoughts.</p>
-        {% if tool_data %}
-        <ol class="breath">
-            {% for step in tool_data.steps %}
-            <li>{{ step }}</li>
-            {% endfor %}
-        </ol>
-        {% endif %}
-        <div class="tool-card__actions">
+        <p class="body">Stay with the pastel glow: squeeze on the flash, melt on the exhale, then ride the next cue.</p>
+        <div class="flow-grid">
+            <div class="flow-summary">
+                <div class="microchips">
+                    <span class="microchip">Auto 20 rounds</span>
+                    <span class="microchip">Hold ~5s</span>
+                    <span class="microchip">Gentle release</span>
+                </div>
+                <p class="microcopy">Your breath and the spinner stay in sync with a short loop.</p>
+                <div class="tool-card__actions">
+                    {% if tool_data %}
+                    <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool_data.slug }}">I spun it</button>
+                    {% endif %}
+                    <a class="btn ghost tiny" href="{{ url_for('calming_tools') }}">Explore other tools</a>
+                </div>
+            </div>
             {% if tool_data %}
-            <button class="btn tiny" type="button" data-calming-complete data-calming-slug="{{ tool_data.slug }}">I spun it</button>
+            <div class="flow-steps">
+                <p class="microcopy">3-breath loop</p>
+                <ol class="breath tight">
+                    {% for step in tool_data.steps %}
+                    <li>{{ step }}</li>
+                    {% endfor %}
+                </ol>
+            </div>
             {% endif %}
-            <a class="btn ghost tiny" href="{{ url_for('calming_tools') }}">Explore other tools</a>
         </div>
     </article>
 
