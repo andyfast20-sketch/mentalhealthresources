@@ -42,14 +42,22 @@ D1_BASE_URL = (
     f"https://api.cloudflare.com/client/v4/accounts/"
     f"{CF_ACCOUNT_ID}/d1/database/{CF_D1_DATABASE_ID}/query"
 )
-D1_CONFIGURED = not any(
-    placeholder in value
-    for placeholder, value in {
+
+
+def _d1_configured():
+    placeholders = {
         "YOUR_TOKEN": CF_API_TOKEN,
         "YOUR_ACCOUNT": CF_ACCOUNT_ID,
         "YOUR_DATABASE": CF_D1_DATABASE_ID,
-    }.items()
-)
+    }
+
+    if not all(placeholders.values()):
+        return False
+
+    return not any(placeholder in value for placeholder, value in placeholders.items())
+
+
+D1_CONFIGURED = _d1_configured()
 LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
 SQLITE_TIMEOUT = 30
 CONSTRUCTION_BANNER_KEY = "construction_banner"
