@@ -45,6 +45,12 @@ const anxietyVideoModal = document.querySelector('[data-anxiety-video-modal]');
 const anxietyVideoTriggers = Array.from(document.querySelectorAll('[data-anxiety-video-trigger]'));
 const anxietyVideoCloseButtons = Array.from(document.querySelectorAll('[data-anxiety-video-close]'));
 const anxietyVideoFrame = document.querySelector('[data-anxiety-video]');
+const coffeeModal = document.querySelector('[data-bmc-modal]');
+const coffeeTrigger = document.querySelector('[data-bmc-trigger]');
+const coffeeAmountButtons = Array.from(document.querySelectorAll('[data-bmc-amount]'));
+const coffeeCustomInput = document.querySelector('[data-bmc-custom]');
+const coffeeConfirmButton = document.querySelector('[data-bmc-confirm]');
+const coffeeCloseButtons = Array.from(document.querySelectorAll('[data-bmc-close]'));
 let crisisPlayer;
 let activeBookTrigger = null;
 let activeAdminTrigger = null;
@@ -164,7 +170,8 @@ function updateBodyModalLock() {
     adminCharityModal?.classList.contains('is-open') ||
     charityModal?.classList.contains('is-open') ||
     anxietyModal?.classList.contains('is-open') ||
-    anxietyVideoModal?.classList.contains('is-open');
+    anxietyVideoModal?.classList.contains('is-open') ||
+    coffeeModal?.classList.contains('is-open');
   document.body.classList.toggle('modal-open', Boolean(hasOpenModal));
 }
 
@@ -529,6 +536,61 @@ anxietyVideoModal?.addEventListener('click', (event) => {
   }
 });
 
+function openCoffeeModal() {
+  if (!coffeeModal) return;
+  coffeeModal.classList.add('is-open');
+  updateBodyModalLock();
+  (coffeeCustomInput || coffeeAmountButtons[0])?.focus?.();
+}
+
+function closeCoffeeModal() {
+  if (!coffeeModal) return;
+  coffeeModal.classList.remove('is-open');
+  if (coffeeCustomInput) coffeeCustomInput.value = '';
+  updateBodyModalLock();
+}
+
+function setSelectedCoffeeAmount(button) {
+  if (!button) return;
+  coffeeAmountButtons.forEach((amountButton) => amountButton.classList.toggle('is-selected', amountButton === button));
+}
+
+function getSelectedCoffeeAmount() {
+  const customValue = coffeeCustomInput?.value.trim();
+  if (customValue) {
+    const parsed = Number.parseFloat(customValue);
+    return Number.isFinite(parsed) && parsed > 0 ? parsed : null;
+  }
+
+  const selectedButton = coffeeAmountButtons.find((button) => button.classList.contains('is-selected'));
+  return selectedButton ? Number.parseFloat(selectedButton.dataset.bmcAmount || '0') : null;
+}
+
+coffeeTrigger?.addEventListener('click', openCoffeeModal);
+
+coffeeAmountButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    setSelectedCoffeeAmount(button);
+    if (coffeeCustomInput) coffeeCustomInput.value = '';
+  });
+});
+
+coffeeConfirmButton?.addEventListener('click', () => {
+  const amount = getSelectedCoffeeAmount();
+  const baseLink = coffeeConfirmButton.dataset.bmcLink || 'https://buymeacoffee.com/julesricha';
+  const url = amount ? `${baseLink}?amount=${encodeURIComponent(amount)}` : baseLink;
+  window.open(url, '_blank', 'noopener');
+  closeCoffeeModal();
+});
+
+coffeeCloseButtons.forEach((button) => button.addEventListener('click', closeCoffeeModal));
+
+coffeeModal?.addEventListener('click', (event) => {
+  if (event.target === coffeeModal) {
+    closeCoffeeModal();
+  }
+});
+
 document.addEventListener('keydown', (event) => {
   if (event.key === 'Escape') {
     if (bookModal?.classList.contains('is-open')) closeBookModal();
@@ -536,6 +598,7 @@ document.addEventListener('keydown', (event) => {
     if (adminCharityModal?.classList.contains('is-open')) closeAdminCharityModal();
     if (anxietyModal?.classList.contains('is-open')) closeAnxietyModal();
     if (anxietyVideoModal?.classList.contains('is-open')) closeAnxietyVideoModal();
+    if (coffeeModal?.classList.contains('is-open')) closeCoffeeModal();
   }
 });
 
