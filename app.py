@@ -842,6 +842,13 @@ CALMING_TOOL_PAGES = [
 ]
 
 
+CALMING_NAV_SLUGS = {
+    "breath-flow",
+    "progressive-muscle-relaxation",
+    "anxiety-colour-drop",
+}
+
+
 @app.context_processor
 def inject_calming_nav():
     return {
@@ -852,6 +859,7 @@ def inject_calming_nav():
                 "description": tool.get("description", ""),
             }
             for tool in CALMING_TOOL_PAGES
+            if tool.get("slug") in CALMING_NAV_SLUGS
         ]
     }
 
