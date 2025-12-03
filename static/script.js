@@ -212,6 +212,8 @@ function populateBookModal(data) {
 function openBookModalFromCard(card, trigger) {
   if (!card) return;
 
+  recordBookView(card);
+
   const data = {
     title: card.dataset.bookTitle || card.querySelector('h3')?.textContent || '',
     author: card.dataset.bookAuthor || '',
@@ -224,6 +226,21 @@ function openBookModalFromCard(card, trigger) {
   activeBookTrigger?.setAttribute('aria-expanded', 'true');
 
   populateBookModal(data);
+}
+
+function recordBookView(card) {
+  if (!card) return;
+  const slug = card.dataset.bookSlug;
+  if (!slug) return;
+
+  fetch(`/books/${encodeURIComponent(slug)}/view`, {
+    method: 'POST',
+    headers: {
+      'X-Requested-With': 'XMLHttpRequest',
+    },
+  }).catch((error) => {
+    console.warn('Could not record book view', error);
+  });
 }
 
 function closeBookModal() {
