@@ -100,55 +100,12 @@
             <a href="{{ url_for('resources') }}">Explore</a>
             <a href="{{ url_for('calming_tools') }}">Find calm</a>
             <a href="mailto:hello@brightmind.local">Contact</a>
-            <button class="buy-coffee-link" type="button" data-bmc-trigger>
-                <span class="coffee-mark" aria-hidden="true">
-                    <svg viewBox="0 0 64 64" role="presentation" focusable="false">
-                        <path d="M50 18H14a2 2 0 0 0-2 2v6a12 12 0 0 0 11.2 12h15.6A12 12 0 0 0 50 26v-6a2 2 0 0 0-2-2Z" fill="#ffdd67" />
-                        <path d="M48 34H14a2 2 0 0 0-2 2 12 12 0 0 0 12 12h16a12 12 0 0 0 12-12 2 2 0 0 0-2-2Z" fill="#ffeaa7" />
-                        <path d="M18 50h28l-2 6a4 4 0 0 1-3.8 3H23.8a4 4 0 0 1-3.8-3Z" fill="#fcbf49" />
-                        <path d="M54 20h-4v6a12 12 0 0 1-5.5 10 8 8 0 0 0 7.5-8v-6a2 2 0 0 0-2-2Z" fill="#f77f00" />
-                        <path d="M22 10a3 3 0 0 0 0 6 2 2 0 1 1 0 4 7 7 0 0 1 0-14 2 2 0 0 1 0 4Z" fill="#9c6644" />
-                        <path d="M30 10a3 3 0 0 0 0 6 2 2 0 1 1 0 4 7 7 0 0 1 0-14 2 2 0 0 1 0 4Z" fill="#9c6644" />
-                        <path d="M38 10a3 3 0 0 0 0 6 2 2 0 1 1 0 4 7 7 0 0 1 0-14 2 2 0 0 1 0 4Z" fill="#9c6644" />
-                    </svg>
-                </span>
-                <span>Buy me a coffee</span>
-            </button>
             <a class="pill tiny" id="footer-admin-link" href="{{ url_for('admin') }}">Admin</a>
         </div>
     </footer>
 
     {% block floating %}{% endblock %}
     <a class="floating-crisis" href="{{ url_for('crisis_info') }}" aria-label="Open crisis information and coping tools">Crisis info</a>
-
-    <div class="modal-backdrop coffee-modal-backdrop" data-bmc-modal>
-        <div class="modal-dialog coffee-modal" role="dialog" aria-modal="true" aria-labelledby="coffeeModalTitle">
-            <div class="modal-header">
-                <div>
-                    <p class="eyebrow">Support the project</p>
-                    <h3 id="coffeeModalTitle">Buy me a coffee</h3>
-                </div>
-                <button class="modal-close" type="button" aria-label="Close support dialog" data-bmc-close>&times;</button>
-            </div>
-            <p class="body">Choose how many coffees you’d like to send.</p>
-            <div class="coffee-amounts" role="group" aria-label="Choose a coffee amount">
-                <button class="pill coffee-amount is-selected" type="button" data-bmc-amount="3">$3</button>
-                <button class="pill coffee-amount" type="button" data-bmc-amount="5">$5</button>
-                <button class="pill coffee-amount" type="button" data-bmc-amount="10">$10</button>
-            </div>
-            <label class="coffee-custom" aria-label="Custom amount">
-                <span>Custom amount</span>
-                <div class="coffee-custom-inputs">
-                    <span aria-hidden="true">$</span>
-                    <input type="number" min="1" step="1" inputmode="decimal" data-bmc-custom placeholder="Enter amount" />
-                </div>
-            </label>
-            <div class="coffee-modal-actions">
-                <button class="btn" type="button" data-bmc-confirm data-bmc-link="https://buymeacoffee.com/julesricha">Continue to Buy Me a Coffee</button>
-                <button class="btn ghost" type="button" data-bmc-close>Cancel</button>
-            </div>
-        </div>
-    </div>
 
     <div class="modal-backdrop book-modal-backdrop" data-book-modal>
         <div class="modal-dialog book-modal" role="dialog" aria-modal="true" aria-labelledby="bookModalTitle">
