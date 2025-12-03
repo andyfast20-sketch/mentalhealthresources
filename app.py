@@ -128,6 +128,27 @@ DEFAULT_BOOKS = [
     },
 ]
 
+DEFAULT_DID_YOU_KNOW_ITEMS = [
+    {
+        "headline": "In a mental health crisis, you can call 111 any time.",
+        "detail": "NHS 111 has trained teams available 24/7 to help you get urgent mental health support and signpost local services.",
+        "cta_label": "Call 111", 
+        "cta_url": "tel:111",
+    },
+    {
+        "headline": "You can text 'SHOUT' to 85258 for free, day or night.",
+        "detail": "A trained volunteer will reply to guide you to calm and help you find a next step when things feel overwhelming.",
+        "cta_label": "Text SHOUT to 85258",
+        "cta_url": "sms:85258",
+    },
+    {
+        "headline": "Urgent help is available without an appointment.",
+        "detail": "Walk-in crisis cafés and safe havens are open in many areas. Try searching your town name and “crisis café” to find a nearby space.",
+        "cta_label": "Find a crisis café",
+        "cta_url": "https://www.google.com/search?q=crisis+cafe+near+me",
+    },
+]
+
 
 def ensure_local_data_dir():
     LOCAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
@@ -167,6 +188,17 @@ def normalize_url(url):
     url = url.strip()
     if url.startswith("http://") or url.startswith("https://"):
         return url
+    return f"https://{url}"
+
+
+def normalize_support_link(url):
+    if not url:
+        return ""
+
+    url = url.strip()
+    if url.startswith(("http://", "https://", "tel:", "sms:", "mailto:")):
+        return url
+
     return f"https://{url}"
 
 
@@ -351,6 +383,16 @@ def ensure_tables():
         CREATE TABLE IF NOT EXISTS site_settings (
             setting_key TEXT PRIMARY KEY,
             setting_value TEXT NOT NULL DEFAULT ''
+        );
+        """,
+        """
+        CREATE TABLE IF NOT EXISTS did_you_know_items (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            headline TEXT NOT NULL,
+            detail TEXT DEFAULT '',
+            cta_label TEXT DEFAULT '',
+            cta_url TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         """,
     ]
@@ -613,6 +655,59 @@ def load_charity_activities():
         )
 
     return activities
+
+
+def seed_did_you_know_items():
+    for item in DEFAULT_DID_YOU_KNOW_ITEMS:
+        d1_query(
+            """
+            INSERT INTO did_you_know_items (headline, detail, cta_label, cta_url)
+            VALUES (?, ?, ?, ?)
+            """,
+            [
+                item.get("headline", ""),
+                item.get("detail", ""),
+                item.get("cta_label", ""),
+                normalize_support_link(item.get("cta_url", "")),
+            ],
+        )
+
+
+def load_did_you_know_items():
+    ensure_tables()
+
+    rows = d1_query(
+        """
+        SELECT id, headline, detail, cta_label, cta_url, created_at
+        FROM did_you_know_items
+        ORDER BY created_at DESC, id DESC
+        """
+    )
+
+    if not rows:
+        seed_did_you_know_items()
+        rows = d1_query(
+            """
+            SELECT id, headline, detail, cta_label, cta_url, created_at
+            FROM did_you_know_items
+            ORDER BY created_at DESC, id DESC
+            """
+        )
+
+    items = []
+    for row in rows:
+        items.append(
+            {
+                "id": row.get("id") if isinstance(row, dict) else None,
+                "headline": row.get("headline", ""),
+                "detail": row.get("detail", ""),
+                "cta_label": row.get("cta_label", ""),
+                "cta_url": normalize_support_link(row.get("cta_url", "")),
+                "created_at": row.get("created_at"),
+            }
+        )
+
+    return items
 
 
 def pick_featured_books(books, count=3):
@@ -971,7 +1066,14 @@ COMMUNITY_HIGHLIGHTS = [
 def index():
     books = books_with_indices(load_books())
     charities = load_charities()
-    return render_template("home.html", resources=RESOURCES, books=books, charities=charities)
+    did_you_know_items = load_did_you_know_items()
+    return render_template(
+        "home.html",
+        resources=RESOURCES,
+        books=books,
+        charities=charities,
+        did_you_know_items=did_you_know_items,
+    )
 
 
 @app.route("/books")
@@ -1072,6 +1174,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
     books = books_with_indices(load_books(), view_counts=view_counts)
     charities = load_charities()
     charity_activities = load_charity_activities()
+    did_you_know_items = load_did_you_know_items()
     calming_tools = calming_tools_with_counts()
     books_with_covers = sum(1 for book in books if book.get("cover_url"))
     books_without_covers = len(books) - books_with_covers
@@ -1087,6 +1190,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         calming_tools=calming_tools,
         charities=charities,
         charity_activities=charity_activities,
+        did_you_know_items=did_you_know_items,
         save_summary=save_summary,
         load_summary=load_summary,
         construction_banner_enabled=construction_banner_enabled(),
@@ -1106,6 +1210,55 @@ def update_site_banner():
     banner_message = "Construction banner turned on." if enabled else "Construction banner turned off."
 
     return redirect(url_for("admin", message=banner_message))
+
+
+@app.route("/admin/did-you-know", methods=["POST"])
+def add_did_you_know_item():
+    headline = request.form.get("headline", "").strip()
+    detail = request.form.get("detail", "").strip()
+    cta_label = request.form.get("cta_label", "").strip()
+    cta_url = normalize_support_link(request.form.get("cta_url", ""))
+
+    if not headline:
+        return redirect(url_for("admin", message="Please add a headline for the Did you know? item."))
+
+    d1_query(
+        """
+        INSERT INTO did_you_know_items (headline, detail, cta_label, cta_url)
+        VALUES (?, ?, ?, ?)
+        """,
+        [headline, detail, cta_label, cta_url],
+    )
+
+    return redirect(url_for("admin", message="Did you know? item added."))
+
+
+@app.route("/admin/did-you-know/<int:item_id>/delete", methods=["POST"])
+def delete_did_you_know_item(item_id):
+    d1_query("DELETE FROM did_you_know_items WHERE id = ?", [item_id])
+    return redirect(url_for("admin", message="Did you know? item removed."))
+
+
+@app.route("/admin/did-you-know/<int:item_id>/update", methods=["POST"])
+def update_did_you_know_item(item_id):
+    headline = request.form.get("headline", "").strip()
+    detail = request.form.get("detail", "").strip()
+    cta_label = request.form.get("cta_label", "").strip()
+    cta_url = normalize_support_link(request.form.get("cta_url", ""))
+
+    if not headline:
+        return redirect(url_for("admin", message="Please include a headline before saving."))
+
+    d1_query(
+        """
+        UPDATE did_you_know_items
+        SET headline = ?, detail = ?, cta_label = ?, cta_url = ?
+        WHERE id = ?
+        """,
+        [headline, detail, cta_label, cta_url, item_id],
+    )
+
+    return redirect(url_for("admin", message="Did you know? item updated."))
 
 
 @app.route("/admin/activities", methods=["POST"])

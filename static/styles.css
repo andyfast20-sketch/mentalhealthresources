@@ -4223,6 +4223,86 @@ body {
   white-space: pre;
 }
 
+.did-you-know-panel {
+  position: relative;
+  overflow: hidden;
+  background: radial-gradient(circle at 20% 20%, rgba(255, 214, 0, 0.18), transparent 35%),
+    radial-gradient(circle at 80% 0%, rgba(149, 117, 255, 0.16), transparent 30%),
+    linear-gradient(135deg, rgba(15, 19, 51, 0.75), rgba(18, 28, 70, 0.8));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 30px 60px rgba(5, 9, 33, 0.45);
+}
+
+.did-you-know-panel::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at 60% 70%, rgba(255, 115, 141, 0.12), transparent 35%);
+  pointer-events: none;
+}
+
+.did-you-know-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 1.2rem;
+  position: relative;
+  z-index: 1;
+}
+
+.did-you-know-card {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 16px;
+  padding: 1.2rem;
+  position: relative;
+  overflow: hidden;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  box-shadow: 0 20px 45px rgba(4, 8, 28, 0.35);
+  backdrop-filter: blur(6px);
+}
+
+.did-you-know-accent {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0));
+  opacity: 0.6;
+}
+
+.did-you-know-content {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 0.4rem;
+}
+
+.did-you-know-card h3 {
+  margin: 0;
+  font-size: 1.2rem;
+}
+
+.did-you-know-card .btn {
+  justify-self: flex-start;
+  margin-top: 0.25rem;
+}
+
+.did-you-know-card .eyebrow {
+  font-size: 0.9rem;
+  letter-spacing: 0.08em;
+}
+
+.did-you-know-admin-grid {
+  margin-top: 1.2rem;
+  display: grid;
+  gap: 0.75rem;
+}
+
+.did-you-know-admin-card {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0));
+}
+
 @media (max-width: 980px) {
   .calm-hero,
   .calm-nav,

@@ -115,6 +115,102 @@
 
 <section class="panel admin-panel">
     <div class="panel-header">
+        <p class="eyebrow">Did you know?</p>
+        <h2>Share quick, hopeful facts.</h2>
+        <p class="lede">Add or edit the “Did you know?” tiles on the homepage. Include a short headline, an optional detail, and a call-to-action link.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('add_did_you_know_item') }}" method="post">
+        <div class="form-grid">
+            <label>
+                <span>Headline</span>
+                <input type="text" name="headline" placeholder="Did you know..." required />
+            </label>
+            <label>
+                <span>Call-to-action label (optional)</span>
+                <input type="text" name="cta_label" placeholder="Call now, Text for support" />
+            </label>
+        </div>
+        <div class="form-grid">
+            <label>
+                <span>Detail (optional)</span>
+                <textarea name="detail" rows="2" placeholder="Add a short explanation or reassurance."></textarea>
+            </label>
+            <label>
+                <span>Link (optional)</span>
+                <input type="text" name="cta_url" placeholder="https://... or tel:111" />
+            </label>
+        </div>
+        <button class="btn" type="submit">Add card</button>
+    </form>
+    <div class="did-you-know-admin-grid">
+        {% for item in did_you_know_items %}
+        <article class="charity-card admin-card did-you-know-admin-card">
+            <div class="charity-header">
+                <div>
+                    <p class="eyebrow">Homepage card</p>
+                    <h3>{{ item.headline }}</h3>
+                </div>
+                <div class="pill tiny ghost">{{ item.cta_label or 'No CTA' }}</div>
+            </div>
+            <p class="body">{{ item.detail or 'No detail yet.' }}</p>
+            <div class="book-actions">
+                <button
+                    class="btn tiny secondary"
+                    type="button"
+                    data-didyouknow-edit-toggle
+                    data-target="did-you-know-{{ item.id }}"
+                    aria-expanded="false"
+                >
+                    Edit
+                </button>
+                <form action="{{ url_for('delete_did_you_know_item', item_id=item.id) }}" method="post" onsubmit="return confirm('Delete this card?');">
+                    <button class="btn tiny ghost" type="submit">Delete</button>
+                </form>
+                <div class="halo"></div>
+            </div>
+            <form
+                class="admin-inline-form hidden"
+                data-didyouknow-form="did-you-know-{{ item.id }}"
+                action="{{ url_for('update_did_you_know_item', item_id=item.id) }}"
+                method="post"
+            >
+                <div class="form-grid">
+                    <label>
+                        <span>Headline</span>
+                        <input type="text" name="headline" value="{{ item.headline }}" required />
+                    </label>
+                    <label>
+                        <span>Call-to-action label (optional)</span>
+                        <input type="text" name="cta_label" value="{{ item.cta_label }}" />
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <label>
+                        <span>Detail</span>
+                        <textarea name="detail" rows="2">{{ item.detail }}</textarea>
+                    </label>
+                    <label>
+                        <span>Link</span>
+                        <input type="text" name="cta_url" value="{{ item.cta_url }}" />
+                    </label>
+                </div>
+                <div class="book-actions">
+                    <button class="btn tiny" type="submit">Save changes</button>
+                    <button class="btn tiny ghost" type="button" data-didyouknow-edit-toggle data-target="did-you-know-{{ item.id }}">Cancel</button>
+                </div>
+            </form>
+        </article>
+        {% else %}
+        <p class="body">No “Did you know?” cards yet. Add a few to brighten the homepage.</p>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel admin-panel">
+    <div class="panel-header">
         <p class="eyebrow">Activities</p>
         <h2>List what different charities offer.</h2>
         <p class="lede">Add group sessions, coffee mornings, workshops, and more without tying them to the main charity directory.</p>
