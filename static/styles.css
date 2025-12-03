@@ -1982,6 +1982,11 @@ body {
   gap: 12px;
 }
 
+.video-modal .modal-header {
+  align-items: center;
+  padding-top: 8px;
+}
+
 .modal-close {
   border: none;
   background: rgba(245, 163, 181, 0.2);
