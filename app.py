@@ -239,7 +239,7 @@ def normalize_url(url):
     if not url:
         return ""
     url = url.strip()
-    if url.startswith("http://") or url.startswith("https://"):
+    if url.startswith(("http://", "https://", "/", "data:")):
         return url
     return f"https://{url}"
 
