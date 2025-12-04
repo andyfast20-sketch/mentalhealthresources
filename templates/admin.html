@@ -568,6 +568,15 @@
                 <span>Cover image URL (optional)</span>
                 <input type="url" name="cover_url" placeholder="https://.../cover.jpg" />
             </label>
+            <label class="select-wrapper">
+                <span>Or pick from the media pot</span>
+                <select name="cover_asset_url" data-media-url-select data-target-input="cover_url">
+                    <option value="">Choose a saved image</option>
+                    {% for asset in media_assets if asset.media_type == 'image' %}
+                    <option value="{{ asset.url }}">{{ asset.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
         </div>
         <button class="btn" type="submit">Add book</button>
     </form>
@@ -704,6 +713,15 @@
                     <span>Cover image URL</span>
                     <input type="url" name="cover_url" />
                 </label>
+                <label class="select-wrapper">
+                    <span>Or pick from the media pot</span>
+                    <select name="cover_asset_url" data-media-url-select data-target-input="cover_url">
+                        <option value="">Choose a saved image</option>
+                        {% for asset in media_assets if asset.media_type == 'image' %}
+                        <option value="{{ asset.url }}">{{ asset.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
             </div>
             <div class="form-actions">
                 <button class="btn" type="submit">Save changes</button>
@@ -738,6 +756,15 @@
                 <label>
                     <span>Logo URL (optional)</span>
                     <input type="url" name="logo_url" placeholder="https://.../logo.png" />
+                </label>
+                <label class="select-wrapper">
+                    <span>Or pick from the media pot</span>
+                    <select name="logo_asset_url" data-media-url-select data-target-input="logo_url">
+                        <option value="">Choose a saved image</option>
+                        {% for asset in media_assets if asset.media_type == 'image' %}
+                        <option value="{{ asset.url }}">{{ asset.name }}</option>
+                        {% endfor %}
+                    </select>
                 </label>
                 <label>
                     <span>Website link</span>
