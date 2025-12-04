@@ -476,7 +476,12 @@ function bindMediaSelect(select) {
     const targetInput = form?.querySelector(`input[name="${targetName}"]`);
     if (!targetInput) return;
     if (select.value) {
-      targetInput.value = select.value;
+      try {
+        const resolvedUrl = new URL(select.value, window.location.origin);
+        targetInput.value = resolvedUrl.href;
+      } catch (error) {
+        targetInput.value = select.value;
+      }
     }
   });
 }
