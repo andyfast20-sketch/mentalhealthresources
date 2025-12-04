@@ -5,6 +5,7 @@ from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
 import time
+from werkzeug.utils import secure_filename
 from urllib import request as urlrequest
 from urllib.error import HTTPError, URLError
 
@@ -36,6 +37,7 @@ BASE_DIR = Path(__file__).resolve().parent
 DATA_DIR = BASE_DIR / "data"
 LOCAL_DATA_DIR = Path.home() / ".mentalhealthresources"
 LEGACY_LOCAL_DATA_DIR = BASE_DIR / "local_data"
+MEDIA_UPLOADS_DIR = BASE_DIR / "static" / "uploads"
 BOOKS_FILE = DATA_DIR / "books.json"
 LOCAL_BOOKS_FILE = LOCAL_DATA_DIR / "books.json"
 LEGACY_LOCAL_BOOKS_FILE = LEGACY_LOCAL_DATA_DIR / "books.json"
@@ -166,6 +168,43 @@ DEFAULT_DID_YOU_KNOW_ITEMS = [
 
 def ensure_local_data_dir():
     LOCAL_DATA_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def ensure_media_uploads_dir():
+    MEDIA_UPLOADS_DIR.mkdir(parents=True, exist_ok=True)
+
+
+def store_uploaded_media(upload):
+    if not upload or not upload.filename:
+        return None
+
+    ensure_media_uploads_dir()
+    filename = secure_filename(upload.filename)
+    if not filename:
+        return None
+
+    timestamp = int(time.time())
+    saved_name = f"{timestamp}_{filename}"
+    destination = MEDIA_UPLOADS_DIR / saved_name
+    upload.save(destination)
+    return f"/static/uploads/{saved_name}"
+
+
+def remove_local_media_file(url):
+    if not url:
+        return
+
+    relative_url = url.lstrip("/")
+    candidate_path = BASE_DIR / relative_url
+
+    try:
+        uploads_root = MEDIA_UPLOADS_DIR.resolve()
+        target_path = candidate_path.resolve()
+        if uploads_root in target_path.parents or target_path == uploads_root:
+            if target_path.exists():
+                target_path.unlink()
+    except FileNotFoundError:
+        return
 
 
 def load_books_file():
@@ -1671,15 +1710,17 @@ def update_did_you_know_item(item_id):
 def add_media_asset():
     name = request.form.get("name", "").strip()
     media_type = normalize_media_type(request.form.get("media_type"))
-    url = normalize_url(request.form.get("url", ""))
+    uploaded_url = store_uploaded_media(request.files.get("file"))
+    url_input = request.form.get("url", "").strip()
+    url = uploaded_url or normalize_url(url_input)
     description = request.form.get("description", "").strip()
     created_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
 
-    if not all([name, media_type, url]):
+    if not name or not media_type or not url:
         return redirect(
             url_for(
                 "admin",
-                message="Please include a name, link, and whether this is an image or video.",
+                message="Please include a name, upload or link, and whether this is an image or video.",
                 section="media",
             )
         )
@@ -1720,11 +1761,12 @@ def update_media_asset(asset_id):
     media_type = normalize_media_type(request.form.get("media_type")) or existing_asset.get(
         "media_type", ""
     )
+    uploaded_url = store_uploaded_media(request.files.get("file"))
     url_input = request.form.get("url", "").strip()
-    url = normalize_url(url_input) if url_input else existing_asset.get("url", "")
+    url = uploaded_url or (normalize_url(url_input) if url_input else existing_asset.get("url", ""))
     description = request.form.get("description", "").strip() or existing_asset.get("description", "")
 
-    if not all([name, media_type, url]):
+    if not name or not media_type or not url:
         return redirect(
             url_for(
                 "admin",
@@ -1755,11 +1797,18 @@ def update_media_asset(asset_id):
         [name, media_type, url, description, asset_id],
     )
 
+    if uploaded_url:
+        remove_local_media_file(existing_asset.get("url"))
+
     return redirect(url_for("admin", message="Media asset updated.", section="media"))
 
 
 @app.route("/admin/media/<int:asset_id>/delete", methods=["POST"])
 def delete_media_asset(asset_id):
+    assets = [asset for asset in load_media_assets() if asset.get("id") == asset_id]
+    for asset in assets:
+        remove_local_media_file(asset.get("url"))
+
     d1_query("DELETE FROM media_assets WHERE id = ?", [asset_id])
     return redirect(url_for("admin", message="Media asset removed.", section="media"))
 
