@@ -15,6 +15,7 @@
     <div class="admin-anchor-nav" aria-label="Admin shortcuts">
         <a class="btn tiny ghost" href="#site-banner">Site banner</a>
         <a class="btn tiny ghost" href="#data">Data</a>
+        <a class="btn tiny ghost" href="#media-library">Media pot</a>
         <a class="btn tiny ghost" href="#did-you-know">Did you know?</a>
         <a class="btn tiny ghost" href="#activities">Activities</a>
         <a class="btn tiny ghost" href="#charities">Charities</a>
@@ -121,6 +122,117 @@
             </div>
         </div>
         {% endif %}
+    </div>
+    </section>
+
+    <section class="panel admin-panel" id="media-library" data-admin-section>
+    <div class="panel-header">
+        <p class="eyebrow">Media pot</p>
+        <h2>Save reusable images and videos.</h2>
+        <p class="lede">Give each upload a name so you can reference it anywhere in the codebase with <code>get_media_asset</code> or <code>media_lookup</code>.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('add_media_asset') }}" method="post">
+        <div class="form-grid">
+            <label>
+                <span>Asset name</span>
+                <input type="text" name="name" placeholder="home-hero-image" required />
+            </label>
+            <label class="select-wrapper">
+                <span>Type</span>
+                <select name="media_type" required>
+                    <option value="image" selected>Image</option>
+                    <option value="video">Video</option>
+                </select>
+            </label>
+        </div>
+        <div class="form-grid">
+            <label>
+                <span>Link to file</span>
+                <input type="url" name="url" placeholder="https://..." required />
+            </label>
+            <label>
+                <span>Description (optional)</span>
+                <input type="text" name="description" placeholder="Where and how this media is used" />
+            </label>
+        </div>
+        <p class="form-hint">Example: <code>get_media_asset('calming-video')</code> returns the saved link and type wherever you need it.</p>
+        <button class="btn" type="submit">Add media</button>
+    </form>
+    <div class="media-admin-grid">
+        {% for asset in media_assets %}
+        <article class="charity-card admin-card media-card">
+            <div class="charity-header">
+                <div class="media-thumb" aria-hidden="true">
+                    {% if asset.media_type == 'image' %}
+                    <img src="{{ asset.url }}" alt="" loading="lazy" />
+                    {% else %}
+                    <div class="media-thumb__placeholder">🎬</div>
+                    {% endif %}
+                </div>
+                <div>
+                    <p class="eyebrow">{{ asset.media_type|capitalize }} asset</p>
+                    <h3>{{ asset.name }}</h3>
+                </div>
+            </div>
+            <p class="body">{{ asset.description or "No description yet." }}</p>
+            <p class="microcopy media-url">{{ asset.url }}</p>
+            <div class="book-actions">
+                <a class="btn tiny" href="{{ asset.url }}" target="_blank" rel="noopener">Open link</a>
+                <button
+                    class="btn tiny secondary"
+                    type="button"
+                    data-media-edit-toggle
+                    data-target="media-{{ asset.id }}"
+                    aria-expanded="false"
+                >
+                    Edit
+                </button>
+                <form action="{{ url_for('delete_media_asset', asset_id=asset.id) }}" method="post" onsubmit="return confirm('Delete this media asset?');">
+                    <button class="btn tiny ghost" type="submit">Delete</button>
+                </form>
+                <div class="halo"></div>
+            </div>
+            <form
+                class="admin-inline-form hidden"
+                data-media-form="media-{{ asset.id }}"
+                action="{{ url_for('update_media_asset', asset_id=asset.id) }}"
+                method="post"
+            >
+                <div class="form-grid">
+                    <label>
+                        <span>Asset name</span>
+                        <input type="text" name="name" value="{{ asset.name }}" required />
+                    </label>
+                    <label class="select-wrapper">
+                        <span>Type</span>
+                        <select name="media_type" required>
+                            <option value="image" {% if asset.media_type == 'image' %}selected{% endif %}>Image</option>
+                            <option value="video" {% if asset.media_type == 'video' %}selected{% endif %}>Video</option>
+                        </select>
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <label>
+                        <span>Link to file</span>
+                        <input type="url" name="url" value="{{ asset.url }}" required />
+                    </label>
+                    <label>
+                        <span>Description (optional)</span>
+                        <input type="text" name="description" value="{{ asset.description }}" />
+                    </label>
+                </div>
+                <div class="book-actions">
+                    <button class="btn tiny" type="submit">Save changes</button>
+                    <button class="btn tiny ghost" type="button" data-media-edit-toggle data-target="media-{{ asset.id }}">Cancel</button>
+                </div>
+            </form>
+        </article>
+        {% else %}
+        <p class="body">No media saved yet. Add an image or video link and reuse it by name anywhere on the site.</p>
+        {% endfor %}
     </div>
     </section>
 

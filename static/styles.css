@@ -1306,6 +1306,40 @@ body {
   margin-top: 14px;
 }
 
+.media-admin-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+  margin-top: 14px;
+}
+
+.media-card .media-url {
+  word-break: break-word;
+  color: #5f4b54;
+}
+
+.media-thumb {
+  width: 64px;
+  height: 64px;
+  border-radius: 14px;
+  overflow: hidden;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 20% 20%, rgba(245, 163, 181, 0.3), rgba(176, 125, 252, 0.18));
+  box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.7);
+}
+
+.media-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.media-thumb__placeholder {
+  font-size: 28px;
+  filter: drop-shadow(0 6px 12px rgba(0, 0, 0, 0.12));
+}
+
 .book-scroller::before,
 .book-scroller::after {
   content: "";

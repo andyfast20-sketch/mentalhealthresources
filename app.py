@@ -698,6 +698,16 @@ def ensure_tables():
         );
         """,
         """
+        CREATE TABLE IF NOT EXISTS media_assets (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL UNIQUE,
+            media_type TEXT NOT NULL,
+            url TEXT NOT NULL,
+            description TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        """,
+        """
         CREATE TABLE IF NOT EXISTS charity_activities (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             organisation_name TEXT NOT NULL,
@@ -1038,6 +1048,51 @@ def load_did_you_know_items():
     return items
 
 
+def normalize_media_type(media_type):
+    normalized = (media_type or "").strip().lower()
+    return normalized if normalized in {"image", "video"} else None
+
+
+def load_media_assets():
+    ensure_tables()
+
+    rows = d1_query(
+        """
+        SELECT id, name, media_type, url, description, created_at
+        FROM media_assets
+        ORDER BY created_at DESC, id DESC
+        """
+    )
+
+    assets = []
+    for row in rows:
+        assets.append(
+            {
+                "id": row.get("id") if isinstance(row, dict) else None,
+                "name": row.get("name", ""),
+                "media_type": row.get("media_type", ""),
+                "url": row.get("url", ""),
+                "description": row.get("description", ""),
+                "created_at": row.get("created_at"),
+            }
+        )
+
+    return assets
+
+
+def find_media_asset_by_name(name):
+    if not name:
+        return None
+
+    normalized = name.strip().lower()
+
+    for asset in load_media_assets():
+        if asset.get("name", "").strip().lower() == normalized:
+            return asset
+
+    return None
+
+
 def pick_featured_books(books, count=3):
     if len(books) <= count:
         return list(range(len(books)))
@@ -1311,6 +1366,25 @@ def inject_site_flags():
     return {"construction_banner_enabled": construction_banner_enabled()}
 
 
+@app.context_processor
+def inject_media_library():
+    assets = load_media_assets()
+    lookup = {asset.get("name", ""): asset for asset in assets}
+
+    def get_media_asset(name):
+        key = (name or "").strip().lower()
+        return next(
+            (
+                asset
+                for asset in assets
+                if asset.get("name", "").strip().lower() == key
+            ),
+            None,
+        )
+
+    return {"media_library": assets, "media_lookup": lookup, "get_media_asset": get_media_asset}
+
+
 def load_calming_counts():
     ensure_tables()
 
@@ -1503,6 +1577,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
     charities = load_charities()
     charity_activities = load_charity_activities()
     did_you_know_items = load_did_you_know_items()
+    media_assets = load_media_assets()
     calming_tools = calming_tools_with_counts()
     books_with_covers = sum(1 for book in books if book.get("cover_url"))
     books_without_covers = len(books) - books_with_covers
@@ -1519,6 +1594,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
         charities=charities,
         charity_activities=charity_activities,
         did_you_know_items=did_you_know_items,
+        media_assets=media_assets,
         save_summary=save_summary,
         load_summary=load_summary,
         construction_banner_enabled=construction_banner_enabled(),
@@ -1589,6 +1665,103 @@ def update_did_you_know_item(item_id):
     )
 
     return redirect(url_for("admin", message="Did you know? item updated."))
+
+
+@app.route("/admin/media", methods=["POST"])
+def add_media_asset():
+    name = request.form.get("name", "").strip()
+    media_type = normalize_media_type(request.form.get("media_type"))
+    url = normalize_url(request.form.get("url", ""))
+    description = request.form.get("description", "").strip()
+    created_at = datetime.utcnow().strftime("%Y-%m-%d %H:%M:%S")
+
+    if not all([name, media_type, url]):
+        return redirect(
+            url_for(
+                "admin",
+                message="Please include a name, link, and whether this is an image or video.",
+                section="media",
+            )
+        )
+
+    existing = d1_query(
+        "SELECT id FROM media_assets WHERE lower(name) = lower(?)",
+        [name],
+    )
+    if existing:
+        return redirect(
+            url_for(
+                "admin",
+                message="A media asset with that name already exists. Update it instead.",
+                section="media",
+            )
+        )
+
+    d1_query(
+        """
+        INSERT INTO media_assets (name, media_type, url, description, created_at)
+        VALUES (?, ?, ?, ?, ?)
+        """,
+        [name, media_type, url, description, created_at],
+    )
+
+    return redirect(url_for("admin", message="Media asset added.", section="media"))
+
+
+@app.route("/admin/media/<int:asset_id>/update", methods=["POST"])
+def update_media_asset(asset_id):
+    assets = [asset for asset in load_media_assets() if asset.get("id") == asset_id]
+    if not assets:
+        return redirect(url_for("admin", message="Media asset not found.", section="media"))
+
+    existing_asset = assets[0]
+
+    name = request.form.get("name", "").strip() or existing_asset.get("name", "")
+    media_type = normalize_media_type(request.form.get("media_type")) or existing_asset.get(
+        "media_type", ""
+    )
+    url_input = request.form.get("url", "").strip()
+    url = normalize_url(url_input) if url_input else existing_asset.get("url", "")
+    description = request.form.get("description", "").strip() or existing_asset.get("description", "")
+
+    if not all([name, media_type, url]):
+        return redirect(
+            url_for(
+                "admin",
+                message="Please complete all fields before updating this media asset.",
+                section="media",
+            )
+        )
+
+    conflict = d1_query(
+        "SELECT id FROM media_assets WHERE lower(name) = lower(?) AND id != ?",
+        [name, asset_id],
+    )
+    if conflict:
+        return redirect(
+            url_for(
+                "admin",
+                message="Another asset is already using that name.",
+                section="media",
+            )
+        )
+
+    d1_query(
+        """
+        UPDATE media_assets
+        SET name = ?, media_type = ?, url = ?, description = ?
+        WHERE id = ?
+        """,
+        [name, media_type, url, description, asset_id],
+    )
+
+    return redirect(url_for("admin", message="Media asset updated.", section="media"))
+
+
+@app.route("/admin/media/<int:asset_id>/delete", methods=["POST"])
+def delete_media_asset(asset_id):
+    d1_query("DELETE FROM media_assets WHERE id = ?", [asset_id])
+    return redirect(url_for("admin", message="Media asset removed.", section="media"))
 
 
 @app.route("/admin/activities", methods=["POST"])

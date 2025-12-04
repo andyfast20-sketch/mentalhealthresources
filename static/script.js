@@ -28,6 +28,7 @@ const adminCharityTitle = document.querySelector('[data-admin-charity-modal-titl
 const adminCharitySubmit = document.querySelector('[data-admin-charity-submit]');
 const activityEditToggles = Array.from(document.querySelectorAll('[data-activity-edit-toggle]'));
 const didYouKnowEditToggles = Array.from(document.querySelectorAll('[data-didyouknow-edit-toggle]'));
+const mediaEditToggles = Array.from(document.querySelectorAll('[data-media-edit-toggle]'));
 const charityModal = document.querySelector('[data-charity-modal]');
 const charityModalTitle = document.querySelector('[data-charity-modal-title]');
 const charityModalTelephone = document.querySelector('[data-charity-modal-telephone]');
@@ -432,6 +433,32 @@ function toggleDidYouKnowForm(targetId) {
 
 didYouKnowEditToggles.forEach((toggle) => {
   toggle.addEventListener('click', () => toggleDidYouKnowForm(toggle.dataset.target));
+});
+
+function toggleMediaEditForm(targetId) {
+  if (!targetId) return;
+
+  const form = document.querySelector(`[data-media-form="${targetId}"]`);
+  const toggles = Array.from(
+    document.querySelectorAll(`[data-media-edit-toggle][data-target="${targetId}"]`)
+  );
+
+  if (!form) return;
+
+  const isHidden = form.classList.toggle('hidden');
+
+  toggles.forEach((toggle) => {
+    toggle.textContent = isHidden ? 'Edit' : 'Close edit';
+    toggle.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+  });
+
+  if (!isHidden) {
+    form.querySelector('input, select, textarea')?.focus();
+  }
+}
+
+mediaEditToggles.forEach((toggle) => {
+  toggle.addEventListener('click', () => toggleMediaEditForm(toggle.dataset.target));
 });
 
 const charityFeatureConfig = [
