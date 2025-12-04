@@ -47,6 +47,7 @@ const anxietyVideoModal = document.querySelector('[data-anxiety-video-modal]');
 const anxietyVideoTriggers = Array.from(document.querySelectorAll('[data-anxiety-video-trigger]'));
 const anxietyVideoCloseButtons = Array.from(document.querySelectorAll('[data-anxiety-video-close]'));
 const anxietyVideoFrame = document.querySelector('[data-anxiety-video]');
+const adminScrollContainer = document.querySelector('[data-admin-scroll-target]');
 let crisisPlayer;
 let activeBookTrigger = null;
 let activeAdminTrigger = null;
@@ -567,6 +568,26 @@ document.addEventListener('keydown', (event) => {
     if (anxietyVideoModal?.classList.contains('is-open')) closeAnxietyVideoModal();
   }
 });
+
+function focusAdminSection(sectionId) {
+  if (!sectionId) return;
+
+  const target = document.getElementById(sectionId);
+  if (!target) return;
+
+  target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  target.classList.add('admin-section-highlight');
+
+  const focusable = target.querySelector('input, textarea, button');
+  focusable?.focus({ preventScroll: true });
+
+  window.setTimeout(() => target.classList.remove('admin-section-highlight'), 1500);
+}
+
+if (adminScrollContainer?.dataset.adminScrollTarget) {
+  const targetSection = adminScrollContainer.dataset.adminScrollTarget;
+  window.requestAnimationFrame(() => focusAdminSection(targetSection));
+}
 
 // Smooth scroll for in-page anchors
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {

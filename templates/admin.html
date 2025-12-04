@@ -11,7 +11,18 @@
 {% endblock %}
 
 {% block content %}
-<section class="panel admin-panel">
+<div class="admin-page" data-admin-scroll-target="{{ active_section }}">
+    <div class="admin-anchor-nav" aria-label="Admin shortcuts">
+        <a class="btn tiny ghost" href="#site-banner">Site banner</a>
+        <a class="btn tiny ghost" href="#data">Data</a>
+        <a class="btn tiny ghost" href="#did-you-know">Did you know?</a>
+        <a class="btn tiny ghost" href="#activities">Activities</a>
+        <a class="btn tiny ghost" href="#charities">Charities</a>
+        <a class="btn tiny ghost" href="#books">Books</a>
+        <a class="btn tiny ghost" href="#book-shelf">Live shelf</a>
+    </div>
+
+    <section class="panel admin-panel" id="site-banner" data-admin-section>
     <div class="panel-header">
         <p class="eyebrow">Announcements</p>
         <h2>Control the site banner.</h2>
@@ -32,9 +43,9 @@
             {% if construction_banner_enabled %}Turn banner off{% else %}Turn banner on{% endif %}
         </button>
     </form>
-</section>
+    </section>
 
-<section class="panel admin-panel">
+    <section class="panel admin-panel" id="data" data-admin-section>
     <div class="panel-header">
         <p class="eyebrow">Data</p>
         <h2>Manage saved content.</h2>
@@ -111,9 +122,9 @@
         </div>
         {% endif %}
     </div>
-</section>
+    </section>
 
-<section class="panel admin-panel">
+    <section class="panel admin-panel" id="did-you-know" data-admin-section>
     <div class="panel-header">
         <p class="eyebrow">Did you know?</p>
         <h2>Share quick, hopeful facts.</h2>
@@ -207,9 +218,9 @@
         <p class="body">No “Did you know?” cards yet. Add a few to brighten the homepage.</p>
         {% endfor %}
     </div>
-</section>
+    </section>
 
-<section class="panel admin-panel">
+    <section class="panel admin-panel" id="activities" data-admin-section>
     <div class="panel-header">
         <p class="eyebrow">Activities</p>
         <h2>List what different charities offer.</h2>
@@ -312,9 +323,9 @@
         <p class="body">No activities yet. Add one to populate the dropdown on the Activities page.</p>
         {% endfor %}
     </div>
-</section>
+    </section>
 
-<section class="panel admin-panel">
+    <section class="panel admin-panel" id="charities" data-admin-section>
     <div class="panel-header">
         <p class="eyebrow">Charities</p>
         <h2>Highlight trusted organisations.</h2>
@@ -387,9 +398,9 @@
         <p class="body">No charities yet. Add one to spotlight it on the homepage.</p>
         {% endfor %}
     </div>
-</section>
+    </section>
 
-<section class="panel admin-panel">
+    <section class="panel admin-panel" id="books" data-admin-section>
     <div class="panel-header">
         <p class="eyebrow">Books</p>
         <h2>Add a useful book.</h2>
@@ -435,9 +446,9 @@
         </div>
         <button class="btn" type="submit">Add book</button>
     </form>
-</section>
+    </section>
 
-<section class="panel book-panel admin-book-panel">
+    <section class="panel book-panel admin-book-panel" id="book-shelf" data-admin-section>
     <div class="panel-header">
         <p class="eyebrow">Live shelf</p>
         <h2>Books visitors can browse</h2>
@@ -530,7 +541,8 @@
         </article>
         {% endfor %}
     </div>
-</section>
+    </section>
+</div>
 
 <div class="modal-backdrop admin-edit-modal" data-admin-book-modal>
     <div class="modal-dialog admin-modal" role="dialog" aria-modal="true" aria-labelledby="adminBookModalTitle">
