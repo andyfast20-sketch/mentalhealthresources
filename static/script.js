@@ -658,3 +658,28 @@ cards.forEach((card) => {
   card.addEventListener('mouseenter', () => card.classList.add('pulse'));
   card.addEventListener('mouseleave', () => card.classList.remove('pulse'));
 });
+
+// Swap in a friendly fallback if a charity logo is missing or fails to load
+const charityLogoWrappers = Array.from(document.querySelectorAll('.charity-logo'));
+
+function showCharityLogoFallback(wrapper, image) {
+  if (image) {
+    image.classList.add('hidden');
+    image.removeAttribute('src');
+  }
+
+  const fallback = wrapper?.querySelector('.logo-fallback');
+  fallback?.classList.remove('hidden');
+}
+
+charityLogoWrappers.forEach((wrapper) => {
+  const image = wrapper.querySelector('img');
+  if (!image) return;
+
+  if (!image.getAttribute('src')) {
+    showCharityLogoFallback(wrapper, image);
+    return;
+  }
+
+  image.addEventListener('error', () => showCharityLogoFallback(wrapper, image));
+});

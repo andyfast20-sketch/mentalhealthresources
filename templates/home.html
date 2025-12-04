@@ -139,9 +139,8 @@
                 <div class="charity-logo" aria-hidden="true">
                     {% if charity.logo_url %}
                     <img src="{{ charity.logo_url }}" alt="" loading="lazy" />
-                    {% else %}
-                    <div class="logo-fallback">🤝</div>
                     {% endif %}
+                    <div class="logo-fallback {% if charity.logo_url %}hidden{% endif %}">🤝</div>
                 </div>
                 <div>
                     <p class="eyebrow">Charity</p>
