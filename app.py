@@ -1092,6 +1092,14 @@ def normalize_media_type(media_type):
     return normalized if normalized in {"image", "video"} else None
 
 
+def resolve_media_url(primary_url, library_url):
+    library_choice = (library_url or "").strip()
+    manual_choice = (primary_url or "").strip()
+    chosen = library_choice or manual_choice
+
+    return normalize_url(chosen)
+
+
 def load_media_assets():
     ensure_tables()
 
@@ -1874,7 +1882,9 @@ def add_charity():
     name = request.form.get("name", "").strip()
     description = request.form.get("description", "").strip()
     website_url = normalize_url(request.form.get("website_url", ""))
-    logo_url = normalize_url(request.form.get("logo_url", ""))
+    logo_url = resolve_media_url(
+        request.form.get("logo_url", ""), request.form.get("logo_asset_url", "")
+    )
     telephone = request.form.get("telephone", "").strip()
     has_helpline = 1 if request.form.get("has_helpline") else 0
     has_volunteers = 1 if request.form.get("has_volunteers") else 0
@@ -1936,8 +1946,10 @@ def update_charity(charity_id):
     website_input = request.form.get("website_url", "").strip()
     website_url = normalize_url(website_input) if website_input else existing.get("website_url", "")
 
-    logo_input = request.form.get("logo_url", "").strip()
-    logo_url = normalize_url(logo_input) if logo_input else existing.get("logo_url", "")
+    logo_url = resolve_media_url(
+        request.form.get("logo_url", "").strip() or existing.get("logo_url", ""),
+        request.form.get("logo_asset_url", ""),
+    ) or existing.get("logo_url", "")
 
     telephone = request.form.get("telephone", "").strip()
     has_helpline = 1 if request.form.get("has_helpline") else 0
@@ -2031,7 +2043,10 @@ def add_book():
     author = request.form.get("author", "").strip()
     description = request.form.get("description", "").strip()
     affiliate_url = normalize_url(request.form.get("affiliate_url", ""))
-    cover_url = normalize_url(request.form.get("cover_url", ""))
+    cover_url = resolve_media_url(
+        request.form.get("cover_url", ""),
+        request.form.get("cover_asset_url", ""),
+    )
 
     if not all([title, author, description, affiliate_url]):
         return redirect(url_for("admin", message="Please fill in all book fields."))
@@ -2083,8 +2098,10 @@ def update_book(book_index):
         normalize_url(affiliate_input) if affiliate_input else existing_book.get("affiliate_url", "")
     )
 
-    cover_input = request.form.get("cover_url", "").strip()
-    cover_url = normalize_url(cover_input) if cover_input else existing_book.get("cover_url", "")
+    cover_url = resolve_media_url(
+        request.form.get("cover_url", "").strip() or existing_book.get("cover_url", ""),
+        request.form.get("cover_asset_url", ""),
+    ) or existing_book.get("cover_url", "")
 
     if not all([title, author, description, affiliate_url]):
         return redirect(url_for("admin", message="Please complete all book fields to update."))

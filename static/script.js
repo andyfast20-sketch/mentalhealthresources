@@ -26,6 +26,7 @@ const adminCharityTriggers = Array.from(document.querySelectorAll('[data-admin-c
 const adminCharityCloseButtons = Array.from(document.querySelectorAll('[data-admin-charity-close]'));
 const adminCharityTitle = document.querySelector('[data-admin-charity-modal-title]');
 const adminCharitySubmit = document.querySelector('[data-admin-charity-submit]');
+const mediaSelects = Array.from(document.querySelectorAll('[data-media-url-select]'));
 const activityEditToggles = Array.from(document.querySelectorAll('[data-activity-edit-toggle]'));
 const didYouKnowEditToggles = Array.from(document.querySelectorAll('[data-didyouknow-edit-toggle]'));
 const mediaEditToggles = Array.from(document.querySelectorAll('[data-media-edit-toggle]'));
@@ -278,12 +279,14 @@ function populateAdminBookForm(trigger) {
   const descriptionInput = adminBookForm.querySelector('textarea[name="description"]');
   const affiliateInput = adminBookForm.querySelector('input[name="affiliate_url"]');
   const coverInput = adminBookForm.querySelector('input[name="cover_url"]');
+  const coverSelect = adminBookForm.querySelector('[data-media-url-select][data-target-input="cover_url"]');
 
   if (titleInput) titleInput.value = trigger.dataset.title || '';
   if (authorInput) authorInput.value = trigger.dataset.author || '';
   if (descriptionInput) descriptionInput.value = trigger.dataset.description || '';
   if (affiliateInput) affiliateInput.value = trigger.dataset.affiliateUrl || '';
   if (coverInput) coverInput.value = trigger.dataset.coverUrl || '';
+  if (coverSelect) coverSelect.value = trigger.dataset.coverUrl || '';
 }
 
 function openAdminBookModal(trigger) {
@@ -321,6 +324,7 @@ function populateAdminCharityForm(trigger) {
   const nameInput = adminCharityForm.querySelector('input[name="name"]');
   const descriptionInput = adminCharityForm.querySelector('textarea[name="description"]');
   const logoInput = adminCharityForm.querySelector('input[name="logo_url"]');
+  const logoSelect = adminCharityForm.querySelector('[data-media-url-select][data-target-input="logo_url"]');
   const websiteInput = adminCharityForm.querySelector('input[name="website_url"]');
   const telephoneInput = adminCharityForm.querySelector('input[name="telephone"]');
   const charityFeatureInputs = {
@@ -335,6 +339,7 @@ function populateAdminCharityForm(trigger) {
   if (nameInput) nameInput.value = trigger.dataset.charityName || '';
   if (descriptionInput) descriptionInput.value = trigger.dataset.charityDescription || '';
   if (logoInput) logoInput.value = trigger.dataset.charityLogo || '';
+  if (logoSelect) logoSelect.value = trigger.dataset.charityLogo || '';
   if (websiteInput) websiteInput.value = trigger.dataset.charityWebsite || '';
   if (telephoneInput) telephoneInput.value = trigger.dataset.charityTelephone || '';
 
@@ -460,6 +465,23 @@ function toggleMediaEditForm(targetId) {
 mediaEditToggles.forEach((toggle) => {
   toggle.addEventListener('click', () => toggleMediaEditForm(toggle.dataset.target));
 });
+
+function bindMediaSelect(select) {
+  if (!select) return;
+  const targetName = select.dataset.targetInput;
+  if (!targetName) return;
+
+  select.addEventListener('change', () => {
+    const form = select.closest('form');
+    const targetInput = form?.querySelector(`input[name="${targetName}"]`);
+    if (!targetInput) return;
+    if (select.value) {
+      targetInput.value = select.value;
+    }
+  });
+}
+
+mediaSelects.forEach(bindMediaSelect);
 
 const charityFeatureConfig = [
   { key: 'charityHasHelpline', label: 'Helpline' },
