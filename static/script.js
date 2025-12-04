@@ -37,6 +37,7 @@ const charityFeatureList = document.querySelector('[data-charity-feature-list]')
 const charityModalLink = document.querySelector('[data-charity-modal-link]');
 const charityModalCloseButtons = Array.from(document.querySelectorAll('[data-charity-modal-close]'));
 const charityTriggerButtons = Array.from(document.querySelectorAll('[data-charity-trigger]'));
+const coffeeModal = document.querySelector('[data-coffee-modal]');
 const crisisVolume = document.querySelector('[data-crisis-volume]');
 const crisisVolumeValue = document.querySelector('[data-crisis-volume-value]');
 const anxietyModal = document.querySelector('[data-anxiety-modal]');
