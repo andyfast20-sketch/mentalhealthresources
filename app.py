@@ -4,6 +4,7 @@ import sqlite3
 from datetime import datetime
 from html.parser import HTMLParser
 from pathlib import Path
+import time
 from urllib import request as urlrequest
 from urllib.error import HTTPError, URLError
 
@@ -23,6 +24,9 @@ except ModuleNotFoundError:  # pragma: no cover - fallback loader
             key, value = stripped.split("=", 1)
             os.environ.setdefault(key.strip(), value.strip())
 from flask import Flask, redirect, render_template, request, url_for
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.common.by import By
 
 load_dotenv()
 
@@ -265,10 +269,195 @@ def extract_html_charset(headers, default="utf-8"):
     return default
 
 
+def create_selenium_driver():
+    chrome_options = Options()
+    chrome_options.add_argument("--headless")
+    chrome_options.add_argument("--no-sandbox")
+    chrome_options.add_argument("--disable-dev-shm-usage")
+    chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+    chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+    chrome_options.add_experimental_option("useAutomationExtension", False)
+    chrome_options.add_argument(
+        "user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+    )
+
+    return webdriver.Chrome(options=chrome_options)
+
+
+def extract_bookshop_title(driver):
+    try:
+        element = driver.find_element(By.CSS_SELECTOR, "h1[data-testid='book-title']")
+        if element and element.text.strip():
+            return element.text.strip()
+    except Exception:
+        pass
+
+    selectors = [
+        "h1.title",
+        "h1.product-title",
+        ".product-title h1",
+        "h1[itemprop='name']",
+        "meta[property='og:title']",
+        "title",
+    ]
+
+    for selector in selectors:
+        try:
+            element = driver.find_element(By.CSS_SELECTOR, selector)
+            if element:
+                text = element.text.strip()
+                if not text and selector == "meta[property='og:title']":
+                    text = element.get_attribute("content", "").strip()
+                if text:
+                    text = text.replace("| UK bookshop.org", "").strip()
+                    text = text.replace("UK Bookshop -", "").strip()
+                    text = text.split("|")[0].strip()
+                    text = text.split("-")[0].strip()
+                    return text
+        except Exception:
+            continue
+
+    try:
+        h1_elements = driver.find_elements(By.TAG_NAME, "h1")
+        for h1 in h1_elements:
+            text = h1.text.strip()
+            if text and 3 < len(text) < 200:
+                if not text.lower().startswith(("http", "home", "shop", "about", "contact")):
+                    return text
+    except Exception:
+        pass
+
+    page_title = driver.title.strip()
+    if page_title:
+        page_title = page_title.replace("| UK bookshop.org", "").strip()
+        page_title = page_title.replace("UK Bookshop -", "").strip()
+        page_title = page_title.split("|")[0].strip()
+        page_title = page_title.split("-")[0].strip()
+        return page_title
+
+    return ""
+
+
+def extract_bookshop_author(driver):
+    selectors = [
+        "a[href*='/search?keywords=']",
+        ".author",
+        ".book-author",
+        "[itemprop='author']",
+        "a[href*='/author/']",
+    ]
+
+    for selector in selectors:
+        try:
+            element = driver.find_element(By.CSS_SELECTOR, selector)
+            if element:
+                text = element.text.strip()
+                if text:
+                    text = text.replace("(Author)", "").strip()
+                    text = text.replace("(author)", "").strip()
+                    text = text.replace("By ", "").strip()
+                    return text
+        except Exception:
+            continue
+
+    return ""
+
+
+def extract_bookshop_description(driver):
+    selectors = [
+        "div.bulleted-lists[dir='ltr']",
+        ".description",
+        ".book-description",
+        "[itemprop='description']",
+        ".product-description",
+    ]
+
+    for selector in selectors:
+        try:
+            element = driver.find_element(By.CSS_SELECTOR, selector)
+            if element:
+                text = element.text.strip()
+                if text:
+                    return text
+        except Exception:
+            continue
+
+    return ""
+
+
+def extract_bookshop_image(driver):
+    selectors = [
+        "img[alt*='bookcover']",
+        "img[alt*='cover']",
+        ".book-cover img",
+        "[itemprop='image']",
+        "img.product-image",
+    ]
+
+    for selector in selectors:
+        try:
+            element = driver.find_element(By.CSS_SELECTOR, selector)
+            if element:
+                srcset = element.get_attribute("srcset")
+                if srcset:
+                    urls = [url.strip().split(" ")[0] for url in srcset.split(",") if url.strip()]
+                    if urls:
+                        return urls[-1]
+
+                src = element.get_attribute("src")
+                if src:
+                    return src
+        except Exception:
+            continue
+
+    return ""
+
+
+def scrape_bookshop_metadata(book_url):
+    driver = None
+    try:
+        driver = create_selenium_driver()
+    except Exception as exc:
+        return None, f"Failed to initialize Chrome driver: {exc}"
+
+    try:
+        driver.get(book_url)
+        time.sleep(4)
+
+        title = extract_bookshop_title(driver)
+        author = extract_bookshop_author(driver) or "Unknown author"
+        description = extract_bookshop_description(driver) or "Description not available yet."
+        cover_url = extract_bookshop_image(driver)
+
+        if not title:
+            return None, "Could not find a title on that page. Please add the book manually."
+
+        return (
+            {
+                "title": title,
+                "author": author,
+                "description": description,
+                "affiliate_url": book_url,
+                "cover_url": normalize_url(cover_url) if cover_url else "",
+            },
+            None,
+        )
+    except Exception as exc:
+        return None, f"Error while scraping book details: {exc}"
+    finally:
+        try:
+            driver.quit()
+        except Exception:
+            pass
+
+
 def scrape_book_metadata(book_url):
     normalized_url = normalize_url(book_url)
     if not normalized_url:
         return None, "Please provide a book URL."
+
+    if "uk.bookshop.org" in normalized_url:
+        return scrape_bookshop_metadata(normalized_url)
 
     headers = {"User-Agent": "Mozilla/5.0"}
     request = urlrequest.Request(normalized_url, headers=headers)
