@@ -1497,7 +1497,7 @@ def build_dataset_summary(books):
     }
 
 
-def render_admin_page(message=None, save_summary=None, load_summary=None):
+def render_admin_page(message=None, save_summary=None, load_summary=None, section=None):
     view_counts = load_book_view_counts()
     books = books_with_indices(load_books(), view_counts=view_counts)
     charities = load_charities()
@@ -1522,13 +1522,15 @@ def render_admin_page(message=None, save_summary=None, load_summary=None):
         save_summary=save_summary,
         load_summary=load_summary,
         construction_banner_enabled=construction_banner_enabled(),
+        active_section=section,
     )
 
 
 @app.route("/admin")
 def admin():
     message = request.args.get("message")
-    return render_admin_page(message=message)
+    section = request.args.get("section")
+    return render_admin_page(message=message, section=section)
 
 
 @app.route("/admin/site-banner", methods=["POST"])
@@ -1798,7 +1800,7 @@ def scrape_book():
     books.append(book)
     save_books(books)
 
-    return redirect(url_for("admin", message="Book scraped and added."))
+    return redirect(url_for("admin", message="Book scraped and added.", section="books"))
 
 
 @app.route("/admin/books", methods=["POST"])
@@ -1823,7 +1825,7 @@ def add_book():
         }
     )
     save_books(books)
-    return redirect(url_for("admin", message="Book added."))
+    return redirect(url_for("admin", message="Book added.", section="books"))
 
 
 @app.route("/admin/books/<int:book_index>/delete", methods=["POST"])
@@ -1832,21 +1834,21 @@ def delete_book(book_index):
     if 0 <= book_index < len(books):
         books.pop(book_index)
         save_books(books)
-        return redirect(url_for("admin", message="Book removed."))
-    return redirect(url_for("admin", message="Book not found."))
+        return redirect(url_for("admin", message="Book removed.", section="books"))
+    return redirect(url_for("admin", message="Book not found.", section="books"))
 
 
 @app.route("/admin/books/delete-all", methods=["POST"])
 def delete_all_books():
     save_books([])
-    return redirect(url_for("admin", message="All books removed."))
+    return redirect(url_for("admin", message="All books removed.", section="books"))
 
 
 @app.route("/admin/books/<int:book_index>/update", methods=["POST"])
 def update_book(book_index):
     books = load_books()
     if not (0 <= book_index < len(books)):
-        return redirect(url_for("admin", message="Book not found."))
+        return redirect(url_for("admin", message="Book not found.", section="books"))
 
     existing_book = books[book_index]
 
@@ -1873,7 +1875,7 @@ def update_book(book_index):
         "cover_url": cover_url,
     }
     save_books(books)
-    return redirect(url_for("admin", message="Book updated."))
+    return redirect(url_for("admin", message="Book updated.", section="books"))
 
 
 @app.route("/calming-tools/<slug>/complete", methods=["POST"])
