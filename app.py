@@ -284,6 +284,25 @@ def create_selenium_driver():
     return webdriver.Chrome(options=chrome_options)
 
 
+def fetch_html_with_browser(url):
+    """Fetch page HTML using a real browser to bypass strict blocking."""
+
+    driver = None
+    try:
+        driver = create_selenium_driver()
+        driver.get(url)
+        time.sleep(4)
+        return driver.page_source, None
+    except Exception as exc:  # pragma: no cover - depends on browser availability
+        return None, str(exc)
+    finally:
+        try:
+            if driver:
+                driver.quit()
+        except Exception:
+            pass
+
+
 def extract_bookshop_title(driver):
     try:
         element = driver.find_element(By.CSS_SELECTOR, "h1[data-testid='book-title']")
@@ -459,15 +478,33 @@ def scrape_book_metadata(book_url):
     if "uk.bookshop.org" in normalized_url:
         return scrape_bookshop_metadata(normalized_url)
 
-    headers = {"User-Agent": "Mozilla/5.0"}
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8",
+        "Accept-Language": "en-GB,en-US;q=0.9,en;q=0.8",
+    }
     request = urlrequest.Request(normalized_url, headers=headers)
+
+    html = None
 
     try:
         with urlrequest.urlopen(request, timeout=10) as response:  # nosec B310
             charset = extract_html_charset(response.headers)
             html = response.read().decode(charset, errors="replace")
-    except (HTTPError, URLError, TimeoutError, UnicodeDecodeError) as exc:
+    except HTTPError as exc:
+        if exc.code in {403, 429}:
+            html, browser_error = fetch_html_with_browser(normalized_url)
+            if not html:
+                return None, (
+                    f"Unable to fetch book page (HTTP {exc.code}) and browser fallback failed: {browser_error}"
+                )
+        else:
+            return None, f"Unable to fetch book page: {exc}"
+    except (URLError, TimeoutError, UnicodeDecodeError) as exc:
         return None, f"Unable to fetch book page: {exc}"
+
+    if html is None:
+        return None, "Unable to fetch book page: Unknown error"
 
     meta_tags, title_from_markup = parse_meta_tags(html)
 
