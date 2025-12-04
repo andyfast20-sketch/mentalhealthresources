@@ -2,6 +2,7 @@ import json
 import os
 import sqlite3
 from datetime import datetime
+from html.parser import HTMLParser
 from pathlib import Path
 from urllib import request as urlrequest
 from urllib.error import HTTPError, URLError
@@ -209,6 +210,95 @@ def normalize_support_link(url):
         return url
 
     return f"https://{url}"
+
+
+class MetaTagParser(HTMLParser):
+    def __init__(self):
+        super().__init__()
+        self.meta_tags = []
+        self.title_chunks = []
+        self._in_title = False
+
+    def handle_starttag(self, tag, attrs):
+        if tag.lower() == "meta":
+            self.meta_tags.append({key.lower(): value for key, value in attrs if value})
+        elif tag.lower() == "title":
+            self._in_title = True
+
+    def handle_endtag(self, tag):
+        if tag.lower() == "title":
+            self._in_title = False
+
+    def handle_data(self, data):
+        if self._in_title:
+            self.title_chunks.append(data)
+
+
+def parse_meta_tags(html):
+    parser = MetaTagParser()
+    parser.feed(html)
+    return parser.meta_tags, "".join(parser.title_chunks).strip()
+
+
+def first_meta_content(meta_tags, names):
+    names = {name.lower() for name in names}
+    for tag in meta_tags:
+        tag_name = tag.get("name") or tag.get("property")
+        if tag_name and tag_name.lower() in names:
+            content = tag.get("content")
+            if content:
+                return content.strip()
+    return ""
+
+
+def extract_html_charset(headers, default="utf-8"):
+    content_type = headers.get("Content-Type")
+    if not content_type:
+        return default
+
+    parts = content_type.split("charset=")
+    if len(parts) == 2:
+        charset = parts[1].split(";")[0].strip()
+        if charset:
+            return charset
+
+    return default
+
+
+def scrape_book_metadata(book_url):
+    normalized_url = normalize_url(book_url)
+    if not normalized_url:
+        return None, "Please provide a book URL."
+
+    headers = {"User-Agent": "Mozilla/5.0"}
+    request = urlrequest.Request(normalized_url, headers=headers)
+
+    try:
+        with urlrequest.urlopen(request, timeout=10) as response:  # nosec B310
+            charset = extract_html_charset(response.headers)
+            html = response.read().decode(charset, errors="replace")
+    except (HTTPError, URLError, TimeoutError, UnicodeDecodeError) as exc:
+        return None, f"Unable to fetch book page: {exc}"
+
+    meta_tags, title_from_markup = parse_meta_tags(html)
+
+    title = first_meta_content(meta_tags, {"og:title", "twitter:title", "title"}) or title_from_markup
+    description = first_meta_content(meta_tags, {"og:description", "description"})
+    author = first_meta_content(meta_tags, {"author", "book:author", "og:book:author"})
+    cover_url = first_meta_content(meta_tags, {"og:image", "twitter:image", "image"}) or ""
+
+    if not title:
+        return None, "Could not find a title on that page. Please add the book manually."
+
+    book = {
+        "title": title,
+        "author": author or "Unknown author",
+        "description": description or "Description not available yet.",
+        "affiliate_url": normalized_url,
+        "cover_url": normalize_url(cover_url) if cover_url.startswith("http") else "",
+    }
+
+    return book, None
 
 
 def ensure_fallback_db():
@@ -1466,6 +1556,23 @@ def snapshot_load():
     load_summary = build_dataset_summary(books)
 
     return render_admin_page(message="Data loaded from the database.", load_summary=load_summary)
+
+
+@app.route("/admin/books/scrape", methods=["POST"])
+def scrape_book():
+    book_url = request.form.get("book_url", "").strip()
+    if not book_url:
+        return redirect(url_for("admin", message="Please provide a book URL to scrape."))
+
+    book, error = scrape_book_metadata(book_url)
+    if error:
+        return redirect(url_for("admin", message=error))
+
+    books = load_books()
+    books.append(book)
+    save_books(books)
+
+    return redirect(url_for("admin", message="Book scraped and added."))
 
 
 @app.route("/admin/books", methods=["POST"])
