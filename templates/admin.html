@@ -400,6 +400,14 @@
             <button class="btn ghost" type="submit">Delete all books</button>
         </form>
     </div>
+    <form class="admin-form" action="{{ url_for('scrape_book') }}" method="post">
+        <label>
+            <span>Scrape from a book URL</span>
+            <input type="url" name="book_url" placeholder="https://" required />
+            <p class="body muted">We'll fetch Open Graph metadata for the title, description, and cover. The link will be saved as the purchase URL.</p>
+        </label>
+        <button class="btn" type="submit">Scrape &amp; add book</button>
+    </form>
     <form class="admin-form" action="{{ url_for('add_book') }}" method="post">
         <div class="form-grid">
             <label>
