@@ -134,7 +134,7 @@
         <div class="flash">{{ message }}</div>
         {% endif %}
     </div>
-    <form class="admin-form" action="{{ url_for('add_media_asset') }}" method="post">
+    <form class="admin-form" action="{{ url_for('add_media_asset') }}" method="post" enctype="multipart/form-data">
         <div class="form-grid">
             <label>
                 <span>Asset name</span>
@@ -150,15 +150,21 @@
         </div>
         <div class="form-grid">
             <label>
-                <span>Link to file</span>
-                <input type="url" name="url" placeholder="https://..." required />
+                <span>Link to file (optional)</span>
+                <input type="url" name="url" placeholder="https://..." />
             </label>
             <label>
                 <span>Description (optional)</span>
                 <input type="text" name="description" placeholder="Where and how this media is used" />
             </label>
         </div>
-        <p class="form-hint">Example: <code>get_media_asset('calming-video')</code> returns the saved link and type wherever you need it.</p>
+        <div class="form-grid">
+            <label>
+                <span>Upload a file (optional)</span>
+                <input type="file" name="file" accept="image/*,video/*" />
+            </label>
+        </div>
+        <p class="form-hint">Upload a file or provide a link. Example: <code>get_media_asset('calming-video')</code> returns the saved link and type wherever you need it.</p>
         <button class="btn" type="submit">Add media</button>
     </form>
     <div class="media-admin-grid">
@@ -200,6 +206,7 @@
                 data-media-form="media-{{ asset.id }}"
                 action="{{ url_for('update_media_asset', asset_id=asset.id) }}"
                 method="post"
+                enctype="multipart/form-data"
             >
                 <div class="form-grid">
                     <label>
@@ -216,12 +223,18 @@
                 </div>
                 <div class="form-grid">
                     <label>
-                        <span>Link to file</span>
-                        <input type="url" name="url" value="{{ asset.url }}" required />
+                        <span>Link to file (optional)</span>
+                        <input type="url" name="url" value="{{ asset.url }}" />
                     </label>
                     <label>
                         <span>Description (optional)</span>
                         <input type="text" name="description" value="{{ asset.description }}" />
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <label>
+                        <span>Upload a file (optional)</span>
+                        <input type="file" name="file" accept="image/*,video/*" />
                     </label>
                 </div>
                 <div class="book-actions">
