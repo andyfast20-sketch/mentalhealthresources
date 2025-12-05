@@ -107,7 +107,10 @@
                     {% endif %}
                 </div>
                 <div class="book-meta">
-                    <p class="eyebrow">{{ book.author }}</p>
+                    <div class="book-meta-header">
+                        <p class="eyebrow">{{ book.author }}</p>
+                        <span class="pill tiny ghost book-view-pill">{{ book.view_count }} views</span>
+                    </div>
                     <h3>{{ book.title }}</h3>
                     <p class="body book-description">{{ book.description }}</p>
                 </div>
