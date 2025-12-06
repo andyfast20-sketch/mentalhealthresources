@@ -276,6 +276,21 @@ bookTriggerButtons.forEach((button) => {
 
 bookModalCloseButtons.forEach((button) => button.addEventListener('click', closeBookModal));
 
+bookModalLinks.forEach((link) => {
+  link.addEventListener('click', (event) => {
+    const href = link.getAttribute('href');
+    const isDisabled =
+      link.classList.contains('is-disabled') || link.getAttribute('aria-disabled') === 'true' || !href || href === '#';
+
+    if (isDisabled) {
+      event.preventDefault();
+      return;
+    }
+
+    closeBookModal();
+  });
+});
+
 bookModal?.addEventListener('click', (event) => {
   if (event.target === bookModal) {
     closeBookModal();
