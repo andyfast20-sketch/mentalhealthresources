@@ -287,6 +287,16 @@ bookModalLinks.forEach((link) => {
       return;
     }
 
+    event.preventDefault();
+
+    const newTab = window.open(href, '_blank', 'noopener');
+
+    if (newTab) {
+      newTab.opener = null;
+    } else {
+      window.location.href = href;
+    }
+
     closeBookModal();
   });
 });
