@@ -11,6 +11,9 @@ const calmReset = document.querySelector('[data-calm-reset]');
 const phaseLabel = document.querySelector('[data-phase-label]');
 const pulseRing = document.querySelector('[data-pulse-ring]');
 const phaseTimeline = document.querySelector('[data-phase-timeline]');
+const waveDot = document.querySelector('[data-wave-dot]');
+const waveFill = document.querySelector('[data-wave-fill]');
+const wavePhase = document.querySelector('[data-wave-phase]');
 const affirmation = document.querySelector('[data-affirmation]');
 const cyclePreview = document.querySelector('[data-cycle-preview]');
 const calmingSlug = calmStart?.dataset.calmingSlug;
@@ -34,10 +37,10 @@ const scaleTargets = {
 };
 
 const phaseConfig = [
-  { key: 'inhale', label: 'Inhale', emoji: '🌅', duration: (durations) => durations[0], target: 'contract' },
-  { key: 'hold-full', label: 'Hold full', emoji: '✨', duration: (durations) => durations[1], hold: true },
-  { key: 'exhale', label: 'Exhale', emoji: '🌊', duration: (durations) => durations[2], target: 'expand' },
-  { key: 'hold-open', label: 'Hold open', emoji: '✨', duration: (durations) => durations[1], hold: true },
+  { key: 'inhale', label: 'Inhale', emoji: '🌅', duration: (durations) => durations[0], target: 'contract', waveHeight: 86 },
+  { key: 'hold-full', label: 'Hold full', emoji: '✨', duration: (durations) => durations[1], hold: true, waveHeight: 86 },
+  { key: 'exhale', label: 'Exhale', emoji: '🌊', duration: (durations) => durations[2], target: 'expand', waveHeight: 26 },
+  { key: 'hold-open', label: 'Hold open', emoji: '✨', duration: (durations) => durations[1], hold: true, waveHeight: 26 },
 ];
 
 const affirmations = ['You deserve this pause.', 'Every breath is progress.', 'Settle into the softness of this moment.', 'Notice how capable your body is.', 'Quiet moments count as care.'];
@@ -79,6 +82,7 @@ function setPhase(index = 0) {
   lastTargetScale = targetScale;
 
   phaseLabel.textContent = `${currentPhase.emoji} ${currentPhase.label}`;
+  updateWaveGraph(currentPhase.waveHeight, durationSeconds, currentPhase.label, currentPhase.hold);
 
   calmTimer = setTimeout(() => {
     setPhase(phaseIndex + 1);
@@ -92,6 +96,7 @@ function primeRing() {
   lastTargetScale = initialScale;
   pulseRing.style.transition = 'transform 0.4s ease-out';
   pulseRing.style.transform = `scale(${initialScale})`;
+  updateWaveGraph(55, 0.6, 'Flow ready');
 }
 
 function updateCyclePreview() {
@@ -208,4 +213,17 @@ function logFlowStart() {
       }
     })
     .catch(() => {});
+}
+
+function updateWaveGraph(heightPercent = 55, durationSeconds = 0.8, labelText = 'Aligned', hold = false) {
+  if (!waveDot || !waveFill) return;
+  const boundedHeight = clamp(heightPercent, 12, 92);
+  const transitionTime = hold ? 0.45 : durationSeconds;
+  waveDot.style.transition = `bottom ${transitionTime}s ease-in-out`;
+  waveFill.style.transition = `height ${transitionTime}s ease-in-out`;
+  waveDot.style.bottom = `${boundedHeight}%`;
+  waveFill.style.height = `${boundedHeight}%`;
+  if (wavePhase && labelText) {
+    wavePhase.textContent = labelText;
+  }
 }

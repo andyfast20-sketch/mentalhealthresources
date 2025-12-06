@@ -3718,6 +3718,81 @@ body {
   z-index: 2;
 }
 
+.flow-wave {
+  position: absolute;
+  right: 6%;
+  bottom: 14%;
+  width: 68px;
+  height: 190px;
+  display: grid;
+  align-items: center;
+  justify-items: center;
+  background: rgba(255, 255, 255, 0.86);
+  border: 1px solid rgba(105, 134, 217, 0.24);
+  border-radius: 16px;
+  padding: 10px 8px;
+  box-shadow: 0 14px 30px rgba(118, 137, 217, 0.24);
+}
+
+.flow-wave__rail {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, rgba(247, 192, 106, 0.12), rgba(126, 167, 255, 0.1));
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px dashed rgba(105, 134, 217, 0.22);
+}
+
+.flow-wave__fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 55%;
+  background: linear-gradient(180deg, rgba(245, 163, 181, 0.65), rgba(247, 192, 106, 0.7));
+  transition: height 0.8s ease-in-out;
+}
+
+.flow-wave__dot {
+  position: absolute;
+  left: 50%;
+  bottom: 55%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 22px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 12px 26px rgba(118, 137, 217, 0.28);
+  transition: bottom 0.8s ease-in-out;
+}
+
+.flow-wave__dot-glow {
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(245, 163, 181, 0.38), transparent 70%);
+  filter: blur(6px);
+  z-index: 0;
+}
+
+.flow-wave__phase {
+  position: relative;
+  font-size: 11px;
+  font-weight: 700;
+  color: #3a2648;
+  text-align: center;
+  line-height: 1.1;
+  padding: 4px 8px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(105, 134, 217, 0.16);
+  box-shadow: 0 8px 16px rgba(118, 137, 217, 0.2);
+  transform: translateY(calc(100% + 8px));
+}
+
 .pulse-ring {
   position: relative;
   width: 68%;
