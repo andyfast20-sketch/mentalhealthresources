@@ -619,6 +619,7 @@
                 <thead>
                     <tr>
                         <th scope="col">Exercise</th>
+                        <th scope="col">Guided starts</th>
                         <th scope="col">Completed taps</th>
                     </tr>
                 </thead>
@@ -626,6 +627,7 @@
                     {% for tool in calming_tools %}
                     <tr>
                         <td>{{ tool.title }}</td>
+                        <td>{{ tool.view_count }}</td>
                         <td>{{ tool.completed_count }}</td>
                     </tr>
                     {% endfor %}
