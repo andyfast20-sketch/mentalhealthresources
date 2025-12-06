@@ -13,6 +13,13 @@ const pulseRing = document.querySelector('[data-pulse-ring]');
 const phaseTimeline = document.querySelector('[data-phase-timeline]');
 const affirmation = document.querySelector('[data-affirmation]');
 const cyclePreview = document.querySelector('[data-cycle-preview]');
+const calmingSlug = calmStart?.dataset.calmingSlug;
+const viewCounters = calmingSlug
+  ? Array.from(document.querySelectorAll(`[data-calming-view="${calmingSlug}"]`))
+  : [];
+const completionCounters = calmingSlug
+  ? Array.from(document.querySelectorAll(`[data-calming-count="${calmingSlug}"]`))
+  : [];
 
 let calmTimer;
 let sessionTimer;
@@ -99,6 +106,7 @@ function startCalm() {
     return;
   }
   running = true;
+  logFlowStart();
   const minutes = clamp(Number(sessionInput?.value || 5), 1, 30);
   sessionEndTime = Date.now() + minutes * 60 * 1000;
   startSessionTimer();
@@ -171,4 +179,33 @@ function updateSessionRemaining() {
     .padStart(2, '0');
   const seconds = (totalSeconds % 60).toString().padStart(2, '0');
   sessionRemaining.textContent = `${minutes}:${seconds} remaining`;
+}
+
+function updateViewCounts(newCount) {
+  viewCounters.forEach((node) => {
+    node.textContent = newCount;
+  });
+}
+
+function updateCompletionCounts(newCount) {
+  completionCounters.forEach((node) => {
+    node.textContent = newCount;
+  });
+}
+
+function logFlowStart() {
+  if (!calmingSlug) return;
+
+  fetch(`/calming-tools/${calmingSlug}/view`, { method: 'POST' })
+    .then((response) => response.json())
+    .then((data) => {
+      if (!data?.success) return;
+      if (typeof data.view_count === 'number') {
+        updateViewCounts(data.view_count);
+      }
+      if (typeof data.completed_count === 'number') {
+        updateCompletionCounts(data.completed_count);
+      }
+    })
+    .catch(() => {});
 }

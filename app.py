@@ -716,7 +716,8 @@ def ensure_tables():
         """
         CREATE TABLE IF NOT EXISTS calming_counts (
             slug TEXT PRIMARY KEY,
-            count INTEGER DEFAULT 0
+            count INTEGER DEFAULT 0,
+            view_count INTEGER DEFAULT 0
         );
         """,
         """
@@ -777,18 +778,46 @@ def ensure_tables():
     for statement in table_statements:
         d1_query(statement)
 
+    ensure_calming_counts_schema()
+
     # Always mirror the schema in the local fallback database so queries keep
     # working even if Cloudflare D1 is configured but temporarily unreachable.
     connection = open_local_db()
     with connection:
         for statement in table_statements:
             connection.execute(statement)
+        ensure_calming_counts_schema(connection)
 
     # Apply schema migrations to keep legacy databases aligned with the current model.
     with open_local_db() as connection:
         migrate_charities_schema_local(connection)
 
     migrate_charities_schema_remote()
+
+
+def ensure_calming_counts_schema(connection=None):
+    if connection:
+        local_columns = {
+            row[1] for row in connection.execute("PRAGMA table_info(calming_counts)").fetchall()
+        }
+        if "view_count" not in local_columns:
+            connection.execute("ALTER TABLE calming_counts ADD COLUMN view_count INTEGER DEFAULT 0")
+        return
+
+    columns = {row.get("name") for row in d1_query("PRAGMA table_info(calming_counts)")}
+
+    if "view_count" not in columns:
+        d1_query("ALTER TABLE calming_counts ADD COLUMN view_count INTEGER DEFAULT 0")
+
+
+def normalize_calming_entry(entry):
+    if isinstance(entry, dict):
+        return {
+            "completed": int(entry.get("completed", entry.get("count", 0) or 0)),
+            "views": int(entry.get("views", entry.get("view_count", 0) or 0)),
+        }
+
+    return {"completed": int(entry or 0), "views": 0}
 
 
 def load_site_settings():
@@ -1435,29 +1464,37 @@ def inject_media_library():
 def load_calming_counts():
     ensure_tables()
 
-    rows = d1_query("SELECT slug, count FROM calming_counts")
+    rows = d1_query("SELECT slug, count, view_count FROM calming_counts")
     counts = {}
     for row in rows:
         slug = row.get("slug") if isinstance(row, dict) else None
         if slug:
-            counts[slug] = int(row.get("count", 0) or 0)
+            counts[slug] = normalize_calming_entry(row)
 
     for tool in CALMING_TOOLS:
         slug = tool.get("slug", slugify(tool["title"]))
-        counts.setdefault(slug, 0)
+        counts.setdefault(slug, {"completed": 0, "views": 0})
 
-    save_calming_counts(counts)
-    return counts
+    for page in CALMING_TOOL_PAGES:
+        slug = page.get("count_slug") or page.get("slug")
+        counts.setdefault(slug, {"completed": 0, "views": 0})
+
+    normalized = {slug: normalize_calming_entry(entry) for slug, entry in counts.items()}
+
+    save_calming_counts(normalized)
+    return normalized
 
 
 def save_calming_counts(counts):
     ensure_tables()
     d1_query("DELETE FROM calming_counts")
 
-    for slug, count in counts.items():
+    normalized = {slug: normalize_calming_entry(entry) for slug, entry in counts.items()}
+
+    for slug, count in normalized.items():
         d1_query(
-            "INSERT INTO calming_counts (slug, count) VALUES (?, ?)",
-            [slug, int(count or 0)],
+            "INSERT INTO calming_counts (slug, count, view_count) VALUES (?, ?, ?)",
+            [slug, int(count.get("completed", 0) or 0), int(count.get("views", 0) or 0)],
         )
 
 
@@ -1468,9 +1505,16 @@ def calming_tools_with_counts():
 
     for tool in CALMING_TOOLS:
         slug = tool.get("slug", slugify(tool["title"]))
-        count = counts.get(slug, 0)
+        count = counts.get(slug, {"completed": 0, "views": 0})
         updated[slug] = count
-        tools_with_counts.append({**tool, "slug": slug, "completed_count": count})
+        tools_with_counts.append(
+            {
+                **tool,
+                "slug": slug,
+                "completed_count": count.get("completed", 0),
+                "view_count": count.get("views", 0),
+            }
+        )
 
     if counts.keys() != updated.keys():
         save_calming_counts(updated)
@@ -1484,7 +1528,14 @@ def calming_tool_cards():
 
     for page in CALMING_TOOL_PAGES:
         count_slug = page.get("count_slug") or page["slug"]
-        cards.append({**page, "completed_count": counts.get(count_slug, 0)})
+        count = counts.get(count_slug, {"completed": 0, "views": 0})
+        cards.append(
+            {
+                **page,
+                "completed_count": count.get("completed", 0),
+                "view_count": count.get("views", 0),
+            }
+        )
 
     return cards
 
@@ -1584,13 +1635,14 @@ def calming_tool(slug):
     counts = load_calming_counts()
     count_slug = page.get("count_slug") or slug
     tool_data = find_calming_tool(count_slug)
-    completed_count = counts.get(count_slug, 0)
+    count_data = counts.get(count_slug, {"completed": 0, "views": 0})
 
     return render_template(
         page["template"],
         tool=page,
         tool_data=tool_data,
-        completed_count=completed_count,
+        completed_count=count_data.get("completed", 0),
+        view_count=count_data.get("views", 0),
     )
 
 
@@ -2123,9 +2175,28 @@ def track_calming_completion(slug):
     if slug not in counts:
         return {"success": False, "message": "Exercise not found."}, 404
 
-    counts[slug] = (counts.get(slug, 0) or 0) + 1
+    entry = normalize_calming_entry(counts.get(slug, {}))
+    entry["completed"] = (entry.get("completed", 0) or 0) + 1
+    counts[slug] = entry
     save_calming_counts(counts)
-    return {"success": True, "completed_count": counts[slug]}
+    return {"success": True, "completed_count": entry.get("completed", 0), "view_count": entry.get("views", 0)}
+
+
+@app.route("/calming-tools/<slug>/view", methods=["POST"])
+def track_calming_view(slug):
+    counts = load_calming_counts()
+    if slug not in counts:
+        return {"success": False, "message": "Exercise not found."}, 404
+
+    entry = normalize_calming_entry(counts.get(slug, {}))
+    entry["views"] = (entry.get("views", 0) or 0) + 1
+    counts[slug] = entry
+    save_calming_counts(counts)
+    return {
+        "success": True,
+        "view_count": entry.get("views", 0),
+        "completed_count": entry.get("completed", 0),
+    }
 
 
 if __name__ == "__main__":

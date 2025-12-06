@@ -3540,6 +3540,43 @@ body {
   overflow: hidden;
 }
 
+.flow-hero {
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.95), rgba(212, 226, 255, 0.85));
+  border: 1px solid rgba(105, 134, 217, 0.14);
+}
+
+.flow-hero__metrics {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 12px;
+  margin: 12px 0 10px;
+}
+
+.metric-pill {
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(105, 134, 217, 0.12);
+  border-radius: 14px;
+  padding: 12px 14px;
+  box-shadow: 0 16px 36px rgba(118, 137, 217, 0.16);
+}
+
+.metric-pill .stat-number {
+  margin: 2px 0;
+}
+
+.flow-panel {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(214, 210, 255, 0.72));
+  border: 1px solid rgba(105, 134, 217, 0.14);
+}
+
+.flow-list {
+  margin: 12px 0 0;
+  padding: 0 0 0 16px;
+  display: grid;
+  gap: 6px;
+  color: #3a2648;
+}
+
 .calm-lab::before {
   content: "";
   position: absolute;
@@ -3573,6 +3610,42 @@ body {
   gap: clamp(20px, 4vw, 36px);
   align-items: stretch;
   margin-top: 16px;
+}
+
+.flow-board {
+  background: rgba(255, 255, 255, 0.68);
+  border-radius: 18px;
+  padding: clamp(14px, 2vw, 18px);
+  border: 1px solid rgba(105, 134, 217, 0.12);
+  box-shadow: 0 20px 50px rgba(118, 137, 217, 0.2);
+}
+
+.flow-board__header {
+  align-items: center;
+  gap: 18px;
+}
+
+.flow-controls {
+  gap: 14px;
+}
+
+.flow-footnote {
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 12px;
+  padding: 10px 12px;
+  border: 1px dashed rgba(105, 134, 217, 0.28);
+  color: #3a2648;
+  box-shadow: 0 12px 28px rgba(118, 137, 217, 0.12);
+}
+
+.flow-badges {
+  justify-content: flex-end;
+}
+
+.flow-visual {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(212, 226, 255, 0.65));
+  border-color: rgba(105, 134, 217, 0.2);
+  box-shadow: 0 26px 56px rgba(118, 137, 217, 0.28);
 }
 
 .calm-lab__actions {

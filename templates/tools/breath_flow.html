@@ -1,40 +1,43 @@
 {% extends "base.html" %}
 
 {% block hero %}
-<section class="calm-hero hero-grid">
+<section class="calm-hero hero-grid flow-hero">
     <div class="hero-copy">
-        <p class="eyebrow">Find your calm</p>
+        <p class="eyebrow">Guided breath studio</p>
         <h1>Breath Flow</h1>
-        <p class="lede">Light, fluid breathwork you can dial in. Set the rhythm, choose the wave intensity, and glide through each inhale, hold, and exhale with the same soothing visuals.</p>
+        <p class="lede">An elegant breathing lane with tight alignment, a clean grid, and only the essentials on screen. Dial the pace, watch the ring respond, and settle into a rhythm that feels sensationally smooth.</p>
+        <div class="flow-hero__metrics">
+            <div class="metric-pill">
+                <p class="microcopy muted">Guided starts</p>
+                <p class="stat-number" data-calming-view="{{ tool.slug }}">{{ view_count }}</p>
+                <p class="stat-helper">Times the flow button was pressed</p>
+            </div>
+            <div class="metric-pill">
+                <p class="microcopy muted">Completion taps</p>
+                <p class="stat-number" data-calming-count="{{ tool.slug }}">{{ completed_count }}</p>
+                <p class="stat-helper">Visitors logging this practice</p>
+            </div>
+            <div class="metric-pill">
+                <p class="microcopy muted">Aligned pacing</p>
+                <p class="stat-number">4 • 2 • 5 • 2</p>
+                <p class="stat-helper">Inhale • hold • exhale • hold</p>
+            </div>
+        </div>
         <div class="calm-hero__actions">
             <a class="btn" href="#interactive-calm">Start guided flow</a>
             <a class="btn ghost" href="{{ url_for('calming_tools') }}">Back to overview</a>
         </div>
-        <div class="calm-hero__meta">
-            <div class="meta-card">
-                <p class="microcopy">Breath pacing</p>
-                <p class="stat-number">4s inhale • 2s hold • 5s exhale • 2s hold</p>
-            </div>
-            <div class="meta-card">
-                <p class="microcopy">Session timer</p>
-                <p class="stat-number">5:00 ready to begin</p>
-            </div>
-            <div class="meta-card">
-                <p class="microcopy">Feeling check</p>
-                <p class="body">Pick a timing that feels supportive and press “Start flow.”</p>
-            </div>
-        </div>
     </div>
-    <div class="calm-hero__panel">
+    <div class="calm-hero__panel flow-panel">
         <div class="calm-hero__panel-inner">
-            <p class="eyebrow">Design-forward calm</p>
-            <h3>Aligned layouts, gentle gradients, instant anchors.</h3>
-            <p class="body">Everything sits on a consistent grid so nothing feels out of place. Slide into a flow, glance at the steps, and keep your focus on easing your breath.</p>
-            <div class="calm-hero__chips">
-                <span class="chip">Custom timing</span>
-                <span class="chip">Session tracker</span>
-                <span class="chip">Wave intensity</span>
-            </div>
+            <p class="eyebrow">Everything aligned</p>
+            <h3>Wave, timing, and cues all sit on one clean grid.</h3>
+            <p class="body">Nothing extra, nothing distracting. Use the controls to set your cycle, watch the ring mirror each phase, and keep your eyes on the central cue.</p>
+            <ul class="flow-list">
+                <li>Responsive ring that scales with inhale and exhale</li>
+                <li>One glance chips to show which phase you are in</li>
+                <li>Session timer and affirmation tucked neatly below</li>
+            </ul>
             <div class="calm-hero__panel-actions">
                 <a class="btn tiny" href="{{ url_for('calming_tools') }}">Explore calming tools</a>
                 <a class="btn ghost tiny" href="https://youtu.be/3cXGt2d1RyQ?si=fW6VP-S2ooxIlJdK" target="_blank" rel="noopener">Watch calming video</a>
@@ -46,20 +49,20 @@
 
 {% block content %}
 <section class="calm-lab" id="interactive-calm">
-    <div class="calm-lab__header">
+    <div class="calm-lab__header flow-board__header">
         <div>
             <p class="eyebrow">Interactive</p>
-            <h2>Light, fluid breathwork you can dial in.</h2>
-            <p class="lede">Set a soft rhythm, then glide through each inhale, pause, and exhale with gentle cues. The layout keeps the controls, cues, and visuals perfectly aligned.</p>
+            <h2>Turn the dial, keep the visuals perfectly aligned.</h2>
+            <p class="lede">Set a soft rhythm, glide through each inhale and exhale, and let the ring and chips keep you oriented without extra clutter.</p>
         </div>
-        <div class="calm-lab__badges">
-            <span class="chip">Custom timing</span>
-            <span class="chip">Session tracker</span>
-            <span class="chip">Wave intensity</span>
+        <div class="calm-lab__badges flow-badges">
+            <span class="chip ghost">Session timer</span>
+            <span class="chip ghost">Wave intensity</span>
+            <span class="chip ghost">Aligned cues</span>
         </div>
     </div>
-    <div class="calm-lab__grid">
-        <div class="control-stack duo">
+    <div class="calm-lab__grid flow-board">
+        <div class="control-stack duo flow-controls">
             <div class="control-card slim">
                 <div class="control-card__header">
                     <p class="eyebrow muted">Timing</p>
@@ -102,12 +105,15 @@
                 </div>
             </div>
             <div class="calm-lab__actions">
-                <button class="btn" type="button" data-calm-start>Start flow</button>
+                <button class="btn" type="button" data-calm-start data-calming-slug="{{ tool.slug }}">Start flow</button>
                 <button class="btn ghost" type="button" data-calm-reset>Reset</button>
                 <p class="body" data-affirmation>Pick timing that feels supportive and press “Start flow.”</p>
             </div>
+            <div class="flow-footnote">
+                <p class="microcopy">Every slider and number sits on the same rhythm as the ring so your eyes never hunt for the next cue.</p>
+            </div>
         </div>
-        <div class="immersive-visual elevated">
+        <div class="immersive-visual elevated flow-visual">
             <a class="btn ghost calm-video-link" href="https://youtu.be/H1pBZ9JQWEI?si=kOm7fi_PqO9Rnwd-" target="_blank" rel="noopener">
                 Play calming guidance
             </a>
