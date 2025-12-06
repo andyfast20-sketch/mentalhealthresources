@@ -3,14 +3,14 @@
 {% block hero %}
 <section class="calm-hero hero-grid flow-hero">
     <div class="hero-copy">
-        <p class="eyebrow">Guided breath studio</p>
-        <h1>Breath Flow</h1>
-        <p class="lede">An elegant breathing lane with tight alignment, a clean grid, and only the essentials on screen. Dial the pace, watch the ring respond, and settle into a rhythm that feels sensationally smooth.</p>
+        <p class="eyebrow">Calming practice</p>
+        <h1>Calming Breath Flow</h1>
+        <p class="lede">A gentle breathing lane that keeps the visuals tidy and the controls simple. Set a rhythm that feels comfortable, press start, and let the on-screen cues guide you without the clutter.</p>
         <div class="flow-hero__metrics">
             <div class="metric-pill">
-                <p class="microcopy muted">Guided starts</p>
+                <p class="microcopy muted">Starts logged</p>
                 <p class="stat-number" data-calming-view="{{ tool.slug }}">{{ view_count }}</p>
-                <p class="stat-helper">Times the flow button was pressed</p>
+                <p class="stat-helper">Times visitors began this flow</p>
             </div>
             <div class="metric-pill">
                 <p class="microcopy muted">Completion taps</p>
@@ -18,7 +18,7 @@
                 <p class="stat-helper">Visitors logging this practice</p>
             </div>
             <div class="metric-pill">
-                <p class="microcopy muted">Aligned pacing</p>
+                <p class="microcopy muted">Default rhythm</p>
                 <p class="stat-number">4 • 2 • 5 • 2</p>
                 <p class="stat-helper">Inhale • hold • exhale • hold</p>
             </div>
@@ -31,12 +31,12 @@
     <div class="calm-hero__panel flow-panel">
         <div class="calm-hero__panel-inner">
             <p class="eyebrow">Everything aligned</p>
-            <h3>Wave, timing, and cues all sit on one clean grid.</h3>
-            <p class="body">Nothing extra, nothing distracting. Use the controls to set your cycle, watch the ring mirror each phase, and keep your eyes on the central cue.</p>
+            <h3>Wave, timing, and cues share one clean grid.</h3>
+            <p class="body">Pick the numbers that feel supportive, keep your focus on the centre ring, and let the phase chips reassure you about what comes next.</p>
             <ul class="flow-list">
-                <li>Responsive ring that scales with inhale and exhale</li>
-                <li>One glance chips to show which phase you are in</li>
-                <li>Session timer and affirmation tucked neatly below</li>
+                <li>Responsive ring that mirrors each inhale and exhale</li>
+                <li>Phase chips that light up so you never lose your place</li>
+                <li>Session timer, start/pause, and reset controls in one spot</li>
             </ul>
             <div class="calm-hero__panel-actions">
                 <a class="btn tiny" href="{{ url_for('calming_tools') }}">Explore calming tools</a>
@@ -52,8 +52,8 @@
     <div class="calm-lab__header flow-board__header">
         <div>
             <p class="eyebrow">Interactive</p>
-            <h2>Turn the dial, keep the visuals perfectly aligned.</h2>
-            <p class="lede">Set a soft rhythm, glide through each inhale and exhale, and let the ring and chips keep you oriented without extra clutter.</p>
+            <h2>Set a calming rhythm and let the cues do the work.</h2>
+            <p class="lede">Adjust the timing sliders, hit start, and follow the centre ring. The wave, label, and timeline chips stay in sync so you can simply breathe.</p>
         </div>
         <div class="calm-lab__badges flow-badges">
             <span class="chip ghost">Session timer</span>
@@ -141,6 +141,38 @@
                     <span class="chip">Hold</span>
                 </div>
             </div>
+        </div>
+    </div>
+</section>
+
+<section class="panel">
+    <div class="flow-grid">
+        <div class="flow-summary">
+            <p class="eyebrow">How to use this flow</p>
+            <h2>Choose a pace once, then repeat for calm.</h2>
+            <p class="body">Stay within a range that feels easy to maintain. The 4–2–5–2 pattern is a gentle default, but you can shorten the holds or lengthen the exhale if that feels steadier.</p>
+            <div class="microchips">
+                <span class="microchip">Steady 4–2–5–2 base</span>
+                <span class="microchip">Adjustable intensity</span>
+                <span class="microchip">Session countdown</span>
+            </div>
+            <div class="flow-steps">
+                <ol class="breath tight">
+                    <li>Pick your inhale, hold, and exhale lengths in the controls above.</li>
+                    <li>Set a session length that matches your energy. Shorter is fine.</li>
+                    <li>Press <strong>Start flow</strong>. Pause any time if you need to regain comfort.</li>
+                    <li>Log a completion when you finish, or tap reset to begin again.</li>
+                </ol>
+            </div>
+        </div>
+        <div class="flow-steps">
+            <p class="eyebrow">Safety first</p>
+            <p class="body">If you feel dizzy, light-headed, or uncomfortable, stop the flow, return to your natural breath, and resume only when you feel ready. Aim for smooth, silent breaths rather than force.</p>
+            <ul class="breath tight">
+                <li>Keep shoulders relaxed and jaw unclenched.</li>
+                <li>Let the exhale be slightly longer than the inhale for added calm.</li>
+                <li>Sit or stand with support so you can soften into the rhythm.</li>
+            </ul>
         </div>
     </div>
 </section>
