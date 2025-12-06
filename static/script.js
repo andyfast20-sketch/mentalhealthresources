@@ -190,8 +190,19 @@ function populateBookModal(data) {
   }
 
   if (bookModalLinks.length) {
+    const resolvedLink = (data.link || '').trim();
     bookModalLinks.forEach((link) => {
-      link.href = data.link || '#';
+      if (resolvedLink) {
+        link.href = resolvedLink;
+        link.removeAttribute('aria-disabled');
+        link.classList.remove('is-disabled');
+      } else {
+        link.href = '#';
+        link.setAttribute('aria-disabled', 'true');
+        link.classList.add('is-disabled');
+      }
+      link.rel = 'noopener sponsored';
+      link.target = '_blank';
     });
   }
 
