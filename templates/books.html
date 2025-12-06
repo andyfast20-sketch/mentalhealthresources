@@ -36,13 +36,12 @@
                 <div class="cover-placeholder">📖</div>
                 {% endif %}
             </div>
-            <div class="book-meta">
-                <div class="book-meta-header">
-                    <p class="eyebrow">{{ book.author }}</p>
-                    <span class="pill tiny ghost book-view-pill">{{ book.view_count }} views</span>
-                </div>
-                {% if book.is_most_viewed %}
-                <span class="pill tiny">Most Viewed</span>
+                <div class="book-meta">
+                    <div class="book-meta-header">
+                        <p class="eyebrow">{{ book.author }}</p>
+                    </div>
+                    {% if book.is_most_viewed %}
+                    <span class="pill tiny">Most Viewed</span>
                 {% endif %}
                 <h3>{{ book.title }}</h3>
                 <p class="body book-description">{{ book.description }}</p>
