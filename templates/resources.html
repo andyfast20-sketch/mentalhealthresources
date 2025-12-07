@@ -155,45 +155,47 @@
                 </li>
             </ul>
         </aside>
-        <div class="chat-room-card" aria-label="Mental Health Support Chat">
-            <div class="chat-room__header">
-                <div class="chat-room__title">
-                    <span class="status-dot" aria-hidden="true"></span>
-                    <span>Mental Health Support Chat</span>
+        <div class="chat-main">
+            <div class="chat-room-card" aria-label="Mental Health Support Chat">
+                <div class="chat-room__header">
+                    <div class="chat-room__title">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        <span>Mental Health Support Chat</span>
+                    </div>
+                    <div class="chat-room__actions">
+                        <button type="button" aria-label="Chat settings">Settings</button>
+                    </div>
                 </div>
-                <div class="chat-room__actions">
-                    <button type="button" aria-label="Chat settings">Settings</button>
+                <div class="chat-room__log" data-chat-log aria-live="polite" aria-label="Chat messages"></div>
+                <div class="chat-room__footer">
+                    <div class="chat-room__typing" data-chat-typing hidden>
+                        <span class="status-dot status-dot--pulse" aria-hidden="true"></span>
+                        <span class="microcopy" data-chat-typing-copy>Someone is typing…</span>
+                    </div>
+                    <form class="chat-form" data-chat-form>
+                        <label class="sr-only" for="chat-input">Type a message</label>
+                        <input id="chat-input" data-chat-input type="text" name="message" autocomplete="off" maxlength="280" placeholder="Type your message here" />
+                        <button type="submit" class="btn tiny">Send</button>
+                    </form>
                 </div>
             </div>
-            <div class="chat-room__log" data-chat-log aria-live="polite" aria-label="Chat messages"></div>
-            <div class="chat-room__footer">
-                <div class="chat-room__typing" data-chat-typing hidden>
-                    <span class="status-dot status-dot--pulse" aria-hidden="true"></span>
-                    <span class="microcopy" data-chat-typing-copy>Someone is typing…</span>
+            <div class="chat-intro">
+                <p class="eyebrow">New · Softly moderated</p>
+                <h3>Community chat room</h3>
+                <p class="body">Drop straight into the room without detours. Quick prompts keep the conversation flowing while ModBot keeps everyone safe.</p>
+                <div class="chat-highlights">
+                    <div class="chat-highlight">💬 Peer-to-peer support</div>
+                    <div class="chat-highlight">🛡️ Safety reminders built-in</div>
+                    <div class="chat-highlight">✨ Minimal distractions</div>
                 </div>
-                <form class="chat-form" data-chat-form>
-                    <label class="sr-only" for="chat-input">Type a message</label>
-                    <input id="chat-input" data-chat-input type="text" name="message" autocomplete="off" maxlength="280" placeholder="Type your message here" />
-                    <button type="submit" class="btn tiny">Send</button>
-                </form>
-            </div>
-        </div>
-        <div class="chat-intro">
-            <p class="eyebrow">New · Softly moderated</p>
-            <h3>Community chat room</h3>
-            <p class="body">Drop straight into the room without detours. Quick prompts keep the conversation flowing while ModBot keeps everyone safe.</p>
-            <div class="chat-highlights">
-                <div class="chat-highlight">💬 Peer-to-peer support</div>
-                <div class="chat-highlight">🛡️ Safety reminders built-in</div>
-                <div class="chat-highlight">✨ Minimal distractions</div>
-            </div>
-            <div class="chat-guidelines">
-                <p class="microcopy">Community guidelines</p>
-                <ul>
-                    <li>Be kind, avoid personal contact info, and keep it non-clinical.</li>
-                    <li>Need urgent help? Tap Crisis info in the header right away.</li>
-                    <li>Stay present—no endless scrolling needed to send a note.</li>
-                </ul>
+                <div class="chat-guidelines">
+                    <p class="microcopy">Community guidelines</p>
+                    <ul>
+                        <li>Be kind, avoid personal contact info, and keep it non-clinical.</li>
+                        <li>Need urgent help? Tap Crisis info in the header right away.</li>
+                        <li>Stay present—no endless scrolling needed to send a note.</li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
