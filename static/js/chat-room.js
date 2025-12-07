@@ -167,11 +167,15 @@
 
         const result = await response.json();
 
-        if (!response.ok || result.error) {
-          throw new Error(result.error || 'Something went wrong while chatting.');
-        }
-
         const messages = Array.isArray(result.messages) ? result.messages : [];
+        
+        // If API failed or no messages, silently skip
+        if (!response.ok || result.error || messages.length === 0) {
+          hideTyping();
+          console.log('Reply unavailable, skipping');
+          resumeBackgroundChat();
+          return;
+        }
         
         // Show typing then message after delay
         setTimeout(() => {
@@ -186,7 +190,8 @@
         
       } catch (error) {
         hideTyping();
-        showError(error.message || 'Unable to reach the chat service.');
+        // Silently handle - don't show error messages in chat
+        console.log('Chat reply error:', error.message);
         resumeBackgroundChat();
       }
     }, thinkDelay);
@@ -244,8 +249,9 @@
 
       const result = await response.json();
 
-      if (!response.ok || result.error) {
-        console.log('Background chat unavailable:', result.error);
+      if (!response.ok || result.error || !result.messages || result.messages.length === 0) {
+        // Silently skip - don't show anything, just schedule next
+        console.log('Background chat skipped');
         scheduleNextBackgroundMessage();
         return;
       }

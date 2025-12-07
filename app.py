@@ -2258,11 +2258,8 @@ def chat_reply():
         reply_to_user=reply_to_user
     )
     if error:
-        # Provide a friendly fallback instead of showing the error
-        fallback_messages = [
-            {"sender": "Sage", "role": "peer", "text": "hmm connection's a bit off"},
-        ]
-        return {"messages": fallback_messages}
+        # Return error flag so frontend can handle silently
+        return {"messages": [], "error": "temporarily_unavailable"}
 
     return {"messages": replies}
 
