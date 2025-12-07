@@ -17,9 +17,10 @@
 
   if (!chatLog || !chatForm || !chatInput) return;
 
-  // Get chat config from page (topic, etc.)
+  // Get chat config from page (topic, rules, etc.)
   const chatConfig = window.CHAT_CONFIG || {};
   const chatTopic = chatConfig.topic || '';
+  const chatRules = chatConfig.rules || '';
 
   const participants = [
     { name: 'You', role: 'you' },
@@ -36,6 +37,43 @@
   let isWaitingForReply = false;
   let backgroundChatActive = true;
   let backgroundChatTimer = null;
+
+  // Check message with server before sending
+  async function checkMessageAllowed(message) {
+    try {
+      const response = await fetch('/api/chat/check-message', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message }),
+      });
+      const result = await response.json();
+      return result;
+    } catch (error) {
+      console.log('Message check failed, allowing:', error);
+      return { allowed: true };
+    }
+  }
+
+  // Show a moderation warning to the user
+  function showModerationWarning(warning) {
+    const warningEl = document.createElement('div');
+    warningEl.className = 'chat-message chat-message--warning';
+    warningEl.innerHTML = `
+      <div class="chat-message__line">
+        <span class="chat-author">⚠️ ModBot:</span>
+        <span class="chat-message__text">${warning || 'Message not sent. Please keep the conversation safe and supportive.'}</span>
+      </div>
+    `;
+    chatLog.appendChild(warningEl);
+    chatLog.scrollTop = chatLog.scrollHeight;
+    
+    // Remove warning after 8 seconds
+    setTimeout(() => {
+      if (warningEl.parentNode) {
+        warningEl.remove();
+      }
+    }, 8000);
+  }
 
   function createMessageElement({ sender, role = 'peer', text }) {
     const wrapper = document.createElement('div');
@@ -311,10 +349,23 @@
     }, resumeDelay);
   }
 
-  chatForm.addEventListener('submit', (event) => {
+  chatForm.addEventListener('submit', async (event) => {
     event.preventDefault();
     const text = chatInput.value.trim();
     if (!text) return;
+
+    // Check if message is allowed before sending
+    const check = await checkMessageAllowed(text);
+    
+    if (!check.allowed) {
+      // Message was blocked
+      if (check.warning) {
+        showModerationWarning(check.warning);
+      }
+      // Clear the input but don't send the message
+      chatInput.value = '';
+      return;
+    }
 
     // Blink user name and add message
     blinkUserName();

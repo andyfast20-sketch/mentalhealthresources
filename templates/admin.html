@@ -74,7 +74,7 @@
     <div class="panel-header">
         <p class="eyebrow">Chat Room</p>
         <h2>Manage the community chat.</h2>
-        <p class="lede">Control when the chat room is open and set the topic for each session.</p>
+        <p class="lede">Control when the chat room is open, set topics, and configure moderation rules.</p>
         {% if message %}
         <div class="flash">{{ message }}</div>
         {% endif %}
@@ -97,6 +97,34 @@
                 <span>Next session</span>
                 <input type="text" name="chat_next_session" placeholder="e.g. Tuesday 7pm GMT - Managing stress" value="{{ chat_next_session }}" />
                 <p class="body muted">Shown when chat is closed. Include date, time and topic.</p>
+            </label>
+        </div>
+        
+        <hr style="margin: 1.5rem 0; border: none; border-top: 1px solid rgba(245, 163, 181, 0.3);">
+        
+        <p class="eyebrow" style="margin-bottom: 0.5rem;">Chat Rules & Moderation</p>
+        <div class="form-grid">
+            <label>
+                <span>Chat room rules</span>
+                <textarea name="chat_rules" rows="6" placeholder="Enter the rules for your chat room...">{{ chat_rules }}</textarea>
+                <p class="body muted">Displayed to users in the chat room. One rule per line.</p>
+            </label>
+        </div>
+        <div class="form-grid">
+            <label>
+                <span>Blocked words/phrases</span>
+                <textarea name="chat_blocked_words" rows="3" placeholder="suicide method, how to hurt, harmful phrase">{{ chat_blocked_words }}</textarea>
+                <p class="body muted">Comma-separated list. Messages containing these will be blocked.</p>
+            </label>
+        </div>
+        <div class="form-grid">
+            <label>
+                <span>When blocked content is detected</span>
+                <select name="chat_block_action">
+                    <option value="warn" {% if chat_block_action == 'warn' %}selected{% endif %}>Show warning message to user</option>
+                    <option value="hide" {% if chat_block_action == 'hide' %}selected{% endif %}>Silently block (don't show message)</option>
+                </select>
+                <p class="body muted">Choose whether to warn the user or silently prevent the message.</p>
             </label>
         </div>
         <button class="btn" type="submit">Save chat settings</button>

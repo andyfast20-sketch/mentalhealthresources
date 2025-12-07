@@ -2308,6 +2308,34 @@ body {
   font-style: italic;
 }
 
+.chat-message--warning {
+  background: rgba(255, 200, 100, 0.15);
+  border: 1px solid rgba(255, 180, 80, 0.3);
+  border-radius: 8px;
+  padding: 8px 12px;
+  margin: 8px 0;
+  animation: warning-fade 8s ease-in-out forwards;
+}
+
+.chat-message--warning .chat-author {
+  color: #d97706;
+  font-weight: 600;
+}
+
+.chat-message--warning .chat-message__text {
+  color: #92400e;
+  font-style: italic;
+}
+
+@keyframes warning-fade {
+  0%, 80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .chat-room__footer {
   padding: 10px 12px;
   border-top: 1px solid rgba(245, 163, 181, 0.2);

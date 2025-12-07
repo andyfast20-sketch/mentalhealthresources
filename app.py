@@ -74,6 +74,9 @@ DEEPSEEK_SETTING_KEY = "deepseek_api_key"
 CHAT_ENABLED_KEY = "chat_enabled"
 CHAT_NEXT_SESSION_KEY = "chat_next_session"
 CHAT_TOPIC_KEY = "chat_topic"
+CHAT_RULES_KEY = "chat_rules"
+CHAT_BLOCKED_WORDS_KEY = "chat_blocked_words"
+CHAT_BLOCK_ACTION_KEY = "chat_block_action"
 
 
 DEFAULT_BOOKS = [
@@ -973,6 +976,63 @@ def get_chat_topic():
 
 def set_chat_topic(value):
     save_site_setting(CHAT_TOPIC_KEY, value)
+
+
+def get_chat_rules():
+    default_rules = """1. Be kind and respectful to everyone
+2. No sharing personal contact information
+3. No medical advice - suggest professional help instead
+4. No harmful content or crisis discussions without proper resources
+5. Keep conversations supportive and constructive"""
+    return load_site_settings().get(CHAT_RULES_KEY, default_rules)
+
+
+def set_chat_rules(value):
+    save_site_setting(CHAT_RULES_KEY, value)
+
+
+def get_chat_blocked_words():
+    # Default blocked words/phrases (admin can customize)
+    default_blocked = "suicide method,how to hurt,kill myself,self harm instructions"
+    return load_site_settings().get(CHAT_BLOCKED_WORDS_KEY, default_blocked)
+
+
+def set_chat_blocked_words(value):
+    save_site_setting(CHAT_BLOCKED_WORDS_KEY, value)
+
+
+def get_chat_block_action():
+    # What happens when blocked content is detected: "hide" (silent) or "warn" (show warning)
+    return load_site_settings().get(CHAT_BLOCK_ACTION_KEY, "warn")
+
+
+def set_chat_block_action(value):
+    save_site_setting(CHAT_BLOCK_ACTION_KEY, value)
+
+
+def check_message_content(message):
+    """Check if message contains blocked content. Returns (is_safe, warning_message)"""
+    if not message:
+        return True, None
+    
+    message_lower = message.lower().strip()
+    blocked_words = get_chat_blocked_words()
+    
+    if not blocked_words:
+        return True, None
+    
+    # Split by comma and check each phrase
+    blocked_list = [word.strip().lower() for word in blocked_words.split(",") if word.strip()]
+    
+    for blocked in blocked_list:
+        if blocked in message_lower:
+            action = get_chat_block_action()
+            if action == "hide":
+                return False, None  # Silently block
+            else:
+                return False, "This message was not sent. Please keep the conversation supportive and safe. If you're struggling, check our crisis resources."
+    
+    return True, None
 
 
 def extract_json_object(text):
@@ -2040,6 +2100,7 @@ def chat_room():
         chat_enabled=chat_enabled(),
         chat_topic=get_chat_topic(),
         chat_next_session=get_chat_next_session(),
+        chat_rules=get_chat_rules(),
     )
 
 
@@ -2361,6 +2422,9 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
         chat_enabled=chat_enabled(),
         chat_topic=get_chat_topic(),
         chat_next_session=get_chat_next_session(),
+        chat_rules=get_chat_rules(),
+        chat_blocked_words=get_chat_blocked_words(),
+        chat_block_action=get_chat_block_action(),
     )
 
 
@@ -2398,13 +2462,33 @@ def update_chat_settings():
     enabled = request.form.get("chat_enabled") == "on"
     topic = request.form.get("chat_topic", "").strip()
     next_session = request.form.get("chat_next_session", "").strip()
+    rules = request.form.get("chat_rules", "").strip()
+    blocked_words = request.form.get("chat_blocked_words", "").strip()
+    block_action = request.form.get("chat_block_action", "warn").strip()
 
     set_chat_enabled(enabled)
     set_chat_topic(topic)
     set_chat_next_session(next_session)
+    set_chat_rules(rules)
+    set_chat_blocked_words(blocked_words)
+    set_chat_block_action(block_action)
 
     message = "Chat room settings saved."
     return redirect(url_for("admin", message=message, section="chat-room"))
+
+
+@app.route("/api/chat/check-message", methods=["POST"])
+def check_chat_message():
+    """Check if a message is allowed before sending"""
+    data = request.get_json(silent=True) or {}
+    message = (data.get("message") or "").strip()
+    
+    is_safe, warning = check_message_content(message)
+    
+    if is_safe:
+        return {"allowed": True}
+    else:
+        return {"allowed": False, "warning": warning}
 
 
 @app.route("/admin/did-you-know", methods=["POST"])
