@@ -2148,7 +2148,7 @@ def chat_reply():
     if not message and not warmup:
         return {"error": "Please share a message so the room can reply."}, 400
 
-    api_key = load_site_settings().get(DEEPSEEK_SETTING_KEY, "").strip()
+    api_key = get_deepseek_api_key().strip()
     if not api_key:
         # Fallback responses when no API key is configured
         fallback_messages = [
