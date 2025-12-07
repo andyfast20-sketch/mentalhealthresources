@@ -913,15 +913,57 @@
   }
 
   // Modal functionality
-  function openChatModal() {
+  let chatInitialized = false;
+
+  async function openChatModal() {
+    // If no saved username, show name prompt FIRST (before opening modal)
+    const savedName = getSavedUsername();
+    if (!savedName) {
+      const newName = await showNamePrompt();
+      saveUsername(newName);
+      userName = newName;
+      updateUserName(newName);
+    } else {
+      userName = savedName;
+      updateUserName(savedName);
+    }
+    
+    // NOW open the modal
     if (chatModal) {
       chatModal.classList.add('is-open');
       document.body.style.overflow = 'hidden';
+      
+      // Initialize chat only once, after modal opens
+      if (!chatInitialized) {
+        chatInitialized = true;
+        await startChatRoom();
+      }
+      
       // Focus the chat input when modal opens
       setTimeout(() => {
         if (chatInput) chatInput.focus();
       }, 300);
     }
+  }
+
+  // Actually start the chat room (called after name is set)
+  async function startChatRoom() {
+    renderSidebar();
+    
+    // Check if user is banned before starting
+    const wasBanned = checkAndShowBanNotice();
+    
+    // Initialize random names, then start chat
+    await initializeRandomNames();
+    
+    // Show ModBot welcome with user's name
+    showModBotWelcome();
+    
+    // Start continuous background chat
+    startBackgroundChat();
+    
+    // Start join/leave events
+    scheduleJoinLeaveEvent();
   }
 
   function closeChatModal() {
@@ -960,38 +1002,6 @@
     }
   });
 
-  // Initialize chat
-  async function initializeChat() {
-    // Check for saved username or prompt for one
-    const savedName = getSavedUsername();
-    if (savedName) {
-      userName = savedName;
-      updateUserName(savedName);
-    } else {
-      const newName = await showNamePrompt();
-      saveUsername(newName);
-      userName = newName;
-      updateUserName(newName);
-    }
-    
-    renderSidebar();
-    
-    // Check if user is banned before starting
-    const wasBanned = checkAndShowBanNotice();
-    
-    // Initialize random names, then start chat
-    await initializeRandomNames();
-    
-    // Show ModBot welcome with user's name
-    showModBotWelcome();
-    
-    // Start continuous background chat
-    startBackgroundChat();
-    
-    // Start join/leave events
-    scheduleJoinLeaveEvent();
-  }
-
-  // Start initialization
-  initializeChat();
+  // No auto-initialization - chat starts when user clicks "Open Chat Room"
+  // The name prompt will appear first, then the chat room opens
 })();
