@@ -2056,59 +2056,72 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
 
     topic_context = f" Topic: '{topic}'." if topic else ""
 
+    # Personality descriptions for each peer
+    personalities = """
+PEER PERSONALITIES (stay in character):
+- Rowan: Warm, optimistic, uses emojis occasionally. Generally upbeat but real about struggles.
+- Sage: Thoughtful, calm, a bit introverted. Shares wisdom quietly. Sometimes tired.
+- Mia: Energetic, chatty, supportive cheerleader type. Lots of encouragement.
+- Alex: Laid-back, uses casual slang, chill vibes. "yeah that's rough" energy.
+- Leah: Creative, sometimes anxious, talks about art/music. Can be vulnerable.
+- Priya: Practical, gives gentle advice, studying a lot. Stressed but managing.
+
+IMPORTANT: About 15% of the time, have someone share they're struggling - feeling low, having a bad day, anxious, lonely, or just not okay. This is a support chat - people come here because they're going through things. Mix genuine lows with support and everyday chat. Don't make every message positive."""
+
     if reply_to_user:
         # Single natural reply to something the user said
         guidance = (
             f"A real person just said: \"{latest_message}\"\n"
-            "Reply with ONE short, natural message from a single peer. "
+            "Reply with ONE short, natural message from a single peer (staying in their personality). "
             "React like a real friend would - brief, genuine, not over-the-top supportive. "
             "Sometimes just a few words is perfect. Don't pile on with questions."
         )
         request_block = (
             "Return JSON array named messages with exactly 1 object shaped as"
             " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
-            "Keep it under 20 words. ONE person responds, not multiple."
+            "Keep it under 20 words. ONE person responds, not multiple. Match their personality."
         )
     elif single_message:
         # Single message for continuous background chat
         guidance = (
-            f"Generate ONE short, casual message from a peer.{topic_context} "
+            f"Generate ONE short, casual message from a peer (in their personality).{topic_context} "
             "Make it feel like a real person typing - brief, natural, sometimes just a few words. "
-            "Examples of realistic lengths: 'same honestly', 'that helps a lot actually', 'anyone tried journaling?', "
-            "'rough day but getting through it', 'sending good vibes 💙'. Mix short reactions with occasional longer thoughts."
+            "Topics can be: how they're feeling, their day, life stuff, or responding to the vibe of the room. "
+            "Sometimes someone is having a hard time and says so honestly."
         )
         request_block = (
             "Return JSON array named messages with exactly 1 object shaped as"
             " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
-            "Keep text under 15 words. Sound human, not robotic. Vary between questions, reactions, and shares."
+            "Keep text under 15 words. Stay in character for whoever speaks."
         )
     elif warmup:
         guidance = (
             f"Someone just joined.{topic_context} Generate 1-2 short messages showing an ongoing chat. "
-            "Keep each message brief like real texting - most under 10 words."
+            "Keep each message brief like real texting - most under 10 words. Show different personalities."
         )
         request_block = (
             "Return JSON array named messages with 1-2 objects each shaped as"
             " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
-            "Keep texts very short and natural. No long sentences."
+            "Keep texts very short and natural. Match each speaker's personality."
         )
     else:
-        guidance = "Reply naturally to the newest message with one short, human peer response."
+        guidance = "Reply naturally to the newest message with one short, human peer response in character."
         request_block = (
             "Return JSON array named messages with exactly 1 object shaped as"
             " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
-            "Keep text under 20 words. Sound like a real person, not a chatbot."
+            "Keep text under 20 words. Stay in character."
         )
 
     roster_block = (
-        "Peers: " + ", ".join(roster) + ". Pick ONE name randomly for the sender. "
+        "Peers: Rowan, Sage, Mia, Alex, Leah, Priya. Pick ONE name for the sender. "
         "Use role 'peer' unless ModBot speaks (role 'mod')."
     )
 
     return (
-        f"You write realistic peer-support chat messages. Be warm but brief - like real texting. "
-        f"No therapy speak. No canned phrases like 'I hear you' or 'That sounds hard'. Just normal human chat. "
+        f"You write realistic peer-support chat messages. This is a mental health support room where people share real feelings. "
+        f"No therapy speak. No canned phrases. Just real human chat - sometimes happy, sometimes struggling. "
         f"{roster_block}\n\n"
+        f"{personalities}\n\n"
         f"Recent chat:\n{conversation_block}\n\n"
         f"{guidance}\n"
         f"{request_block}"
@@ -2221,16 +2234,20 @@ def chat_reply():
 
     api_key = get_deepseek_api_key().strip()
     if not api_key:
-        # Fallback responses when no API key is configured
-        short_fallbacks = [
-            {"sender": "Sage", "role": "peer", "text": "hey 👋"},
-            {"sender": "Rowan", "role": "peer", "text": "same here honestly"},
-            {"sender": "Mia", "role": "peer", "text": "taking it easy today"},
-            {"sender": "Alex", "role": "peer", "text": "hope everyone's doing ok"},
-            {"sender": "Leah", "role": "peer", "text": "sending good vibes"},
-            {"sender": "Priya", "role": "peer", "text": "one day at a time"},
-        ]
+        # Fallback responses with personality when no API key is configured
         import random
+        short_fallbacks = [
+            {"sender": "Rowan", "role": "peer", "text": "hey! glad you're here 😊"},
+            {"sender": "Sage", "role": "peer", "text": "just sitting with my thoughts today"},
+            {"sender": "Mia", "role": "peer", "text": "you've got this!! 💪"},
+            {"sender": "Alex", "role": "peer", "text": "yeah same tbh"},
+            {"sender": "Leah", "role": "peer", "text": "been a rough one ngl"},
+            {"sender": "Priya", "role": "peer", "text": "trying to stay focused"},
+            {"sender": "Sage", "role": "peer", "text": "feeling pretty low tonight"},
+            {"sender": "Leah", "role": "peer", "text": "anxiety's been bad lately"},
+            {"sender": "Rowan", "role": "peer", "text": "we're all in this together ❤️"},
+            {"sender": "Alex", "role": "peer", "text": "just vibing honestly"},
+        ]
         return {"messages": [random.choice(short_fallbacks)]}
 
     replies, error = deepseek_chat_reply(
