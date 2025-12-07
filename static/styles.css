@@ -1890,6 +1890,7 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  min-height: 0;
 }
 
 .chat-sidebar {
@@ -1956,6 +1957,7 @@ body {
   grid-template-rows: auto 1fr auto;
   position: relative;
   overflow: hidden;
+  height: clamp(400px, 70vh, 640px);
   min-height: clamp(360px, 60vh, 520px);
 }
 
@@ -1997,6 +1999,7 @@ body {
   display: grid;
   gap: 10px;
   font-size: 0.95rem;
+  min-height: 0;
 }
 
 .chat-message {
