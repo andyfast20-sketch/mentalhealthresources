@@ -602,6 +602,11 @@ def migrate_charities_schema_local(connection):
         migrations.append("ALTER TABLE charities ADD COLUMN created_at DATETIME")
     if "telephone" not in columns:
         migrations.append("ALTER TABLE charities ADD COLUMN telephone TEXT DEFAULT ''")
+    for contact_column in ["contact_email", "text_number", "helpline_hours"]:
+        if contact_column not in columns:
+            migrations.append(
+                f"ALTER TABLE charities ADD COLUMN {contact_column} TEXT DEFAULT ''"
+            )
     for feature_column in [
         "has_helpline",
         "has_volunteers",
@@ -643,6 +648,11 @@ def migrate_charities_schema_remote():
         )
     if "telephone" not in columns:
         d1_query("ALTER TABLE charities ADD COLUMN telephone TEXT DEFAULT ''")
+    for contact_column in ["contact_email", "text_number", "helpline_hours"]:
+        if contact_column not in columns:
+            d1_query(
+                f"ALTER TABLE charities ADD COLUMN {contact_column} TEXT DEFAULT ''"
+            )
     for feature_column in [
         "has_helpline",
         "has_volunteers",
@@ -731,6 +741,9 @@ def ensure_tables():
             website_url TEXT NOT NULL,
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
             telephone TEXT DEFAULT '',
+            contact_email TEXT DEFAULT '',
+            text_number TEXT DEFAULT '',
+            helpline_hours TEXT DEFAULT '',
             has_helpline INTEGER NOT NULL DEFAULT 0,
             has_volunteers INTEGER NOT NULL DEFAULT 0,
             has_crisis_info INTEGER NOT NULL DEFAULT 0,
@@ -1101,6 +1114,9 @@ def load_charities():
             website_url,
             created_at,
             telephone,
+            contact_email,
+            text_number,
+            helpline_hours,
             has_helpline,
             has_volunteers,
             has_crisis_info,
@@ -1123,6 +1139,9 @@ def load_charities():
                 "website_url": row.get("website_url", ""),
                 "created_at": row.get("created_at"),
                 "telephone": row.get("telephone", ""),
+                "contact_email": row.get("contact_email", ""),
+                "text_number": row.get("text_number", ""),
+                "helpline_hours": row.get("helpline_hours", ""),
                 "has_helpline": bool(row.get("has_helpline")),
                 "has_volunteers": bool(row.get("has_volunteers")),
                 "has_crisis_info": bool(row.get("has_crisis_info")),
@@ -2052,6 +2071,9 @@ def add_charity():
         request.form.get("logo_url", ""), request.form.get("logo_asset_url", "")
     )
     telephone = request.form.get("telephone", "").strip()
+    contact_email = request.form.get("contact_email", "").strip()
+    text_number = request.form.get("text_number", "").strip()
+    helpline_hours = request.form.get("helpline_hours", "").strip()
     has_helpline = 1 if request.form.get("has_helpline") else 0
     has_volunteers = 1 if request.form.get("has_volunteers") else 0
     has_crisis_info = 1 if request.form.get("has_crisis_info") else 0
@@ -2072,6 +2094,9 @@ def add_charity():
             website_url,
             created_at,
             telephone,
+            contact_email,
+            text_number,
+            helpline_hours,
             has_helpline,
             has_volunteers,
             has_crisis_info,
@@ -2079,7 +2104,7 @@ def add_charity():
             has_email_support,
             has_live_chat
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         """,
         [
             name,
@@ -2088,6 +2113,9 @@ def add_charity():
             website_url,
             created_at,
             telephone,
+            contact_email,
+            text_number,
+            helpline_hours,
             has_helpline,
             has_volunteers,
             has_crisis_info,
@@ -2118,6 +2146,9 @@ def update_charity(charity_id):
     ) or existing.get("logo_url", "")
 
     telephone = request.form.get("telephone", "").strip()
+    contact_email = request.form.get("contact_email", "").strip()
+    text_number = request.form.get("text_number", "").strip()
+    helpline_hours = request.form.get("helpline_hours", "").strip()
     has_helpline = 1 if request.form.get("has_helpline") else 0
     has_volunteers = 1 if request.form.get("has_volunteers") else 0
     has_crisis_info = 1 if request.form.get("has_crisis_info") else 0
@@ -2137,6 +2168,9 @@ def update_charity(charity_id):
             description = ?,
             website_url = ?,
             telephone = ?,
+            contact_email = ?,
+            text_number = ?,
+            helpline_hours = ?,
             has_helpline = ?,
             has_volunteers = ?,
             has_crisis_info = ?,
@@ -2151,6 +2185,9 @@ def update_charity(charity_id):
             description,
             website_url,
             telephone,
+            contact_email,
+            text_number,
+            helpline_hours,
             has_helpline,
             has_volunteers,
             has_crisis_info,
@@ -2165,6 +2202,9 @@ def update_charity(charity_id):
 
 def build_charity_ai_update(existing, ai_data):
     telephone = ai_data.get("telephone") if isinstance(ai_data, dict) else None
+    contact_email = ai_data.get("contact_email") if isinstance(ai_data, dict) else None
+    text_number = ai_data.get("text_number") if isinstance(ai_data, dict) else None
+    helpline_hours = ai_data.get("helpline_hours") if isinstance(ai_data, dict) else None
     logo_url = ai_data.get("logo_url") if isinstance(ai_data, dict) else None
 
     def resolve_boolean(key, current):
@@ -2174,6 +2214,9 @@ def build_charity_ai_update(existing, ai_data):
 
     updates = {
         "telephone": telephone.strip() if isinstance(telephone, str) else existing.get("telephone", ""),
+        "contact_email": contact_email.strip() if isinstance(contact_email, str) else existing.get("contact_email", ""),
+        "text_number": text_number.strip() if isinstance(text_number, str) else existing.get("text_number", ""),
+        "helpline_hours": helpline_hours.strip() if isinstance(helpline_hours, str) else existing.get("helpline_hours", ""),
         "logo_url": normalize_url(logo_url) if logo_url else existing.get("logo_url", ""),
         "has_helpline": resolve_boolean("has_helpline", existing.get("has_helpline")),
         "has_volunteers": resolve_boolean("has_volunteers", existing.get("has_volunteers")),
@@ -2214,6 +2257,9 @@ def enrich_charity(charity_id):
         UPDATE charities
         SET
             telephone = ?,
+            contact_email = ?,
+            text_number = ?,
+            helpline_hours = ?,
             logo_url = ?,
             has_helpline = ?,
             has_volunteers = ?,
@@ -2225,6 +2271,9 @@ def enrich_charity(charity_id):
         """,
         [
             updates["telephone"],
+            updates["contact_email"],
+            updates["text_number"],
+            updates["helpline_hours"],
             updates["logo_url"],
             updates["has_helpline"],
             updates["has_volunteers"],

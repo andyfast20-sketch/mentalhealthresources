@@ -32,11 +32,21 @@ const didYouKnowEditToggles = Array.from(document.querySelectorAll('[data-didyou
 const mediaEditToggles = Array.from(document.querySelectorAll('[data-media-edit-toggle]'));
 const charityModal = document.querySelector('[data-charity-modal]');
 const charityModalTitle = document.querySelector('[data-charity-modal-title]');
-const charityModalTelephone = document.querySelector('[data-charity-modal-telephone]');
+const charityModalTelephones = Array.from(document.querySelectorAll('[data-charity-modal-telephone]'));
 const charityModalTelephoneWrapper = document.querySelector('[data-charity-telephone-wrapper]');
+const charityModalHoursLabel = document.querySelector('[data-charity-modal-hours-label]');
+const charityModalHours = document.querySelector('[data-charity-modal-hours]');
+const charityModalTextNumber = document.querySelector('[data-charity-modal-text-number]');
+const charityModalEmail = document.querySelector('[data-charity-modal-email]');
 const charityModalDescription = document.querySelector('[data-charity-modal-description]');
 const charityFeatureList = document.querySelector('[data-charity-feature-list]');
 const charityModalLink = document.querySelector('[data-charity-modal-link]');
+const charityHelplineCard = document.querySelector('[data-charity-helpline-card]');
+const charityTextCard = document.querySelector('[data-charity-text-card]');
+const charityEmailCard = document.querySelector('[data-charity-email-card]');
+const charityCallLink = document.querySelector('[data-charity-call-link]');
+const charityTextLink = document.querySelector('[data-charity-text-link]');
+const charityEmailLink = document.querySelector('[data-charity-email-link]');
 const charityModalCloseButtons = Array.from(document.querySelectorAll('[data-charity-modal-close]'));
 const charityTriggerButtons = Array.from(document.querySelectorAll('[data-charity-trigger]'));
 const coffeeModal = document.querySelector('[data-coffee-modal]');
@@ -363,6 +373,9 @@ function populateAdminCharityForm(trigger) {
   const logoSelect = adminCharityForm.querySelector('[data-media-url-select][data-target-input="logo_url"]');
   const websiteInput = adminCharityForm.querySelector('input[name="website_url"]');
   const telephoneInput = adminCharityForm.querySelector('input[name="telephone"]');
+  const contactEmailInput = adminCharityForm.querySelector('input[name="contact_email"]');
+  const textNumberInput = adminCharityForm.querySelector('input[name="text_number"]');
+  const helplineHoursInput = adminCharityForm.querySelector('input[name="helpline_hours"]');
   const charityFeatureInputs = {
     has_helpline: adminCharityForm.querySelector('input[name="has_helpline"]'),
     has_volunteers: adminCharityForm.querySelector('input[name="has_volunteers"]'),
@@ -378,6 +391,9 @@ function populateAdminCharityForm(trigger) {
   if (logoSelect) logoSelect.value = trigger.dataset.charityLogo || '';
   if (websiteInput) websiteInput.value = trigger.dataset.charityWebsite || '';
   if (telephoneInput) telephoneInput.value = trigger.dataset.charityTelephone || '';
+  if (contactEmailInput) contactEmailInput.value = trigger.dataset.charityContactEmail || '';
+  if (textNumberInput) textNumberInput.value = trigger.dataset.charityTextNumber || '';
+  if (helplineHoursInput) helplineHoursInput.value = trigger.dataset.charityHelplineHours || '';
 
   Object.entries(charityFeatureInputs).forEach(([key, input]) => {
     if (!input) return;
@@ -558,12 +574,53 @@ function openCharityModal(trigger) {
   if (charityModalDescription)
     charityModalDescription.textContent = trigger.dataset.charityDescription || 'Learn more about this organisation.';
 
-  const telephone = trigger.dataset.charityTelephone || '';
+  const telephone = (trigger.dataset.charityTelephone || '').trim();
+  const textNumber = (trigger.dataset.charityTextNumber || '').trim();
+  const contactEmail = (trigger.dataset.charityContactEmail || '').trim();
+  const helplineHours = (trigger.dataset.charityHelplineHours || '').trim();
+
   if (charityModalTelephoneWrapper) {
     charityModalTelephoneWrapper.hidden = !telephone;
   }
-  if (charityModalTelephone) {
-    charityModalTelephone.textContent = telephone;
+  if (charityModalHoursLabel) {
+    charityModalHoursLabel.textContent = helplineHours ? `Open: ${helplineHours}` : '';
+  }
+
+  charityModalTelephones.forEach((element) => {
+    element.textContent = telephone;
+  });
+
+  if (charityHelplineCard) {
+    charityHelplineCard.hidden = !telephone;
+  }
+  if (charityModalHours) {
+    charityModalHours.textContent = helplineHours || 'Check their site for the latest opening times.';
+  }
+  if (charityCallLink) {
+    charityCallLink.href = telephone ? `tel:${telephone}` : '#';
+    charityCallLink.ariaLabel = telephone ? `Call ${telephone}` : 'Call helpline';
+  }
+
+  if (charityTextCard) {
+    charityTextCard.hidden = !textNumber;
+  }
+  if (charityModalTextNumber) {
+    charityModalTextNumber.textContent = textNumber;
+  }
+  if (charityTextLink) {
+    charityTextLink.href = textNumber ? `sms:${textNumber}` : '#';
+    charityTextLink.ariaLabel = textNumber ? `Text ${textNumber}` : 'Start a text conversation';
+  }
+
+  if (charityEmailCard) {
+    charityEmailCard.hidden = !contactEmail;
+  }
+  if (charityModalEmail) {
+    charityModalEmail.textContent = contactEmail;
+  }
+  if (charityEmailLink) {
+    charityEmailLink.href = contactEmail ? `mailto:${contactEmail}` : '#';
+    charityEmailLink.ariaLabel = contactEmail ? `Email ${contactEmail}` : 'Send an email';
   }
 
   if (charityModalLink) {

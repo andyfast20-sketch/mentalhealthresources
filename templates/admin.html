@@ -527,6 +527,9 @@
                         data-charity-logo="{{ charity.logo_url }}"
                         data-charity-website="{{ charity.website_url }}"
                         data-charity-telephone="{{ charity.telephone }}"
+                        data-charity-contact-email="{{ charity.contact_email }}"
+                        data-charity-text-number="{{ charity.text_number }}"
+                        data-charity-helpline-hours="{{ charity.helpline_hours }}"
                         data-charity-has-helpline="{{ charity.has_helpline }}"
                         data-charity-has-volunteers="{{ charity.has_volunteers }}"
                         data-charity-has-crisis-info="{{ charity.has_crisis_info }}"
@@ -804,11 +807,26 @@
                     <span>Telephone (optional)</span>
                     <input type="text" name="telephone" placeholder="+44 1234 567890" />
                 </label>
-                <div class="checkbox-grid">
-                    <label class="checkbox-field">
-                        <input type="checkbox" name="has_helpline" />
-                        <span>Helpline</span>
-                    </label>
+                <label>
+                    <span>Text number (optional)</span>
+                    <input type="text" name="text_number" placeholder="85258" />
+                </label>
+            </div>
+            <div class="modal-grid">
+                <label>
+                    <span>Email address (optional)</span>
+                    <input type="email" name="contact_email" placeholder="hello@support.org" />
+                </label>
+                <label>
+                    <span>Helpline hours</span>
+                    <input type="text" name="helpline_hours" placeholder="24/7 or Mon-Fri 9am-6pm" />
+                </label>
+            </div>
+            <div class="checkbox-grid">
+                <label class="checkbox-field">
+                    <input type="checkbox" name="has_helpline" />
+                    <span>Helpline</span>
+                </label>
                     <label class="checkbox-field">
                         <input type="checkbox" name="has_volunteers" />
                         <span>Volunteers</span>
