@@ -2005,6 +2005,12 @@ def resources():
     return render_template("resources.html", resources=RESOURCES)
 
 
+@app.route("/chat")
+def chat_room():
+    """Redirect to the chat section of the resources page."""
+    return redirect(url_for("resources", _anchor="chat-room"))
+
+
 @app.route("/useful-contacts")
 def useful_contacts():
     contacts = load_useful_contacts()
