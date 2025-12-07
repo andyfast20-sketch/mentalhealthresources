@@ -2234,6 +2234,23 @@ body {
   background: linear-gradient(135deg, rgba(122, 230, 169, 0.1), rgba(255, 255, 255, 0.7));
 }
 
+/* System messages (join/leave notifications) */
+.chat-message--system {
+  text-align: center;
+  padding: 6px 0;
+  margin: 8px 0;
+}
+
+.chat-message__system-text {
+  display: inline-block;
+  font-size: 0.8rem;
+  color: #9ca3af;
+  font-style: italic;
+  padding: 4px 12px;
+  background: rgba(156, 163, 175, 0.1);
+  border-radius: 12px;
+}
+
 .chat-room__log::-webkit-scrollbar {
   width: 10px;
 }

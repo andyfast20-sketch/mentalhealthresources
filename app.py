@@ -2198,75 +2198,102 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
         if text:
             history_lines.append(f"{sender}: {text}")
 
-    conversation_block = "\n".join(history_lines) if history_lines else "(quiet room)"
+    conversation_block = "\n".join(history_lines) if history_lines else "(quiet room - be the first to say something)"
 
-    topic_context = f" Topic: '{topic}'." if topic else ""
+    topic_context = f" Today's vibe/topic: '{topic}'." if topic else ""
 
-    # Personality descriptions for each peer
-    personalities = """
-PEER PERSONALITIES (stay in character):
-- Rowan: Warm, optimistic, uses emojis occasionally. Generally upbeat but real about struggles.
-- Sage: Thoughtful, calm, a bit introverted. Shares wisdom quietly. Sometimes tired.
-- Mia: Energetic, chatty, supportive cheerleader type. Lots of encouragement.
-- Alex: Laid-back, uses casual slang, chill vibes. "yeah that's rough" energy.
-- Leah: Creative, sometimes anxious, talks about art/music. Can be vulnerable.
-- Priya: Practical, gives gentle advice, studying a lot. Stressed but managing.
+    # Dynamic personality based on random seed for variety
+    import random
+    mood_seed = random.random()
+    
+    # Generate unique conversation starters/directions
+    conversation_starters = [
+        "talk about something that happened today",
+        "share a random thought or observation",
+        "mention something you're looking forward to",
+        "talk about music, a show, or something creative",
+        "share how you're actually feeling right now",
+        "ask the room a casual question",
+        "react to something someone said earlier",
+        "share a small win or struggle from the day",
+        "mention something you're working through",
+        "talk about self-care or what helps you cope",
+    ]
+    random_direction = random.choice(conversation_starters)
 
-IMPORTANT: About 15% of the time, have someone share they're struggling - feeling low, having a bad day, anxious, lonely, or just not okay. This is a support chat - people come here because they're going through things. Mix genuine lows with support and everyday chat. Don't make every message positive."""
+    # Build roster string from provided names
+    roster_str = ", ".join(roster) if roster else "someone"
+
+    personalities = f"""
+IMPORTANT RULES FOR REALISTIC CHAT:
+1. NEVER repeat exact phrases from previous messages - every message must be completely unique
+2. Use casual internet/texting style - lowercase ok, abbreviations like "ngl", "tbh", "lowkey", "fr", "imo" sometimes
+3. Vary message length - sometimes just "same" or "mood", other times a full thought
+4. React naturally - "omg yes", "wait what", "that's so real", "felt that"
+5. Don't be overly positive - real support groups have ups AND downs
+6. Sometimes just vibe, don't always give advice
+7. Reference things like: work stress, school, relationships, sleep issues, anxiety, family stuff, hobbies
+8. Use emojis sparingly and naturally - not every message needs them
+9. Sometimes trail off or use "..." or "idk"
+10. This is gen-z/millennial style chatting - keep it authentic
+
+MOOD MIX (vary this naturally):
+- Some messages are upbeat: "yo anyone else having a good day for once lol"
+- Some are struggling: "having a rough one ngl" or "anxiety's been hitting different"
+- Some are just casual: "what's everyone up to" or "procrastinating so hard rn"
+- Some are supportive: "that sounds tough, im here tho" or "sending good vibes"
+
+Current vibe direction: {random_direction}"""
 
     if reply_to_user:
         # Single natural reply to something the user said
         guidance = (
             f"A real person just said: \"{latest_message}\"\n"
-            "Reply with ONE short, natural message from a single peer (staying in their personality). "
-            "React like a real friend would - brief, genuine, not over-the-top supportive. "
-            "Sometimes just a few words is perfect. Don't pile on with questions."
+            "Reply with ONE short, natural message. React like a real friend would in a group chat - "
+            "brief, genuine, casual. Don't be preachy or give unsolicited advice unless asked. "
+            "Match the energy of what they said. Sometimes a simple reaction is enough."
         )
         request_block = (
-            "Return JSON array named messages with exactly 1 object shaped as"
-            " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
-            "Keep it under 20 words. ONE person responds, not multiple. Match their personality."
+            "Return JSON array with exactly 1 object: "
+            "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
+            "Keep under 25 words. Be real, not performative."
         )
     elif single_message:
         # Single message for continuous background chat
         guidance = (
-            f"Generate ONE short, casual message from a peer (in their personality).{topic_context} "
-            "Make it feel like a real person typing - brief, natural, sometimes just a few words. "
-            "Topics can be: how they're feeling, their day, life stuff, or responding to the vibe of the room. "
-            "Sometimes someone is having a hard time and says so honestly."
+            f"Generate ONE casual message for the chat.{topic_context} "
+            f"Direction for variety: {random_direction}. "
+            "Make it feel like a real person just decided to say something - not forced, not generic. "
+            "Can be about anything: how they're feeling, random thought, reaction to room vibe, life stuff. "
+            "MUST be different from anything in the chat history - no recycled content!"
         )
         request_block = (
-            "Return JSON array named messages with exactly 1 object shaped as"
-            " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
-            "Keep text under 15 words. Stay in character for whoever speaks."
+            "Return JSON array with exactly 1 object: "
+            "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
+            "Keep under 20 words. Make it unique and natural."
         )
     elif warmup:
         guidance = (
-            f"Someone just joined.{topic_context} Generate 1-2 short messages showing an ongoing chat. "
-            "Keep each message brief like real texting - most under 10 words. Show different personalities."
+            f"Someone just entered the room.{topic_context} Show the chat is already active with 1-2 quick messages. "
+            "Make it feel like walking into an ongoing conversation between friends."
         )
         request_block = (
-            "Return JSON array named messages with 1-2 objects each shaped as"
-            " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
-            "Keep texts very short and natural. Match each speaker's personality."
+            "Return JSON array with 1-2 objects: "
+            "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
+            "Keep each under 15 words. Natural group chat energy."
         )
     else:
-        guidance = "Reply naturally to the newest message with one short, human peer response in character."
+        guidance = "Reply naturally to the newest message with one genuine peer response."
         request_block = (
-            "Return JSON array named messages with exactly 1 object shaped as"
-            " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
-            "Keep text under 20 words. Stay in character."
+            "Return JSON array with exactly 1 object: "
+            "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
+            "Keep under 25 words. Real chat vibes."
         )
 
-    roster_block = (
-        "Peers: Rowan, Sage, Mia, Alex, Leah, Priya. Pick ONE name for the sender. "
-        "Use role 'peer' unless ModBot speaks (role 'mod')."
-    )
-
     return (
-        f"You write realistic peer-support chat messages. This is a mental health support room where people share real feelings. "
-        f"No therapy speak. No canned phrases. Just real human chat - sometimes happy, sometimes struggling. "
-        f"{roster_block}\n\n"
+        f"You generate realistic peer-support chat messages for a mental health community. "
+        f"This is like a discord server or group chat - casual, supportive, real. "
+        f"Use sender name 'Peer' - the system will assign the actual name.\n\n"
         f"{personalities}\n\n"
         f"Recent chat:\n{conversation_block}\n\n"
         f"{guidance}\n"
@@ -2380,19 +2407,25 @@ def chat_reply():
 
     api_key = get_deepseek_api_key().strip()
     if not api_key:
-        # Fallback responses with personality when no API key is configured
+        # Fallback responses when no API key is configured
         import random
         short_fallbacks = [
-            {"sender": "Rowan", "role": "peer", "text": "hey! glad you're here 😊"},
-            {"sender": "Sage", "role": "peer", "text": "just sitting with my thoughts today"},
-            {"sender": "Mia", "role": "peer", "text": "you've got this!! 💪"},
-            {"sender": "Alex", "role": "peer", "text": "yeah same tbh"},
-            {"sender": "Leah", "role": "peer", "text": "been a rough one ngl"},
-            {"sender": "Priya", "role": "peer", "text": "trying to stay focused"},
-            {"sender": "Sage", "role": "peer", "text": "feeling pretty low tonight"},
-            {"sender": "Leah", "role": "peer", "text": "anxiety's been bad lately"},
-            {"sender": "Rowan", "role": "peer", "text": "we're all in this together ❤️"},
-            {"sender": "Alex", "role": "peer", "text": "just vibing honestly"},
+            {"sender": "Peer", "role": "peer", "text": "hey! glad you're here 😊"},
+            {"sender": "Peer", "role": "peer", "text": "just sitting with my thoughts today"},
+            {"sender": "Peer", "role": "peer", "text": "you've got this!! 💪"},
+            {"sender": "Peer", "role": "peer", "text": "yeah same tbh"},
+            {"sender": "Peer", "role": "peer", "text": "been a rough one ngl"},
+            {"sender": "Peer", "role": "peer", "text": "trying to stay focused"},
+            {"sender": "Peer", "role": "peer", "text": "feeling pretty low tonight"},
+            {"sender": "Peer", "role": "peer", "text": "anxiety's been hitting different lately"},
+            {"sender": "Peer", "role": "peer", "text": "we're all in this together ❤️"},
+            {"sender": "Peer", "role": "peer", "text": "just vibing honestly"},
+            {"sender": "Peer", "role": "peer", "text": "lowkey struggling but im here"},
+            {"sender": "Peer", "role": "peer", "text": "anyone else procrastinating rn? 😅"},
+            {"sender": "Peer", "role": "peer", "text": "that's so real"},
+            {"sender": "Peer", "role": "peer", "text": "mood"},
+            {"sender": "Peer", "role": "peer", "text": "fr fr"},
+            {"sender": "Peer", "role": "peer", "text": "felt that"},
         ]
         return {"messages": [random.choice(short_fallbacks)]}
 
@@ -2408,6 +2441,101 @@ def chat_reply():
         return {"messages": [], "error": "temporarily_unavailable"}
 
     return {"messages": replies}
+
+
+@app.route("/api/chat/generate-names", methods=["POST"])
+def generate_chat_names():
+    """Generate random unique names for chat participants using AI"""
+    data = request.get_json(silent=True) or {}
+    count = min(int(data.get("count") or 8), 15)  # Max 15 names
+    
+    api_key = get_deepseek_api_key().strip()
+    
+    if not api_key:
+        # Fallback to predefined diverse names
+        import random
+        fallback_names = [
+            "Sky", "River", "Ash", "Quinn", "Jade", "Rain", "Storm", "Brook",
+            "Wren", "Ember", "Luna", "Nova", "Kai", "Zara", "Finn", "Ivy",
+            "Leo", "Milo", "Arlo", "Eden", "Sage", "Willow", "Phoenix", "Rowan",
+            "Jasper", "Hazel", "Riley", "Jordan", "Casey", "Morgan", "Taylor", "Drew"
+        ]
+        random.shuffle(fallback_names)
+        return {"names": fallback_names[:count]}
+    
+    # Use AI to generate unique, natural names
+    prompt = f"""Generate {count} unique first names for a peer support chat room. 
+Requirements:
+- Mix of common and unique names
+- Gender-neutral or varied genders
+- Different cultural backgrounds represented
+- Names that feel real and relatable (not weird/made-up)
+- Names a young adult (18-30) might have
+- NO names from this list: Alex, Jordan, Sam, Taylor (too common)
+
+Return ONLY a JSON array of strings with just the first names, like:
+["Luna", "Kai", "River", "Zara", "Marcus", "Priya", "Finn", "Ava"]
+
+Generate {count} completely different names each time - be creative!"""
+
+    payload = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "You generate realistic names. Respond with only JSON."},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 1.0,  # High temperature for variety
+        "max_tokens": 200,
+    }
+
+    try:
+        request_data = json.dumps(payload).encode("utf-8")
+        request_headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+        req = urlrequest.Request(
+            "https://api.deepseek.com/v1/chat/completions",
+            data=request_data,
+            headers=request_headers,
+        )
+        with urlrequest.urlopen(req, timeout=15) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        
+        content = (result.get("choices") or [{}])[0].get("message", {}).get("content", "")
+        
+        # Parse the response
+        names = None
+        try:
+            names = json.loads(content.strip())
+        except json.JSONDecodeError:
+            # Try to extract array from content
+            start = content.find("[")
+            end = content.rfind("]")
+            if start != -1 and end != -1:
+                try:
+                    names = json.loads(content[start:end+1])
+                except json.JSONDecodeError:
+                    pass
+        
+        if isinstance(names, list) and len(names) > 0:
+            # Filter to valid strings and limit length
+            valid_names = [str(n).strip()[:20] for n in names if isinstance(n, str) and n.strip()]
+            if valid_names:
+                return {"names": valid_names[:count]}
+        
+        # Fallback if parsing failed
+        import random
+        fallback = ["Luna", "Kai", "River", "Zara", "Marcus", "Priya", "Finn", "Ava", "Noah", "Maya", "Leo", "Iris"]
+        random.shuffle(fallback)
+        return {"names": fallback[:count]}
+        
+    except Exception as e:
+        print(f"Name generation error: {e}")
+        import random
+        fallback = ["Sky", "River", "Quinn", "Ember", "Nova", "Kai", "Zara", "Finn", "Ivy", "Milo"]
+        random.shuffle(fallback)
+        return {"names": fallback[:count]}
 
 
 @app.route("/useful-contacts")

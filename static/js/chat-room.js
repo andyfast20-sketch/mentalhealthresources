@@ -213,21 +213,133 @@
     }, false);
   }
 
-  const participants = [
+  // Dynamic participants list - starts with just You and ModBot
+  let participants = [
     { name: 'You', role: 'you' },
     { name: 'ModBot', role: 'mod' },
-    { name: 'Rowan', role: 'peer' },
-    { name: 'Sage', role: 'peer' },
-    { name: 'Mia', role: 'peer' },
-    { name: 'Alex', role: 'peer' },
-    { name: 'Leah', role: 'peer' },
-    { name: 'Priya', role: 'peer' },
   ];
+
+  // Store generated peer names
+  let peerNames = [];
+  let namesInitialized = false;
 
   const chatHistory = [];
   let isWaitingForReply = false;
   let backgroundChatActive = true;
   let backgroundChatTimer = null;
+  let joinLeaveTimer = null;
+
+  // Fetch random names from the API
+  async function initializeRandomNames() {
+    if (namesInitialized) return;
+    
+    try {
+      const response = await fetch('/api/chat/generate-names', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ count: 8 }),
+      });
+      const result = await response.json();
+      
+      if (result.names && result.names.length > 0) {
+        peerNames = result.names;
+      } else {
+        // Fallback names if API fails
+        peerNames = generateFallbackNames();
+      }
+    } catch (error) {
+      console.log('Name generation failed, using fallback:', error);
+      peerNames = generateFallbackNames();
+    }
+    
+    namesInitialized = true;
+    
+    // Add initial random number of participants (3-5)
+    const initialCount = 3 + Math.floor(Math.random() * 3);
+    for (let i = 0; i < initialCount && peerNames.length > 0; i++) {
+      const name = peerNames.shift();
+      participants.push({ name, role: 'peer' });
+    }
+    
+    renderSidebar();
+  }
+
+  // Generate fallback random names locally
+  function generateFallbackNames() {
+    const prefixes = ['Sky', 'River', 'Ash', 'Quinn', 'Jade', 'Rain', 'Storm', 'Brook', 'Wren', 'Ember', 'Luna', 'Nova', 'Kai', 'Zara', 'Finn', 'Ivy', 'Leo', 'Milo', 'Arlo', 'Eden'];
+    const shuffled = prefixes.sort(() => Math.random() - 0.5);
+    return shuffled.slice(0, 10);
+  }
+
+  // Get a random peer from current participants
+  function getRandomPeer() {
+    const peers = participants.filter(p => p.role === 'peer');
+    if (peers.length === 0) return null;
+    return peers[Math.floor(Math.random() * peers.length)];
+  }
+
+  // Get all current peer names for API calls
+  function getCurrentPeerNames() {
+    return participants.filter(p => p.role === 'peer').map(p => p.name);
+  }
+
+  // Someone joins the chat
+  function personJoins() {
+    if (peerNames.length === 0) return;
+    
+    const name = peerNames.shift();
+    participants.push({ name, role: 'peer' });
+    renderSidebar();
+    
+    // Add join message to chat
+    addSystemMessage(`${name} joined the chat`);
+  }
+
+  // Someone leaves the chat
+  function personLeaves() {
+    const peers = participants.filter(p => p.role === 'peer');
+    if (peers.length <= 2) return; // Keep at least 2 peers
+    
+    const leaver = peers[Math.floor(Math.random() * peers.length)];
+    participants = participants.filter(p => p.name !== leaver.name);
+    
+    // Add their name back to the pool for possible return
+    peerNames.push(leaver.name);
+    
+    renderSidebar();
+    
+    // Add leave message
+    addSystemMessage(`${leaver.name} left the chat`);
+  }
+
+  // Add a system message (join/leave notifications)
+  function addSystemMessage(text) {
+    const wrapper = document.createElement('div');
+    wrapper.className = 'chat-message chat-message--system';
+    wrapper.innerHTML = `<div class="chat-message__system-text">— ${text} —</div>`;
+    chatLog.appendChild(wrapper);
+    chatLog.scrollTop = chatLog.scrollHeight;
+  }
+
+  // Schedule random join/leave events
+  function scheduleJoinLeaveEvent() {
+    // Random interval: 30 seconds to 2 minutes
+    const delay = 30000 + Math.random() * 90000;
+    
+    joinLeaveTimer = setTimeout(() => {
+      // 40% chance of join, 30% chance of leave, 30% nothing
+      const roll = Math.random();
+      const peers = participants.filter(p => p.role === 'peer');
+      
+      if (roll < 0.4 && peerNames.length > 0 && peers.length < 8) {
+        personJoins();
+      } else if (roll < 0.7 && peers.length > 2) {
+        personLeaves();
+      }
+      
+      scheduleJoinLeaveEvent();
+    }, delay);
+  }
 
   // Check message with server before sending
   async function checkMessageAllowed(message) {
@@ -372,8 +484,11 @@
     
     setTimeout(async () => {
       isWaitingForReply = true;
-      const peers = participants.filter(p => p.role === 'peer');
-      const randomPeer = peers[Math.floor(Math.random() * peers.length)];
+      const randomPeer = getRandomPeer();
+      if (!randomPeer) {
+        resumeBackgroundChat();
+        return;
+      }
       
       // Show typing for realistic duration
       const typingDuration = 1500 + Math.random() * 2500;
@@ -391,6 +506,8 @@
             history: chatHistory,
             warmup,
             replyToUser: true,
+            peerNames: getCurrentPeerNames(),
+            uniqueSession: Date.now(), // Force unique responses
           }),
         });
 
@@ -411,7 +528,10 @@
           hideTyping();
           // Only show ONE message in response to user
           if (messages.length > 0) {
-            addMessage(messages[0]);
+            // Use one of our actual peer names
+            const msg = messages[0];
+            msg.sender = randomPeer.name;
+            addMessage(msg);
           }
           // Resume background chat after responding
           resumeBackgroundChat();
@@ -456,8 +576,11 @@
   async function requestSingleBackgroundMessage() {
     if (!backgroundChatActive) return;
     
-    const peers = participants.filter(p => p.role === 'peer');
-    const randomPeer = peers[Math.floor(Math.random() * peers.length)];
+    const randomPeer = getRandomPeer();
+    if (!randomPeer) {
+      scheduleNextBackgroundMessage();
+      return;
+    }
     
     // Show typing for 1-3 seconds before message appears
     const typingDuration = 1000 + Math.random() * 2000;
@@ -473,6 +596,8 @@
           warmup: true,
           topic: chatTopic,
           singleMessage: true,
+          peerNames: getCurrentPeerNames(),
+          uniqueSession: Date.now(), // Force unique responses
         }),
       });
 
@@ -490,8 +615,10 @@
       // Show the message after typing animation
       setTimeout(() => {
         if (messages.length > 0 && backgroundChatActive) {
-          // Only add ONE message
-          addMessage(messages[0], true);
+          // Use our actual peer name
+          const msg = messages[0];
+          msg.sender = randomPeer.name;
+          addMessage(msg, true);
         }
         scheduleNextBackgroundMessage();
       }, typingDuration);
@@ -657,9 +784,15 @@
   // Check if user is banned before starting
   const wasBanned = checkAndShowBanNotice();
   
-  // Show ModBot welcome immediately
-  showModBotWelcome();
-  
-  // Start continuous background chat
-  startBackgroundChat();
+  // Initialize random names, then start chat
+  initializeRandomNames().then(() => {
+    // Show ModBot welcome immediately
+    showModBotWelcome();
+    
+    // Start continuous background chat
+    startBackgroundChat();
+    
+    // Start join/leave events
+    scheduleJoinLeaveEvent();
+  });
 })();
