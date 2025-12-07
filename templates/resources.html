@@ -9,7 +9,7 @@
         <div class="cta-row">
             <a class="btn" href="#resources">Start exploring</a>
             <button class="pill" id="filter-reset" aria-label="Reset filters">Reset Filters</button>
-            <a class="pill ghost" href="#chat-room">Join the chat room</a>
+            <a class="pill ghost" href="{{ url_for('chat_room') }}">Join the chat room</a>
         </div>
     </div>
     <div class="hero-visual resources-visual" aria-hidden="true">
@@ -18,11 +18,6 @@
         <div class="visual-caption glassy">Moodboard vibes to keep the resource hunt gentle.</div>
     </div>
 </div>
-{% endblock %}
-
-{% block scripts %}
-{{ super() }}
-<script src="{{ url_for('static', filename='js/chat-room.js') }}"></script>
 {% endblock %}
 
 {% block content %}
@@ -122,65 +117,7 @@
             <p class="microcopy">You can combine the tags with your own pace—hover cards for a little sparkle.</p>
         </div>
     </div>
-</section>
 
-<section class="panel chat-panel" id="chat-room">
-    <div class="chat-shell">
-        <aside class="chat-sidebar" aria-label="Online users">
-            <div class="chat-sidebar__header">
-                <span class="sidebar-icon" aria-hidden="true"></span>
-                <span>Online</span>
-            </div>
-            <ul class="chat-sidebar__list">
-                <li class="chat-sidebar__user">
-                    <span class="status-dot" aria-hidden="true"></span>
-                    <div>
-                        <div class="chat-sidebar__name">ddf (You)</div>
-                        <small>Available</small>
-                    </div>
-                </li>
-                <li class="chat-sidebar__user">
-                    <span class="status-dot" aria-hidden="true"></span>
-                    <div>
-                        <div class="chat-sidebar__name">ModBot (Admin)</div>
-                        <small>Watching the room</small>
-                    </div>
-                </li>
-                <li class="chat-sidebar__user">
-                    <span class="status-dot" aria-hidden="true"></span>
-                    <div>
-                        <div class="chat-sidebar__name">Rowan</div>
-                        <small>Peer supporter</small>
-                    </div>
-                </li>
-            </ul>
-        </aside>
-        <div class="chat-main">
-            <div class="chat-room-card" aria-label="Mental Health Support Chat">
-                <div class="chat-room__header">
-                    <div class="chat-room__title">
-                        <span class="status-dot" aria-hidden="true"></span>
-                        <span>Mental Health Support Chat</span>
-                    </div>
-                    <div class="chat-room__actions">
-                        <button type="button" aria-label="Chat settings">Settings</button>
-                    </div>
-                </div>
-                <div class="chat-room__log" data-chat-log aria-live="polite" aria-label="Chat messages"></div>
-                <div class="chat-room__footer">
-                    <div class="chat-room__typing" data-chat-typing hidden>
-                        <span class="status-dot status-dot--pulse" aria-hidden="true"></span>
-                        <span class="microcopy" data-chat-typing-copy>Someone is typing…</span>
-                    </div>
-                    <form class="chat-form" data-chat-form>
-                        <label class="sr-only" for="chat-input">Type a message</label>
-                        <input id="chat-input" data-chat-input type="text" name="message" autocomplete="off" maxlength="280" placeholder="Type your message here" />
-                        <button type="submit" class="btn tiny">Send</button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
 </section>
 
 <section id="resources" class="resource-grid-shell">
