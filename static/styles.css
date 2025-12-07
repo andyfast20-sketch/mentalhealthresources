@@ -1876,14 +1876,20 @@ body {
 
 .chat-shell {
   display: grid;
-  grid-template-columns: 240px 1fr;
+  grid-template-columns: 260px 1fr;
   gap: 1rem;
-  align-items: stretch;
+  align-items: start;
   background: linear-gradient(135deg, #0f172a, #0b1020 55%);
   border-radius: 18px;
   padding: 14px;
   border: 1px solid #1f2940;
   box-shadow: 0 24px 60px rgba(4, 6, 15, 0.55);
+}
+
+.chat-main {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
 .chat-sidebar {
@@ -1950,7 +1956,7 @@ body {
   grid-template-rows: auto 1fr auto;
   position: relative;
   overflow: hidden;
-  min-height: 560px;
+  min-height: clamp(360px, 60vh, 520px);
 }
 
 .chat-room__header {
@@ -2123,6 +2129,10 @@ body {
   .chat-sidebar {
     order: -1;
     min-height: clamp(520px, 65vh, 760px);
+  }
+
+  .chat-main {
+    order: 0;
   }
 
   .chat-intro {
