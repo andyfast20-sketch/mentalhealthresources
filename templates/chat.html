@@ -1,0 +1,94 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid compact chat-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Community Chat</p>
+        <h1>Join the room and talk with peers in real-time.</h1>
+        <p class="lede">A cozy, moderated corner for quick check-ins, late-night worries, and celebrating the small wins. Usernames you see are active right now.</p>
+        <div class="cta-row">
+            <a class="btn" href="#live-chat">Enter the room</a>
+            <span class="pill ghost">Moderated by ModBot + 2 humans</span>
+        </div>
+    </div>
+    <div class="hero-visual resources-visual" aria-hidden="true">
+        <div class="visual-backdrop"></div>
+        <img src="https://files.catbox.moe/hkbgcb.png" alt="Soft gradient collage with notes and petals" loading="lazy" />
+        <div class="visual-caption glassy">Live presence updates every few seconds.</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/chat-room.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<section class="panel chat-intro-panel">
+    <div class="chat-guidelines">
+        <div>
+            <p class="eyebrow">Safety first</p>
+            <h3>Peer support only. Crisis? Visit the crisis tab for urgent help.</h3>
+            <p class="body">Keep it kind, avoid sharing contact details, and lean on the room for grounded company. Mods step in when things feel heavy.</p>
+        </div>
+        <div class="guideline-tags">
+            <span class="chip ghost">Be respectful</span>
+            <span class="chip ghost">No medical advice</span>
+            <span class="chip ghost">Take breaks</span>
+        </div>
+    </div>
+</section>
+
+<section class="panel chat-panel" id="live-chat">
+    <div class="chat-shell">
+        <aside class="chat-sidebar" aria-label="Online users">
+            <div class="chat-sidebar__header">
+                <span class="sidebar-icon" aria-hidden="true"></span>
+                <div>
+                    <p class="microcopy">Live right now</p>
+                    <p class="chat-sidebar__count" data-chat-presence>Loading room…</p>
+                </div>
+            </div>
+            <ul class="chat-sidebar__list" data-chat-sidebar></ul>
+            <div class="chat-sidebar__foot">
+                <p class="microcopy">Names update in real-time. Mods glow green when actively watching.</p>
+                <p class="microcopy">Your handle shows as <strong>ddf</strong>.</p>
+            </div>
+        </aside>
+        <div class="chat-main">
+            <div class="chat-room-card" aria-label="Mental Health Support Chat">
+                <div class="chat-room__header">
+                    <div class="chat-room__title">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        <div>
+                            <span>Mental Health Support Chat</span>
+                            <p class="microcopy">Peer-to-peer | Typing indicators, live roster, cozy vibes</p>
+                        </div>
+                    </div>
+                    <div class="chat-room__actions">
+                        <button type="button" aria-label="Chat settings">Settings</button>
+                    </div>
+                </div>
+                <div class="chat-room__log" data-chat-log aria-live="polite" aria-label="Chat messages"></div>
+                <div class="chat-room__footer">
+                    <div class="chat-prompts" aria-label="Quick prompts">
+                        <button type="button" class="pill ghost tiny" data-chat-prompt="Rough evening here. Anyone else feeling wired?">Check in</button>
+                        <button type="button" class="pill ghost tiny" data-chat-prompt="Small win: I finally stepped outside today." aria-label="Share a small win">Share a win</button>
+                        <button type="button" class="pill ghost tiny" data-chat-prompt="Looking for grounding ideas that work for you." aria-label="Ask for grounding ideas">Ask for tips</button>
+                    </div>
+                    <div class="chat-room__typing" data-chat-typing hidden>
+                        <span class="status-dot status-dot--pulse" aria-hidden="true"></span>
+                        <span class="microcopy" data-chat-typing-copy>Someone is typing…</span>
+                    </div>
+                    <form class="chat-form" data-chat-form>
+                        <label class="sr-only" for="chat-input">Type a message</label>
+                        <input id="chat-input" data-chat-input type="text" name="message" autocomplete="off" maxlength="280" placeholder="Type your message here" />
+                        <button type="submit" class="btn tiny">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

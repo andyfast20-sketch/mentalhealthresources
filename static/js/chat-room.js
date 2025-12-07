@@ -5,10 +5,23 @@
   const typingBar = document.querySelector('[data-chat-typing]');
   const typingCopy = document.querySelector('[data-chat-typing-copy]');
   const promptButtons = Array.from(document.querySelectorAll('[data-chat-prompt]'));
+  const sidebarList = document.querySelector('[data-chat-sidebar]');
+  const presenceCounter = document.querySelector('[data-chat-presence]');
 
   if (!chatLog || !chatForm || !chatInput) return;
 
-  const peers = ['Rowan', 'Sage', 'Mia', 'Alex'];
+  const participants = [
+    { name: 'ddf', role: 'you', status: 'Active • Desktop', badge: 'You' },
+    { name: 'ModBot', role: 'mod', status: 'On duty • safety monitor', badge: 'Moderator' },
+    { name: 'Rowan', role: 'peer', status: 'Replying in resources', badge: 'Peer supporter' },
+    { name: 'Sage', role: 'peer', status: 'Typing…', badge: 'Night owl' },
+    { name: 'Mia', role: 'peer', status: 'On mobile', badge: 'She/they' },
+    { name: 'Alex', role: 'peer', status: 'Away • back in 5', badge: 'They/them' },
+    { name: 'Leah', role: 'peer', status: 'Listening quietly', badge: 'EU evening' },
+    { name: 'Priya', role: 'peer', status: 'Reviewing grounding list', badge: 'Student counsellor' },
+  ];
+
+  const peers = participants.filter((person) => person.role === 'peer').map((person) => person.name);
   const supportReplies = [
     "You're not alone in this, even if it feels that way tonight.",
     "Breathing slow can help—shoulders down, jaw unclench, gentle breaths in and out.",
@@ -79,6 +92,55 @@
     return list[Math.floor(Math.random() * list.length)];
   }
 
+  function renderSidebar() {
+    if (!sidebarList) return;
+
+    sidebarList.innerHTML = '';
+
+    participants.forEach((person) => {
+      const item = document.createElement('li');
+      item.className = 'chat-sidebar__user';
+
+      const avatar = document.createElement('div');
+      avatar.className = `chat-avatar chat-avatar--${person.role}`;
+      avatar.textContent = person.name.charAt(0);
+
+      const body = document.createElement('div');
+      body.className = 'chat-sidebar__body';
+
+      const nameRow = document.createElement('div');
+      nameRow.className = 'chat-sidebar__meta';
+
+      const name = document.createElement('div');
+      name.className = 'chat-sidebar__name';
+      name.textContent = person.name;
+
+      nameRow.appendChild(name);
+
+      if (person.badge) {
+        const badge = document.createElement('span');
+        badge.className = 'chat-role-badge';
+        badge.textContent = person.badge;
+        nameRow.appendChild(badge);
+      }
+
+      const status = document.createElement('small');
+      status.textContent = person.status || 'Online';
+
+      body.appendChild(nameRow);
+      body.appendChild(status);
+
+      item.appendChild(avatar);
+      item.appendChild(body);
+
+      sidebarList.appendChild(item);
+    });
+
+    if (presenceCounter) {
+      presenceCounter.textContent = `${participants.length} online • live handles`;
+    }
+  }
+
   function craftReply(message) {
     const text = message.toLowerCase();
     const suggestions = [...supportReplies];
@@ -129,9 +191,14 @@
         text: 'Welcome in! Grab a seat—no rush to talk if you just want to listen.',
       },
       {
-        sender: 'Sage',
+        sender: 'Leah',
         role: 'peer',
-        text: 'Sharing how your day went is always okay here. How are you holding up?',
+        text: 'I just made chamomile tea if anyone wants to settle in together.',
+      },
+      {
+        sender: 'Priya',
+        role: 'peer',
+        text: 'Taking a 3-minute breathing break—join me if you want a soft start.',
       },
     ];
 
@@ -155,5 +222,6 @@
     });
   });
 
+  renderSidebar();
   seedRoom();
 })();

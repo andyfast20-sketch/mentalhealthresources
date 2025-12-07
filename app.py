@@ -2007,8 +2007,7 @@ def resources():
 
 @app.route("/chat")
 def chat_room():
-    """Redirect to the chat section of the resources page."""
-    return redirect(url_for("resources", _anchor="chat-room"))
+    return render_template("chat.html")
 
 
 @app.route("/useful-contacts")
