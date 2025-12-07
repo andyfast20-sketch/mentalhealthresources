@@ -3,6 +3,7 @@ import os
 import sqlite3
 from datetime import datetime
 from html.parser import HTMLParser
+import re
 from pathlib import Path
 import time
 from werkzeug.utils import secure_filename
@@ -69,6 +70,7 @@ D1_AVAILABLE = True
 LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
 SQLITE_TIMEOUT = 30
 CONSTRUCTION_BANNER_KEY = "construction_banner"
+DEEPSEEK_SETTING_KEY = "deepseek_api_key"
 
 
 DEFAULT_BOOKS = [
@@ -854,6 +856,103 @@ def construction_banner_enabled():
 
 def set_construction_banner(enabled):
     save_site_setting(CONSTRUCTION_BANNER_KEY, "1" if enabled else "0")
+
+
+def get_deepseek_api_key():
+    return load_site_settings().get(DEEPSEEK_SETTING_KEY, "")
+
+
+def extract_json_object(text):
+    try:
+        return json.loads(text)
+    except json.JSONDecodeError:
+        pass
+
+    if not text:
+        return None
+
+    start = text.find("{")
+    end = text.rfind("}")
+
+    if start != -1 and end != -1 and end > start:
+        snippet = text[start : end + 1]
+        snippet = re.sub(r"```(json)?", "", snippet).strip()
+        try:
+            return json.loads(snippet)
+        except json.JSONDecodeError:
+            return None
+
+    return None
+
+
+def deepseek_charity_lookup(api_key, charity):
+    prompt = (
+        "Use web knowledge and general reasoning to return concise JSON about this charity. "
+        "Include fields: telephone (string), logo_url (string), has_helpline, has_volunteers, "
+        "has_crisis_info, has_text_support, has_email_support, has_live_chat as booleans. "
+        "If unknown, use null or false accordingly."
+    )
+
+    charity_summary = (
+        f"Name: {charity.get('name', '')}\n"
+        f"Website: {charity.get('website_url', '')}\n"
+        f"Description: {charity.get('description', '')}"
+    )
+
+    payload = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "You return only helpful JSON without commentary."},
+            {"role": "user", "content": f"{prompt}\n\n{charity_summary}"},
+        ],
+        "temperature": 0.2,
+    }
+
+    request_data = json.dumps(payload).encode("utf-8")
+    request_headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+    }
+
+    try:
+        req = urlrequest.Request(
+            "https://api.deepseek.com/chat/completions",
+            data=request_data,
+            headers=request_headers,
+        )
+        with urlrequest.urlopen(req, timeout=30) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:  # pragma: no cover - external dependency
+        return None, f"DeepSeek request failed: {exc.reason or exc.code}"
+    except URLError as exc:  # pragma: no cover - external dependency
+        return None, f"DeepSeek request failed: {getattr(exc, 'reason', exc)}"
+    except Exception as exc:  # pragma: no cover - network variability
+        return None, f"DeepSeek lookup error: {exc}"
+
+    content = (
+        (result.get("choices") or [{}])[0]
+        .get("message", {})
+        .get("content", "")
+    )
+
+    data = extract_json_object(content)
+    if not isinstance(data, dict):
+        return None, "Unable to parse DeepSeek response."
+
+    return data, None
+
+
+def coerce_bool(value):
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def mask_secret(value):
+    if not value:
+        return ""
+    value = str(value)
+    if len(value) <= 8:
+        return value
+    return f"{value[:4]}…{value[-4:]}"
 
 def load_books():
     ensure_tables()
@@ -1698,6 +1797,8 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
         load_summary=load_summary,
         construction_banner_enabled=construction_banner_enabled(),
         active_section=section,
+        deepseek_api_key=get_deepseek_api_key(),
+        deepseek_api_key_masked=mask_secret(get_deepseek_api_key()),
     )
 
 
@@ -1715,6 +1816,19 @@ def update_site_banner():
     banner_message = "Construction banner turned on." if enabled else "Construction banner turned off."
 
     return redirect(url_for("admin", message=banner_message))
+
+
+@app.route("/admin/deepseek-key", methods=["POST"])
+def update_deepseek_api_key():
+    api_key = request.form.get("deepseek_api_key", "").strip()
+    save_site_setting(DEEPSEEK_SETTING_KEY, api_key)
+
+    if api_key:
+        message = "DeepSeek API key saved."
+    else:
+        message = "DeepSeek API key cleared."
+
+    return redirect(url_for("admin", message=message, section="ai-tools"))
 
 
 @app.route("/admin/did-you-know", methods=["POST"])
@@ -2042,11 +2156,93 @@ def update_charity(charity_id):
             has_crisis_info,
             has_text_support,
             has_email_support,
-            has_live_chat,
+        has_live_chat,
+        charity_id,
+    ],
+    )
+    return redirect(url_for("admin", message="Charity updated."))
+
+
+def build_charity_ai_update(existing, ai_data):
+    telephone = ai_data.get("telephone") if isinstance(ai_data, dict) else None
+    logo_url = ai_data.get("logo_url") if isinstance(ai_data, dict) else None
+
+    def resolve_boolean(key, current):
+        if isinstance(ai_data, dict) and key in ai_data:
+            return 1 if coerce_bool(ai_data.get(key)) else 0
+        return 1 if current else 0
+
+    updates = {
+        "telephone": telephone.strip() if isinstance(telephone, str) else existing.get("telephone", ""),
+        "logo_url": normalize_url(logo_url) if logo_url else existing.get("logo_url", ""),
+        "has_helpline": resolve_boolean("has_helpline", existing.get("has_helpline")),
+        "has_volunteers": resolve_boolean("has_volunteers", existing.get("has_volunteers")),
+        "has_crisis_info": resolve_boolean("has_crisis_info", existing.get("has_crisis_info")),
+        "has_text_support": resolve_boolean("has_text_support", existing.get("has_text_support")),
+        "has_email_support": resolve_boolean("has_email_support", existing.get("has_email_support")),
+        "has_live_chat": resolve_boolean("has_live_chat", existing.get("has_live_chat")),
+    }
+
+    return updates
+
+
+@app.route("/admin/charities/<int:charity_id>/enrich", methods=["POST"])
+def enrich_charity(charity_id):
+    charities = load_charities()
+    existing = next((c for c in charities if c.get("id") == charity_id), None)
+    if not existing:
+        return redirect(url_for("admin", message="Charity not found.", section="charities"))
+
+    api_key = get_deepseek_api_key().strip()
+    if not api_key:
+        return redirect(
+            url_for(
+                "admin",
+                message="Add a DeepSeek API key before running an AI lookup.",
+                section="ai-tools",
+            )
+        )
+
+    ai_data, error = deepseek_charity_lookup(api_key, existing)
+    if error:
+        return redirect(url_for("admin", message=error, section="charities"))
+
+    updates = build_charity_ai_update(existing, ai_data or {})
+
+    d1_query(
+        """
+        UPDATE charities
+        SET
+            telephone = ?,
+            logo_url = ?,
+            has_helpline = ?,
+            has_volunteers = ?,
+            has_crisis_info = ?,
+            has_text_support = ?,
+            has_email_support = ?,
+            has_live_chat = ?
+        WHERE id = ?
+        """,
+        [
+            updates["telephone"],
+            updates["logo_url"],
+            updates["has_helpline"],
+            updates["has_volunteers"],
+            updates["has_crisis_info"],
+            updates["has_text_support"],
+            updates["has_email_support"],
+            updates["has_live_chat"],
             charity_id,
         ],
     )
-    return redirect(url_for("admin", message="Charity updated."))
+
+    return redirect(
+        url_for(
+            "admin",
+            message="Charity details refreshed with DeepSeek.",
+            section="charities",
+        )
+    )
 
 
 @app.route("/admin/charities/<int:charity_id>/delete", methods=["POST"])
