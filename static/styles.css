@@ -2122,6 +2122,11 @@ body {
 
   .chat-sidebar {
     order: -1;
+    min-height: clamp(520px, 65vh, 760px);
+  }
+
+  .chat-intro {
+    position: static;
   }
 }
 
