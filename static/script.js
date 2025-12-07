@@ -33,6 +33,14 @@ const mediaSelects = Array.from(document.querySelectorAll('[data-media-url-selec
 const activityEditToggles = Array.from(document.querySelectorAll('[data-activity-edit-toggle]'));
 const didYouKnowEditToggles = Array.from(document.querySelectorAll('[data-didyouknow-edit-toggle]'));
 const mediaEditToggles = Array.from(document.querySelectorAll('[data-media-edit-toggle]'));
+const contactEditToggles = Array.from(document.querySelectorAll('[data-contact-edit-toggle]'));
+const contactCards = Array.from(document.querySelectorAll('[data-contact-card]'));
+const contactFilterButtons = Array.from(document.querySelectorAll('[data-contact-filter]'));
+const contactSearchInput = document.querySelector('[data-contact-search]');
+const contactResetButtons = [
+  document.getElementById('contact-filter-reset'),
+  document.getElementById('contact-filter-reset-bottom'),
+];
 const charityModal = document.querySelector('[data-charity-modal]');
 const charityModalTitle = document.querySelector('[data-charity-modal-title]');
 const charityModalTelephones = Array.from(document.querySelectorAll('[data-charity-modal-telephone]'));
@@ -88,6 +96,53 @@ tags.forEach((tagBtn) => {
 });
 
 resetBtn?.addEventListener('click', resetFilters);
+
+let activeContactTag = '';
+
+function resetContactFilters() {
+  activeContactTag = '';
+  contactSearchInput && (contactSearchInput.value = '');
+  contactFilterButtons.forEach((button) => button.classList.remove('active'));
+  filterContacts();
+}
+
+function filterContacts() {
+  const query = (contactSearchInput?.value || '').toLowerCase().trim();
+
+  contactCards.forEach((card) => {
+    const tags = (card.dataset.tags || '').split(' ').filter(Boolean);
+    const name = (card.dataset.name || '').toLowerCase();
+    const matchesTag = !activeContactTag || tags.includes(activeContactTag);
+    const matchesSearch = !query || name.includes(query);
+    card.classList.toggle('hidden', !(matchesTag && matchesSearch));
+  });
+}
+
+contactFilterButtons.forEach((button) => {
+  button.addEventListener('click', () => {
+    const tag = button.dataset.contactFilter;
+    const isActive = button.classList.contains('active');
+
+    contactFilterButtons.forEach((btn) => btn.classList.remove('active'));
+
+    if (!isActive) {
+      button.classList.add('active');
+      activeContactTag = tag;
+    } else {
+      activeContactTag = '';
+    }
+
+    filterContacts();
+  });
+});
+
+contactSearchInput?.addEventListener('input', filterContacts);
+
+contactResetButtons.forEach((btn) => {
+  btn?.addEventListener('click', resetContactFilters);
+});
+
+filterContacts();
 
 dropdownTriggers.forEach((trigger) => {
   const menu = trigger.closest('.nav-dropdown');
@@ -492,6 +547,32 @@ function toggleDidYouKnowForm(targetId) {
 
 didYouKnowEditToggles.forEach((toggle) => {
   toggle.addEventListener('click', () => toggleDidYouKnowForm(toggle.dataset.target));
+});
+
+function toggleContactForm(targetId) {
+  if (!targetId) return;
+
+  const form = document.querySelector(`[data-contact-form="${targetId}"]`);
+  const toggles = Array.from(
+    document.querySelectorAll(`[data-contact-edit-toggle][data-target="${targetId}"]`)
+  );
+
+  if (!form) return;
+
+  const isHidden = form.classList.toggle('hidden');
+
+  toggles.forEach((toggle) => {
+    toggle.textContent = isHidden ? 'Edit' : 'Close edit';
+    toggle.setAttribute('aria-expanded', isHidden ? 'false' : 'true');
+  });
+
+  if (!isHidden) {
+    form.querySelector('input, textarea')?.focus();
+  }
+}
+
+contactEditToggles.forEach((toggle) => {
+  toggle.addEventListener('click', () => toggleContactForm(toggle.dataset.target));
 });
 
 function toggleMediaEditForm(targetId) {

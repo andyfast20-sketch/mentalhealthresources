@@ -788,6 +788,18 @@ def ensure_tables():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         """,
+        """
+        CREATE TABLE IF NOT EXISTS useful_contacts (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            telephone TEXT DEFAULT '',
+            contact_email TEXT DEFAULT '',
+            text_number TEXT DEFAULT '',
+            tags TEXT DEFAULT '',
+            description TEXT DEFAULT '',
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+        );
+        """,
     ]
 
     for statement in table_statements:
@@ -951,6 +963,65 @@ def deepseek_charity_lookup(api_key, charity):
     )
 
     data = extract_json_object(content)
+    if not isinstance(data, dict):
+        return None, "Unable to parse DeepSeek response."
+
+    return data, None
+
+
+def deepseek_useful_contact_lookup(api_key, topic, forbidden_names=None):
+    forbidden_names = forbidden_names or []
+    avoidance = ""
+
+    if forbidden_names:
+        avoidance = (
+            "Avoid returning any of these names or numbers to prevent duplicates: "
+            + ", ".join(sorted(forbidden_names))
+            + "."
+        )
+
+    prompt = (
+        "Find one widely trusted mental health helpline or text line with strong practical value. "
+        "Share concise JSON with fields: name, telephone, contact_email, text_number, description, tags (array of lowercase words). "
+        "Include at least one phone or text number. If email or text support is unavailable, return null. "
+        "Focus on accessibility and crisis relevance. "
+        f"Topic to guide you: {topic}. "
+        f"{avoidance}"
+    )
+
+    payload = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "Respond with a single JSON object and no commentary."},
+            {"role": "user", "content": prompt},
+        ],
+        "temperature": 0.2,
+    }
+
+    request_data = json.dumps(payload).encode("utf-8")
+    request_headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+    }
+
+    try:
+        req = urlrequest.Request(
+            "https://api.deepseek.com/chat/completions",
+            data=request_data,
+            headers=request_headers,
+        )
+        with urlrequest.urlopen(req, timeout=30) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:  # pragma: no cover - external dependency
+        return None, f"DeepSeek request failed: {exc.code}"
+    except URLError:  # pragma: no cover - external dependency
+        return None, "Unable to reach DeepSeek API."
+    except TimeoutError:  # pragma: no cover - external dependency
+        return None, "DeepSeek request timed out."
+
+    content = result.get("choices", [{}])[0].get("message", {}).get("content", "")
+    data = extract_json_object(content)
+
     if not isinstance(data, dict):
         return None, "Unable to parse DeepSeek response."
 
@@ -1234,6 +1305,124 @@ def load_did_you_know_items():
         )
 
     return items
+
+
+def normalize_tag_list(raw_tags):
+    tags = []
+    for chunk in re.split(r",|;|\n", raw_tags or ""):
+        tag = chunk.strip().lower()
+        if tag:
+            tags.append(tag)
+    return tags
+
+
+def derive_contact_tags(contact):
+    tags = set(normalize_tag_list(contact.get("tags", "")))
+
+    if contact.get("telephone"):
+        tags.add("phone")
+        tags.add("call")
+    if contact.get("text_number"):
+        tags.add("text")
+        tags.add("sms")
+    if contact.get("contact_email"):
+        tags.add("email")
+
+    return sorted(tags)
+
+
+def normalize_contact_name(name):
+    return re.sub(r"\s+", " ", (name or "").strip()).lower()
+
+
+def load_useful_contacts():
+    ensure_tables()
+
+    rows = d1_query(
+        """
+        SELECT id, name, telephone, contact_email, text_number, tags, description, created_at
+        FROM useful_contacts
+        ORDER BY created_at DESC, id DESC
+        """
+    )
+
+    contacts = []
+    for row in rows:
+        contact = {
+            "id": row.get("id") if isinstance(row, dict) else None,
+            "name": row.get("name", ""),
+            "telephone": row.get("telephone", ""),
+            "contact_email": row.get("contact_email", ""),
+            "text_number": row.get("text_number", ""),
+            "tags": row.get("tags", ""),
+            "description": row.get("description", ""),
+            "created_at": row.get("created_at"),
+        }
+        contact["all_tags"] = derive_contact_tags(contact)
+        contacts.append(contact)
+
+    return contacts
+
+
+def useful_contact_exists(name, telephone=None, contact_email=None):
+    normalized_name = normalize_contact_name(name)
+    telephone = (telephone or "").strip()
+    contact_email = (contact_email or "").strip().lower()
+
+    for contact in load_useful_contacts():
+        if normalize_contact_name(contact.get("name")) == normalized_name:
+            return True
+        if telephone and contact.get("telephone", "").strip() == telephone:
+            return True
+        if contact_email and contact.get("contact_email", "").strip().lower() == contact_email:
+            return True
+
+    return False
+
+
+def save_useful_contact(contact):
+    ensure_tables()
+    tags = ",".join(normalize_tag_list(contact.get("tags", "")))
+    d1_query(
+        """
+        INSERT INTO useful_contacts (name, telephone, contact_email, text_number, tags, description)
+        VALUES (?, ?, ?, ?, ?, ?)
+        """,
+        [
+            contact.get("name", ""),
+            contact.get("telephone", ""),
+            contact.get("contact_email", ""),
+            contact.get("text_number", ""),
+            tags,
+            contact.get("description", ""),
+        ],
+    )
+
+
+def update_useful_contact(contact_id, data):
+    ensure_tables()
+    tags = ",".join(normalize_tag_list(data.get("tags", "")))
+    d1_query(
+        """
+        UPDATE useful_contacts
+        SET name = ?, telephone = ?, contact_email = ?, text_number = ?, tags = ?, description = ?
+        WHERE id = ?
+        """,
+        [
+            data.get("name", ""),
+            data.get("telephone", ""),
+            data.get("contact_email", ""),
+            data.get("text_number", ""),
+            tags,
+            data.get("description", ""),
+            contact_id,
+        ],
+    )
+
+
+def delete_useful_contact(contact_id):
+    ensure_tables()
+    d1_query("DELETE FROM useful_contacts WHERE id = ?", [contact_id])
 
 
 def normalize_media_type(media_type):
@@ -1737,6 +1926,15 @@ def resources():
     return render_template("resources.html", resources=RESOURCES)
 
 
+@app.route("/useful-contacts")
+def useful_contacts():
+    contacts = load_useful_contacts()
+    tags = sorted({tag for contact in contacts for tag in contact.get("all_tags", [])})
+    return render_template(
+        "useful_contacts.html", contacts=contacts, contact_tags=tags
+    )
+
+
 @app.route("/calming-tools")
 def calming_tools():
     return render_template(
@@ -1798,6 +1996,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
     did_you_know_items = load_did_you_know_items()
     media_assets = load_media_assets()
     calming_tools = calming_tools_with_counts()
+    useful_contacts = load_useful_contacts()
     books_with_covers = sum(1 for book in books if book.get("cover_url"))
     books_without_covers = len(books) - books_with_covers
     books_per_row = 4
@@ -1814,6 +2013,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
         charity_activities=charity_activities,
         did_you_know_items=did_you_know_items,
         media_assets=media_assets,
+        useful_contacts=useful_contacts,
         save_summary=save_summary,
         load_summary=load_summary,
         construction_banner_enabled=construction_banner_enabled(),
@@ -1899,6 +2099,135 @@ def update_did_you_know_item(item_id):
     )
 
     return redirect(url_for("admin", message="Did you know? item updated."))
+
+
+@app.route("/admin/useful-contacts", methods=["POST"])
+def add_useful_contact_admin():
+    name = request.form.get("name", "").strip()
+    telephone = request.form.get("telephone", "").strip()
+    contact_email = request.form.get("contact_email", "").strip()
+    text_number = request.form.get("text_number", "").strip()
+    tags = request.form.get("tags", "")
+    description = request.form.get("description", "").strip()
+
+    if not name:
+        return redirect(
+            url_for("admin", message="Please add a name for the contact.", section="useful-contacts")
+        )
+
+    if useful_contact_exists(name, telephone, contact_email):
+        return redirect(
+            url_for(
+                "admin",
+                message="That contact already exists. Try editing the existing entry instead.",
+                section="useful-contacts",
+            )
+        )
+
+    save_useful_contact(
+        {
+            "name": name,
+            "telephone": telephone,
+            "contact_email": contact_email,
+            "text_number": text_number,
+            "tags": tags,
+            "description": description,
+        }
+    )
+
+    return redirect(url_for("admin", message="Contact added.", section="useful-contacts"))
+
+
+@app.route("/admin/useful-contacts/<int:contact_id>/update", methods=["POST"])
+def update_useful_contact_admin(contact_id):
+    name = request.form.get("name", "").strip()
+    telephone = request.form.get("telephone", "").strip()
+    contact_email = request.form.get("contact_email", "").strip()
+    text_number = request.form.get("text_number", "").strip()
+    tags = request.form.get("tags", "")
+    description = request.form.get("description", "").strip()
+
+    if not name:
+        return redirect(
+            url_for("admin", message="Please add a name for the contact.", section="useful-contacts")
+        )
+
+    update_useful_contact(
+        contact_id,
+        {
+            "name": name,
+            "telephone": telephone,
+            "contact_email": contact_email,
+            "text_number": text_number,
+            "tags": tags,
+            "description": description,
+        },
+    )
+
+    return redirect(url_for("admin", message="Contact updated.", section="useful-contacts"))
+
+
+@app.route("/admin/useful-contacts/<int:contact_id>/delete", methods=["POST"])
+def delete_useful_contact_admin(contact_id):
+    delete_useful_contact(contact_id)
+    return redirect(url_for("admin", message="Contact removed.", section="useful-contacts"))
+
+
+@app.route("/admin/useful-contacts/ai", methods=["POST"])
+def ai_useful_contact_admin():
+    topic = request.form.get("topic", "").strip() or "urgent mental health helplines"
+    api_key = get_deepseek_api_key().strip()
+
+    if not api_key:
+        return redirect(
+            url_for(
+                "admin",
+                message="Please save a DeepSeek API key before requesting AI suggestions.",
+                section="useful-contacts",
+            )
+        )
+
+    existing = load_useful_contacts()
+    existing_names = [contact.get("name", "") for contact in existing]
+    ai_data, error = deepseek_useful_contact_lookup(api_key, topic, existing_names)
+
+    if error:
+        return redirect(url_for("admin", message=error, section="useful-contacts"))
+
+    if not ai_data or not ai_data.get("name"):
+        return redirect(
+            url_for(
+                "admin",
+                message="The AI response was missing a name. Please try again.",
+                section="useful-contacts",
+            )
+        )
+
+    if useful_contact_exists(ai_data.get("name"), ai_data.get("telephone"), ai_data.get("contact_email")):
+        return redirect(
+            url_for(
+                "admin",
+                message="That contact already exists. AI suggestions will skip duplicates.",
+                section="useful-contacts",
+            )
+        )
+
+    tags = ai_data.get("tags", [])
+    if isinstance(tags, list):
+        tags = ",".join(tags)
+
+    save_useful_contact(
+        {
+            "name": ai_data.get("name", ""),
+            "telephone": ai_data.get("telephone", ""),
+            "contact_email": ai_data.get("contact_email", ""),
+            "text_number": ai_data.get("text_number", ""),
+            "tags": tags,
+            "description": ai_data.get("description", ""),
+        }
+    )
+
+    return redirect(url_for("admin", message="AI contact added.", section="useful-contacts"))
 
 
 @app.route("/admin/media", methods=["POST"])
