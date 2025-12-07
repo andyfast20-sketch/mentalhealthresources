@@ -92,7 +92,7 @@
 
     participants.forEach((person) => {
       const item = document.createElement('li');
-      item.className = 'chat-sidebar__user';
+      item.className = `chat-sidebar__user${person.role === 'you' ? ' chat-sidebar__user--you' : ''}`;
 
       const avatar = document.createElement('div');
       avatar.className = `chat-avatar chat-avatar--${person.role}`;
@@ -117,36 +117,79 @@
     addMessage({ sender: 'System', role: 'system', text: message }, false);
   }
 
+  // Blink the user's name in the sidebar when they send a message
+  function blinkUserName() {
+    if (!sidebarList) return;
+    const userItem = sidebarList.querySelector('.chat-sidebar__user--you');
+    if (userItem) {
+      userItem.classList.add('is-active');
+      setTimeout(() => {
+        userItem.classList.remove('is-active');
+      }, 1500);
+    }
+  }
+
+  // Natural delay before someone responds (2-6 seconds)
+  function getReplyDelay() {
+    return 2000 + Math.random() * 4000;
+  }
+
   async function requestReplies(userMessage, { warmup = false } = {}) {
-    isWaitingForReply = true;
-    const peers = participants.filter(p => p.role === 'peer');
-    const randomPeer = peers[Math.floor(Math.random() * peers.length)];
-    showTyping(randomPeer.name);
-
-    try {
-      const response = await fetch('/api/chat/reply', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          message: userMessage,
-          history: chatHistory,
-          warmup,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (!response.ok || result.error) {
-        throw new Error(result.error || 'Something went wrong while chatting.');
+    // Pause background chat while responding to user
+    pauseBackgroundChat();
+    
+    // Wait a natural amount of time before showing typing
+    const thinkDelay = 1000 + Math.random() * 2000;
+    
+    setTimeout(async () => {
+      isWaitingForReply = true;
+      const peers = participants.filter(p => p.role === 'peer');
+      const randomPeer = peers[Math.floor(Math.random() * peers.length)];
+      
+      // Show typing for realistic duration
+      const typingDuration = 1500 + Math.random() * 2500;
+      if (typingBar && typingCopy) {
+        typingCopy.textContent = `${randomPeer.name} is typing…`;
+        typingBar.hidden = false;
       }
 
-      const messages = Array.isArray(result.messages) ? result.messages : [];
-      messages.forEach((msg) => addMessage(msg));
-    } catch (error) {
-      showError(error.message || 'Unable to reach the chat service.');
-    } finally {
-      hideTyping();
-    }
+      try {
+        const response = await fetch('/api/chat/reply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            message: userMessage,
+            history: chatHistory,
+            warmup,
+            replyToUser: true,
+          }),
+        });
+
+        const result = await response.json();
+
+        if (!response.ok || result.error) {
+          throw new Error(result.error || 'Something went wrong while chatting.');
+        }
+
+        const messages = Array.isArray(result.messages) ? result.messages : [];
+        
+        // Show typing then message after delay
+        setTimeout(() => {
+          hideTyping();
+          // Only show ONE message in response to user
+          if (messages.length > 0) {
+            addMessage(messages[0]);
+          }
+          // Resume background chat after responding
+          resumeBackgroundChat();
+        }, typingDuration);
+        
+      } catch (error) {
+        hideTyping();
+        showError(error.message || 'Unable to reach the chat service.');
+        resumeBackgroundChat();
+      }
+    }, thinkDelay);
   }
 
   // ModBot welcome message
@@ -267,15 +310,13 @@
     const text = chatInput.value.trim();
     if (!text) return;
 
-    // Pause background chat while user is active
-    pauseBackgroundChat();
-
+    // Blink user name and add message
+    blinkUserName();
     addMessage({ sender: 'You', role: 'you', text });
     chatInput.value = '';
+    
+    // Request a single natural reply
     requestReplies(text);
-
-    // Resume background chat after a delay
-    resumeBackgroundChat();
   });
 
   promptButtons.forEach((button) => {

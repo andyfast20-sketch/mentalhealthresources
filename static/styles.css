@@ -2055,6 +2055,23 @@ body {
   color: var(--text);
   font-weight: 600;
   box-shadow: 0 2px 8px rgba(182, 129, 126, 0.06);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* Blink animation when user sends a message */
+.chat-sidebar__user--you.is-active {
+  animation: user-blink 0.5s ease-in-out 3;
+}
+
+@keyframes user-blink {
+  0%, 100% {
+    background: rgba(255, 255, 255, 0.6);
+    box-shadow: 0 2px 8px rgba(182, 129, 126, 0.06);
+  }
+  50% {
+    background: rgba(245, 163, 181, 0.4);
+    box-shadow: 0 2px 12px rgba(245, 163, 181, 0.3);
+  }
 }
 
 .chat-sidebar__name {

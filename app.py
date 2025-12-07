@@ -2043,7 +2043,7 @@ def chat_room():
     )
 
 
-def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", single_message=False):
+def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", single_message=False, reply_to_user=False):
     history_lines = []
 
     for item in history[-12:]:
@@ -2056,7 +2056,20 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
 
     topic_context = f" Topic: '{topic}'." if topic else ""
 
-    if single_message:
+    if reply_to_user:
+        # Single natural reply to something the user said
+        guidance = (
+            f"A real person just said: \"{latest_message}\"\n"
+            "Reply with ONE short, natural message from a single peer. "
+            "React like a real friend would - brief, genuine, not over-the-top supportive. "
+            "Sometimes just a few words is perfect. Don't pile on with questions."
+        )
+        request_block = (
+            "Return JSON array named messages with exactly 1 object shaped as"
+            " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
+            "Keep it under 20 words. ONE person responds, not multiple."
+        )
+    elif single_message:
         # Single message for continuous background chat
         guidance = (
             f"Generate ONE short, casual message from a peer.{topic_context} "
@@ -2082,9 +2095,9 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
     else:
         guidance = "Reply naturally to the newest message with one short, human peer response."
         request_block = (
-            "Return JSON array named messages with 1-2 objects each shaped as"
-            " {\"sender\": string, \"role\": \"peer\"|\"mod\", \"text\": string}. "
-            "Keep texts under 25 words. Sound like real people chatting."
+            "Return JSON array named messages with exactly 1 object shaped as"
+            " {\"sender\": string, \"role\": \"peer\", \"text\": string}. "
+            "Keep text under 20 words. Sound like a real person, not a chatbot."
         )
 
     roster_block = (
@@ -2102,7 +2115,7 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
     )
 
 
-def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", single_message=False):
+def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", single_message=False, reply_to_user=False):
     history = history or []
 
     payload = {
@@ -2111,7 +2124,7 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
             {
                 "role": "system",
                 "content": (
-                    "You are peers in a support chat. Be brief and natural - like real texting, not formal writing."
+                    "You are ONE person in a support chat. Be brief and natural - like real texting. Only one person responds at a time."
                 ),
             },
             {
@@ -2123,11 +2136,12 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
                     warmup=warmup,
                     topic=topic,
                     single_message=single_message,
+                    reply_to_user=reply_to_user,
                 ),
             },
         ],
         "temperature": 0.8,
-        "max_tokens": 150,
+        "max_tokens": 100,
     }
 
     request_data = json.dumps(payload).encode("utf-8")
@@ -2199,6 +2213,7 @@ def chat_reply():
     history = data.get("history") or []
     warmup = bool(data.get("warmup"))
     single_message = bool(data.get("singleMessage"))
+    reply_to_user = bool(data.get("replyToUser"))
     topic = (data.get("topic") or get_chat_topic() or "").strip()
 
     if not message and not warmup:
@@ -2215,12 +2230,16 @@ def chat_reply():
             {"sender": "Leah", "role": "peer", "text": "sending good vibes"},
             {"sender": "Priya", "role": "peer", "text": "one day at a time"},
         ]
-        if single_message or warmup:
-            import random
-            return {"messages": [random.choice(short_fallbacks)]}
-        return {"messages": [short_fallbacks[0]]}
+        import random
+        return {"messages": [random.choice(short_fallbacks)]}
 
-    replies, error = deepseek_chat_reply(api_key, message, history, warmup=warmup, topic=topic, single_message=single_message)
+    replies, error = deepseek_chat_reply(
+        api_key, message, history, 
+        warmup=warmup, 
+        topic=topic, 
+        single_message=single_message,
+        reply_to_user=reply_to_user
+    )
     if error:
         # Provide a friendly fallback instead of showing the error
         fallback_messages = [
