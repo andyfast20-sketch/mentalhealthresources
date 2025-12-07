@@ -575,6 +575,8 @@ function openCharityModal(trigger) {
   const textNumber = (trigger.dataset.charityTextNumber || '').trim();
   const contactEmail = (trigger.dataset.charityContactEmail || '').trim();
   const helplineHours = (trigger.dataset.charityHelplineHours || '').trim();
+  const hasTextSupport = parseDatasetBoolean(trigger.dataset.charityHasTextSupport);
+  const hasEmailSupport = parseDatasetBoolean(trigger.dataset.charityHasEmailSupport);
 
   if (charityModalTelephoneWrapper) {
     charityModalTelephoneWrapper.hidden = !telephone;
@@ -595,17 +597,17 @@ function openCharityModal(trigger) {
   }
 
   if (charityTextCard) {
-    charityTextCard.hidden = !textNumber;
+    charityTextCard.hidden = !(textNumber || hasTextSupport);
   }
   if (charityModalTextNumber) {
-    charityModalTextNumber.textContent = textNumber;
+    charityModalTextNumber.textContent = textNumber || 'See their website';
   }
 
   if (charityEmailCard) {
-    charityEmailCard.hidden = !contactEmail;
+    charityEmailCard.hidden = !(contactEmail || hasEmailSupport);
   }
   if (charityModalEmail) {
-    charityModalEmail.textContent = contactEmail;
+    charityModalEmail.textContent = contactEmail || 'See their website';
   }
 
   if (charityModalLink) {
