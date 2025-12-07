@@ -25,8 +25,82 @@
   // Warning and ban system
   const WARNING_STORAGE_KEY = 'chat_warnings';
   const BAN_STORAGE_KEY = 'chat_ban_until';
+  const USERNAME_STORAGE_KEY = 'chat_username';
   const MAX_WARNINGS = 2;
   const BAN_DURATION_MS = 10 * 60 * 1000; // 10 minutes
+
+  // User's chosen name
+  let userName = 'You';
+
+  // Get saved username or null
+  function getSavedUsername() {
+    try {
+      return localStorage.getItem(USERNAME_STORAGE_KEY);
+    } catch {
+      return null;
+    }
+  }
+
+  // Save username
+  function saveUsername(name) {
+    try {
+      localStorage.setItem(USERNAME_STORAGE_KEY, name);
+    } catch {}
+  }
+
+  // Show name prompt popup
+  function showNamePrompt() {
+    return new Promise((resolve) => {
+      const popup = document.createElement('div');
+      popup.className = 'chat-name-prompt';
+      popup.innerHTML = `
+        <div class="chat-name-prompt__backdrop"></div>
+        <div class="chat-name-prompt__content">
+          <h3 class="chat-name-prompt__title">👋 Welcome to the Chat</h3>
+          <p class="chat-name-prompt__message">What should we call you? (First name only)</p>
+          <form class="chat-name-prompt__form">
+            <input type="text" class="chat-name-prompt__input" placeholder="Enter your first name" maxlength="15" autocomplete="off" autofocus />
+            <button type="submit" class="chat-name-prompt__submit">Join Chat</button>
+          </form>
+          <p class="chat-name-prompt__hint">This will be visible to others in the chat</p>
+        </div>
+      `;
+
+      document.body.appendChild(popup);
+
+      const form = popup.querySelector('.chat-name-prompt__form');
+      const input = popup.querySelector('.chat-name-prompt__input');
+
+      // Focus input after animation
+      requestAnimationFrame(() => {
+        popup.classList.add('is-open');
+        setTimeout(() => input.focus(), 100);
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        let name = input.value.trim();
+        
+        // Sanitize: only letters, max 15 chars
+        name = name.replace(/[^a-zA-Z]/g, '').slice(0, 15);
+        
+        if (name.length < 1) {
+          input.classList.add('is-error');
+          input.placeholder = 'Please enter a name';
+          return;
+        }
+        
+        // Capitalize first letter
+        name = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+        
+        popup.classList.add('is-closing');
+        setTimeout(() => {
+          popup.remove();
+          resolve(name);
+        }, 200);
+      });
+    });
+  }
 
   // Get warning messages based on violation type
   function getViolationMessage(violation) {
@@ -213,11 +287,21 @@
     }, false);
   }
 
-  // Dynamic participants list - starts with just You and ModBot
+  // Dynamic participants list - starts with just user and ModBot
   let participants = [
-    { name: 'You', role: 'you' },
+    { name: userName, role: 'you' },
     { name: 'ModBot', role: 'mod' },
   ];
+
+  // Update user's name in participants list
+  function updateUserName(newName) {
+    userName = newName;
+    const userParticipant = participants.find(p => p.role === 'you');
+    if (userParticipant) {
+      userParticipant.name = newName;
+    }
+    renderSidebar();
+  }
 
   // Store generated peer names
   let peerNames = [];
@@ -610,9 +694,9 @@
 
   // ModBot welcome message
   function showModBotWelcome() {
-    let welcomeText = 'Hey! 👋 Welcome in. I\'m ModBot - here if you need anything.';
+    let welcomeText = `Hey ${userName}! 👋 Welcome in. I'm ModBot - here if you need anything.`;
     if (chatTopic) {
-      welcomeText += ` Today\'s topic: "${chatTopic}".`;
+      welcomeText += ` Today's topic: "${chatTopic}".`;
     }
     
     addMessage({ sender: 'ModBot', role: 'mod', text: welcomeText }, false);
@@ -767,7 +851,7 @@
 
     // Blink user name and add message
     blinkUserName();
-    addMessage({ sender: 'You', role: 'you', text });
+    addMessage({ sender: userName, role: 'you', text });
     chatInput.value = '';
     
     // Request a single natural reply
@@ -842,14 +926,28 @@
   });
 
   // Initialize chat
-  renderSidebar();
-  
-  // Check if user is banned before starting
-  const wasBanned = checkAndShowBanNotice();
-  
-  // Initialize random names, then start chat
-  initializeRandomNames().then(() => {
-    // Show ModBot welcome immediately
+  async function initializeChat() {
+    // Check for saved username or prompt for one
+    const savedName = getSavedUsername();
+    if (savedName) {
+      userName = savedName;
+      updateUserName(savedName);
+    } else {
+      const newName = await showNamePrompt();
+      saveUsername(newName);
+      userName = newName;
+      updateUserName(newName);
+    }
+    
+    renderSidebar();
+    
+    // Check if user is banned before starting
+    const wasBanned = checkAndShowBanNotice();
+    
+    // Initialize random names, then start chat
+    await initializeRandomNames();
+    
+    // Show ModBot welcome with user's name
     showModBotWelcome();
     
     // Start continuous background chat
@@ -857,5 +955,8 @@
     
     // Start join/leave events
     scheduleJoinLeaveEvent();
-  });
+  }
+
+  // Start initialization
+  initializeChat();
 })();
