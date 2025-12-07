@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid compact">
+    <div class="hero-copy">
+        <p class="eyebrow">Community space</p>
+        <h1>Join the live support chat.</h1>
+        <p class="lede">Drop in to connect with others, share how you’re feeling, or practice coping skills together in real time.</p>
+        <div class="cta-row">
+            <a class="btn" href="#chat-room">Open chat room</a>
+            <a class="btn ghost" href="{{ url_for('resources') }}">Browse resources</a>
+        </div>
+        <p class="microcopy">Our volunteer moderators keep an eye on the space to help it stay kind and supportive.</p>
+    </div>
+    <div class="hero-visual resources-visual" aria-hidden="true">
+        <div class="visual-backdrop"></div>
+        <img src="https://files.catbox.moe/hkbgcb.png" alt="Soft gradient collage with notes and petals" loading="lazy" />
+        <div class="visual-caption glassy">Bring your tea and settle in. Everyone is welcome.</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{{ super() }}
+<script src="{{ url_for('static', filename='js/chat-room.js') }}"></script>
+{% endblock %}
+
+{% block content %}
+<section class="panel chat-panel" id="chat-room">
+    <div class="chat-shell">
+        <aside class="chat-sidebar" aria-label="Online users">
+            <div class="chat-sidebar__header">
+                <span class="sidebar-icon" aria-hidden="true"></span>
+                <span>Online</span>
+            </div>
+            <ul class="chat-sidebar__list">
+                <li class="chat-sidebar__user">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <div>
+                        <div class="chat-sidebar__name">ddf (You)</div>
+                        <small>Available</small>
+                    </div>
+                </li>
+                <li class="chat-sidebar__user">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <div>
+                        <div class="chat-sidebar__name">ModBot (Admin)</div>
+                        <small>Watching the room</small>
+                    </div>
+                </li>
+                <li class="chat-sidebar__user">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <div>
+                        <div class="chat-sidebar__name">Rowan</div>
+                        <small>Peer supporter</small>
+                    </div>
+                </li>
+            </ul>
+        </aside>
+        <div class="chat-main">
+            <div class="chat-room-card" aria-label="Mental Health Support Chat">
+                <div class="chat-room__header">
+                    <div class="chat-room__title">
+                        <span class="status-dot" aria-hidden="true"></span>
+                        <span>Mental Health Support Chat</span>
+                    </div>
+                    <div class="chat-room__actions">
+                        <button type="button" aria-label="Chat settings">Settings</button>
+                    </div>
+                </div>
+                <div class="chat-room__log" data-chat-log aria-live="polite" aria-label="Chat messages"></div>
+                <div class="chat-room__footer">
+                    <div class="chat-room__typing" data-chat-typing hidden>
+                        <span class="status-dot status-dot--pulse" aria-hidden="true"></span>
+                        <span class="microcopy" data-chat-typing-copy>Someone is typing…</span>
+                    </div>
+                    <form class="chat-form" data-chat-form>
+                        <label class="sr-only" for="chat-input">Type a message</label>
+                        <input id="chat-input" data-chat-input type="text" name="message" autocomplete="off" maxlength="280" placeholder="Type your message here" />
+                        <button type="submit" class="btn tiny">Send</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
