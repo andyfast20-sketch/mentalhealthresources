@@ -584,22 +584,20 @@
     return Math.min(6000, Math.max(2000, readingTimeMs + 1000));
   }
 
-  // Fallback responses when API fails - varied lengths and personalities
+  // Fallback responses when API fails - short, reactive, engaging
   const fallbackReplies = [
-    // 1 word
-    "same", "mood", "felt", "oof", "yep", "lol", "true", "facts",
-    // 2 words
-    "oh no", "wait what", "so true", "that's rough", "big mood", "fair enough",
-    // 3-4 words
-    "yeah I feel that", "ugh same here", "hope ur okay", "thats so real",
-    "honestly tho", "felt that fr", "oh that sucks",
-    // 5-7 words (caring/clever)
-    "sending u good vibes 💙", "that sounds really tough ngl",
-    "im here if u need", "hope things get easier soon",
-    "thats actually a good point", "never thought of it like that",
-    // 8+ words (occasional longer)
-    "yeah i totally get what u mean tbh",
-    "aw im sorry ur going thru that",
+    // 1 word reactions
+    "same", "mood", "felt", "oof", "yep", "lol", "true", "facts", "omg", "wait", "nah", "yea",
+    // 2 word reactions
+    "oh no", "wait what", "so true", "that's rough", "big mood", "fair enough", "felt that",
+    "omg same", "literally me", "oh damn", "ur right", "good point", "thats rough",
+    // 3-4 word responses  
+    "yeah I feel that", "hope ur okay", "thats so real", "honestly tho", "felt that fr",
+    "omg thats crazy", "wait really tho", "same here tbh", "aw u ok?", "that sucks ngl",
+    "lol so true", "me too tbh", "how come?", "wait what happened",
+    // 5-6 word supportive/engaging
+    "sending u good vibes 💙", "hope things get better", "im here if u need",
+    "thats actually a good point", "oh no what happened?", "aww that sounds tough"
   ];
 
   // Female names that might add 'x' to messages

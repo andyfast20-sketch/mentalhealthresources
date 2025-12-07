@@ -2219,22 +2219,23 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
     ]
     personality_name, personality_desc = random.choice(personality_types)
     
-    # Random target message length (1-15 words, weighted toward shorter)
-    length_options = [1, 1, 2, 2, 3, 3, 3, 4, 4, 5, 5, 6, 7, 8, 10, 12, 15]
+    # Random target message length (1-8 words, heavily weighted toward very short)
+    length_options = [1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8]
     target_length = random.choice(length_options)
     
-    # If there's recent chat, encourage responding to it
-    if last_message_in_history and random.random() > 0.3:
+    # ALWAYS try to respond/engage with what was said - this is key for realistic chat
+    if last_message_in_history:
         conversation_directions = [
-            f"respond to what {last_speaker or 'they'} just said",
-            "react to the last message",
-            "add to what someone just shared",
+            f"reply directly to what {last_speaker or 'they'} said - react to THEIR message",
+            f"respond to {last_speaker or 'them'} - agree, disagree, or ask a follow-up",
+            "react to the last message with emotion or opinion",
+            "ask a follow-up question about what they just said",
+            f"show you heard {last_speaker or 'them'} - relate to it briefly",
         ]
     else:
         conversation_directions = [
-            "share something brief about your day",
-            "ask a quick question",
-            "share how you're feeling",
+            "ask a casual question to the group",
+            "say hi or check in briefly",
         ]
     
     random_direction = random.choice(conversation_directions)
@@ -2243,22 +2244,25 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
 PERSONALITY FOR THIS MESSAGE: {personality_name.upper()}
 {personality_desc}
 
-TARGET LENGTH: Around {target_length} words (can be 1-{target_length + 3} words)
+TARGET LENGTH: Around {target_length} words (MAX {target_length + 2} words - shorter is better!)
 
-MESSAGE LENGTH EXAMPLES BY WORD COUNT:
-- 1 word: "same" / "mood" / "lol" / "oof" / "felt"
-- 2 words: "oh no" / "wait what" / "that's rough" / "so true"
-- 3-4 words: "yeah I feel that" / "ugh same here" / "hope ur okay"
-- 5-7 words: "that sounds really tough ngl" / "omg yes I get that"
-- 8-15 words: fuller thoughts but still casual, one sentence max
+VERY SHORT RESPONSE EXAMPLES (use these styles):
+- 1 word: "same" / "mood" / "lol" / "oof" / "felt" / "yea" / "nah" / "true"
+- 2 words: "oh no" / "wait what" / "that's rough" / "so true" / "felt that"
+- 3-4 words: "yeah I feel that" / "ugh same" / "hope ur okay" / "omg same tho"
+- 5-8 words: one short sentence max, casual like texting
 
-RULES:
-1. RESPOND to what was said, don't ignore it
-2. Keep it natural - this is texting, not essays
-3. Use casual style: lowercase ok, abbreviations like "u", "ur", "ngl", "tbh"
-4. 1-word responses are totally fine and often best
-5. NO therapy speak, NO multiple sentences
-6. Match the vibe - if someone's down, be supportive. If chatty, be chatty.
+CRITICAL RULES:
+1. **RESPOND TO THE LAST MESSAGE** - Don't ignore what was said! React to it!
+2. NO random statements about YOUR day unless asked - RESPOND to THEM
+3. NEVER say things like "I can't wait to..." or "counting down until..." - those ignore the conversation
+4. Max 1 sentence. NO multiple sentences ever.
+5. If someone shares something, react to THAT - "omg really?" / "wait same" / "that sucks" / "how come?"
+6. Use casual style: lowercase, "u", "ur", "ngl", "tbh", "lol"
+7. Questions are good - "wait why?" / "how?" / "u ok?" / "same u?"
+
+BAD (ignoring conversation): "cant wait for the weekend" / "thinking about what to eat later"
+GOOD (engaging): "omg same" / "wait really?" / "that's rough ngl" / "how come?" / "felt that"
 
 Last message: {last_message_in_history or '(none yet)'}
 Your task: {random_direction}"""
@@ -2266,38 +2270,39 @@ Your task: {random_direction}"""
     if reply_to_user:
         guidance = (
             f"A real person just said: \"{latest_message}\"\n"
-            f"Reply as a {personality_name} person in ~{target_length} words. Be genuine."
+            f"RESPOND directly to what they said. React, relate, or ask a follow-up. Max {target_length} words."
         )
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            f"Aim for {target_length} words (1-{target_length + 3} ok)."
+            f"Max {target_length + 2} words. RESPOND to their message, don't change topic."
         )
     elif single_message:
         guidance = (
-            f"Generate ONE {personality_name} message, about {target_length} words.{topic_context}\n"
-            f"Task: {random_direction}"
+            f"Generate ONE brief response, max {target_length} words.{topic_context}\n"
+            f"Task: {random_direction}\n"
+            f"REMEMBER: Respond to what was said. No random statements about your day."
         )
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            f"Aim for {target_length} words."
+            f"Max {target_length} words. Must engage with conversation."
         )
     elif warmup:
         guidance = (
-            f"Show a brief 2-message exchange.{topic_context} Keep each message very short."
+            f"Show a brief 2-message exchange where people RESPOND to each other.{topic_context}"
         )
         request_block = (
             "Return JSON array with 2 objects: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            "Keep each 2-8 words."
+            "Keep each 2-5 words. Second person should reply to first."
         )
     else:
-        guidance = f"Reply naturally as a {personality_name} person in ~{target_length} words."
+        guidance = f"Reply to the last message as a {personality_name} person. Max {target_length} words."
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            f"Aim for {target_length} words."
+            f"Max {target_length} words. MUST respond to conversation, not random statement."
         )
 
     return (
@@ -2318,7 +2323,8 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
             {
                 "role": "system",
                 "content": (
-                    "You generate realistic group chat messages. People respond to each other naturally. Keep it brief like real texting."
+                    "Generate brief chat messages. ALWAYS respond to what was said - react, agree, disagree, or ask follow-ups. "
+                    "Never ignore the conversation to make random statements. Max 8 words. Be reactive like real texting."
                 ),
             },
             {
@@ -2335,8 +2341,8 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
                 ),
             },
         ],
-        "temperature": 0.9,  # Higher for more variety
-        "max_tokens": 100,
+        "temperature": 0.85,  # Good variety but more focused
+        "max_tokens": 60,  # Shorter max to enforce brevity
     }
 
     request_data = json.dumps(payload).encode("utf-8")
