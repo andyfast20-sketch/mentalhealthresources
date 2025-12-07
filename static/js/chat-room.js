@@ -618,17 +618,13 @@
   function getRandomFallbackReply(senderName) {
     let reply = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
     
-    // 30% chance to add @mention of someone in chat
-    if (Math.random() < 0.3) {
+    // 25% chance to add name of someone in chat (naturally, no @ symbol)
+    if (Math.random() < 0.25) {
       const names = getCurrentPeerNames().filter(n => n !== senderName);
       if (names.length > 0) {
-        const randomName = names[Math.floor(Math.random() * names.length)];
-        // Prefix with @name sometimes
-        if (Math.random() < 0.5) {
-          reply = `@${randomName} ${reply}`;
-        } else {
-          reply = `${randomName} ${reply}`;
-        }
+        const randomName = names[Math.floor(Math.random() * names.length)].toLowerCase();
+        // Use name naturally at start: "james lol" or "maya u ok?"
+        reply = `${randomName} ${reply}`;
       }
     }
     

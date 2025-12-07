@@ -2237,36 +2237,31 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
     
     # Varied conversation behaviors - NOT always responding to the last message
     behavior_roll = random.random()
-    if behavior_roll < 0.25 and len(history_lines) > 3:
-        # Start a new topic / tangent
+    if behavior_roll < 0.20 and len(history_lines) > 3:
+        # Start a new topic / tangent (less often)
         conversation_directions = [
             "change the subject - bring up something random but interesting",
-            "start a new topic - ask about something unrelated",
-            "go off on a tangent - mention something random thats on your mind",
-            "ignore the current convo and say something funny or random",
+            "go off on a tangent briefly",
         ]
-    elif behavior_roll < 0.45 and address_someone:
-        # Address someone specific
+    elif behavior_roll < 0.40 and address_someone:
+        # Address someone specific (NO @ symbol, just use name naturally)
         conversation_directions = [
-            f"talk directly TO {address_someone} - use their name, ask them something or react to them",
-            f"reply to {address_someone} specifically - mention their name",
-            f"check in with {address_someone} - '@' them basically",
+            f"talk to {address_someone} directly - start with their name like 'james u ok?' or 'maya lol'",
+            f"respond to {address_someone} - use their name naturally (no @ symbol)",
         ]
-    elif behavior_roll < 0.65 and last_speaker:
-        # React to last speaker
+    elif behavior_roll < 0.70 and last_speaker:
+        # React to last speaker - most common!
         conversation_directions = [
-            f"react to what {last_speaker} just said",
-            f"respond to {last_speaker}'s message",
-            f"agree or disagree with {last_speaker}",
+            f"react to what {last_speaker} just said - answer their question or respond",
+            f"respond to {last_speaker}'s message directly",
+            f"engage with {last_speaker} - if they asked something, answer it",
         ]
     else:
         # General chat vibes
         conversation_directions = [
-            "say something funny or make a joke",
-            "share a quick thought or reaction",
-            "ask a random question to anyone",
-            "react with just an emoji response or very short text",
-            "say something relatable",
+            "say something funny or relatable",
+            "react briefly to whats happening",
+            "ask a casual question",
         ]
     
     random_direction = random.choice(conversation_directions)
@@ -2282,25 +2277,24 @@ PEOPLE IN CHAT: {participants_list}
 
 TARGET LENGTH: {target_length} words max (shorter = better)
 
-MAKING CHAT INTERESTING:
-- Use @names sometimes: "@{address_someone or 'name'} lol what" or "{address_someone or 'name'} u ok?"
-- Start NEW topics sometimes - dont just answer the same question forever
-- Make jokes, be playful, tease people (nicely)
-- Go off on tangents - real chats arent linear
-- NOT everyone needs to answer every question - sometimes ignore it
+MAKING CHAT NATURAL:
+- Use names naturally: "maya lol what" or "james u ok?" (NO @ symbol ever)
+- RESPOND to questions when asked - dont ignore people
+- Keep it short and casual
+- If someone asks YOU something, answer them!
 
 EXAMPLE GOOD MESSAGES:
-- "@maya wait that reminds me"
-- "lol james ur so dramatic"
-- "ok but random thought"
-- "anyone else hungry or just me"
-- "ngl i zoned out what we talking about"
-- "@sarah u good?"
+- "maya wait that reminds me"
+- "lol james ur so dramatic" 
+- "wait really?"
+- "omg same"
+- "sarah u good?"
 - "lmaooo"
-- "wait can we talk about something else"
+- "how come?"
+- "thats rough ngl"
 
-BAD (boring): "im doing okay" "just hanging in there" "surviving" [everyone saying the same thing]
-GOOD (interesting): jokes, tangents, @mentions, questions, random thoughts, teasing
+BAD: "im doing okay" "just hanging in there" [ignoring questions]
+GOOD: actually responding, using names naturally, short reactions
 
 Recent chat:
 {conversation_block}
@@ -2308,25 +2302,27 @@ Recent chat:
 Your task: {random_direction}"""
 
     if reply_to_user:
+        # CRITICAL: User asked something - MUST respond to them!
         guidance = (
-            f"A real person just said: \"{latest_message}\"\n"
-            f"RESPOND directly to what they said. React, relate, or ask a follow-up. Max {target_length} words."
+            f"A REAL PERSON just said: \"{latest_message}\"\n"
+            f"YOU MUST REPLY TO THEM. Answer their question, react to what they said, or engage with them.\n"
+            f"This is a real user waiting for a response - don't ignore them!"
         )
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            f"Max {target_length + 2} words. RESPOND to their message, don't change topic."
+            f"Max 8 words. MUST respond to what they said - answer questions, react, engage!"
         )
     elif single_message:
         guidance = (
             f"Generate ONE message, max {target_length} words.{topic_context}\n"
             f"Task: {random_direction}\n"
-            f"Be interesting - jokes, @mentions, tangents, questions. Not boring answers."
+            f"Keep it natural. Use names without @ symbol. Respond to others."
         )
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            f"Max {target_length} words. Be interesting not boring."
+            f"Max {target_length} words. NO @ symbols. Natural chat."
         )
     elif warmup:
         guidance = (
@@ -2363,8 +2359,8 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
             {
                 "role": "system",
                 "content": (
-                    "Generate brief group chat messages. Be INTERESTING: use @names, jokes, tangents, change topics. "
-                    "NOT everyone answers every question. Max 7 words. Real chat energy."
+                    "Generate brief natural chat messages. Use names naturally (NO @ symbol ever). "
+                    "ALWAYS respond when someone asks you something. Max 7 words. Real texting vibes."
                 ),
             },
             {
