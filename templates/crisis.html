@@ -24,6 +24,33 @@
                 <strong>Three gentle actions</strong>
             </div>
         </div>
+        <div class="crisis-hero-video" aria-label="Calming breathing video to follow while you begin the steps">
+            <div class="crisis-hero-video__frame">
+                <iframe
+                    id="crisis-video-player"
+                    src="https://www.youtube.com/embed/hEDRGd2UtFs?autoplay=1&mute=1&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1"
+                    title="30-second breathing exercise"
+                    frameborder="0"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                    allowfullscreen
+                ></iframe>
+            </div>
+            <div class="crisis-video-controls" aria-label="Video volume controls">
+                <label for="crisis-volume" class="mini">Volume</label>
+                <input
+                    type="range"
+                    id="crisis-volume"
+                    name="crisis-volume"
+                    data-crisis-volume
+                    min="0"
+                    max="100"
+                    value="60"
+                    aria-label="Adjust crisis video volume"
+                />
+                <span class="crisis-volume-value" data-crisis-volume-value>60%</span>
+            </div>
+            <p class="mini">Press pause anytime; the calming prompts will loop while you breathe.</p>
+        </div>
         <div class="reassure">You are not a burden. You deserve care exactly as you are.</div>
     </div>
 </section>
@@ -75,55 +102,14 @@
                 <li><span>📍</span>Let them know where you are.</li>
                 <li><span>🕰️</span>Agree on the next 30 minutes together.</li>
             </ul>
-            <div class="crisis-hero-video crisis-inline-video" aria-label="Calming breathing video to follow while you begin the steps">
-                <div class="crisis-hero-video__frame">
-                    <iframe
-                        id="crisis-video-player"
-                        src="https://www.youtube.com/embed/hEDRGd2UtFs?autoplay=1&mute=1&playsinline=1&controls=0&rel=0&modestbranding=1&enablejsapi=1"
-                        title="30-second breathing exercise"
-                        frameborder="0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowfullscreen
-                    ></iframe>
-                </div>
-                <div class="crisis-video-controls" aria-label="Video volume controls">
-                    <label for="crisis-volume" class="mini">Volume</label>
-                    <input
-                        type="range"
-                        id="crisis-volume"
-                        name="crisis-volume"
-                        data-crisis-volume
-                        min="0"
-                        max="100"
-                        value="60"
-                        aria-label="Adjust crisis video volume"
-                    />
-                    <span class="crisis-volume-value" data-crisis-volume-value>60%</span>
-                </div>
-                <p class="mini">Press pause anytime; the calming prompts will loop while you breathe.</p>
-            </div>
-        </article>
-    </div>
-</section>
-
-<section class="panel crisis-panel info-panel">
-    <div class="panel-header">
-        <p class="eyebrow">Press play</p>
-        <h2>Hear a steady voice while you pause</h2>
-        <p class="body">Let this short clip keep you company while you decide your next step. You can stay on this page while it plays.</p>
-    </div>
-    <div class="crisis-grid calming">
-        <article class="crisis-card grounding-video-card">
-            <h3>Gentle reassurance</h3>
-            <p class="body">Play the video for a calm reminder that you are not alone. Feel free to lower the volume or open it in a new tab.</p>
-            <div class="grounding-video" role="region" aria-label="Reassuring message video">
+            <div class="grounding-video" role="region" aria-label="Reassuring message video for reaching out">
                 <div class="grounding-video__frame">
                     <div class="grounding-video__glow" aria-hidden="true"></div>
                     <iframe
                         width="560"
                         height="315"
                         src="https://www.youtube.com/embed/GqfrbGtorBE?si=-Y0XqackyCWzXONV"
-                        title="YouTube video player"
+                        title="Reassurance while you reach out"
                         frameborder="0"
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
                         referrerpolicy="strict-origin-when-cross-origin"
