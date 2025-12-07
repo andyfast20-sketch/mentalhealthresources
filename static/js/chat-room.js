@@ -584,27 +584,53 @@
     return Math.min(6000, Math.max(2000, readingTimeMs + 1000));
   }
 
-  // Fallback responses when API fails - these should feel natural
+  // Fallback responses when API fails - these should feel natural with typos/slang
   const fallbackReplies = [
     "yeah I feel that",
-    "honestly same",
-    "that's real",
-    "I get what you mean",
+    "honestly same lol",
+    "thats real",
+    "I get what u mean",
     "felt that fr",
-    "yeah totally",
-    "mood",
-    "I hear you",
-    "that makes sense",
+    "yeah totaly",
+    "mood lmao",
+    "i hear u",
+    "that makes sense tbh",
     "yeah for sure",
-    "I feel you on that",
+    "I feel u on that",
     "totally get it",
-    "yeah that's rough",
+    "yeah thats rough ngl",
     "sending good vibes 💙",
-    "you're not alone in that",
+    "ur not alone in that",
+    "omg sameee",
+    "ughhh i know right",
+    "wait what happend?",
+    "oh nooo",
+    "thats so real tho",
+    "yesss exactly",
+    "honestly tho",
   ];
 
-  function getRandomFallbackReply() {
-    return fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+  // Female names that might add 'x' to messages
+  const femaleNames = [
+    'luna', 'zara', 'maya', 'ava', 'ivy', 'ella', 'mia', 'lily', 'emma', 'olivia',
+    'sophia', 'isabella', 'charlotte', 'amelia', 'harper', 'aria', 'chloe', 'riley',
+    'layla', 'zoey', 'nora', 'hannah', 'hazel', 'violet', 'aurora', 'bella', 'claire',
+    'lucy', 'anna', 'caroline', 'nova', 'emilia', 'maya', 'willow', 'naomi', 'elena',
+    'sarah', 'ariana', 'alice', 'ruby', 'eva', 'autumn', 'hailey', 'isla', 'sadie',
+    'piper', 'lydia', 'priya', 'ananya', 'aisha', 'fatima', 'yasmin', 'sara', 'leila',
+    'nina', 'rosa', 'maria', 'sofia', 'lucia', 'nicole', 'jessica', 'ashley', 'emily',
+    'madison', 'megan', 'jennifer', 'amanda', 'rachel'
+  ];
+
+  function getRandomFallbackReply(senderName) {
+    let reply = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+    
+    // 40% chance for female names to add 'x' at the end
+    if (senderName && femaleNames.includes(senderName.toLowerCase()) && Math.random() < 0.4) {
+      reply = reply.replace(/[.!]$/, '') + ' x';
+    }
+    
+    return reply;
   }
 
   async function requestReplies(userMessage, { warmup = false } = {}) {
@@ -667,7 +693,7 @@
             addMessage({
               sender: randomPeer.name,
               role: 'peer',
-              text: getRandomFallbackReply()
+              text: getRandomFallbackReply(randomPeer.name)
             });
           }
           
@@ -684,7 +710,7 @@
           addMessage({
             sender: randomPeer.name,
             role: 'peer',
-            text: getRandomFallbackReply()
+            text: getRandomFallbackReply(randomPeer.name)
           });
           resumeBackgroundChat();
         }, typingDuration);

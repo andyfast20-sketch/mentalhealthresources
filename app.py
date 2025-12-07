@@ -2385,12 +2385,153 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
         text = (item.get("text") or "").strip()
         if not text:
             continue
+        
+        # Add realistic text modifications (typos, slang, x's for women)
+        text = add_realistic_text_style(text, sender)
+        
         messages.append({"sender": sender[:40], "role": role, "text": text[:500]})
 
     if not messages:
         return None, "DeepSeek returned no usable messages."
 
     return messages, None
+
+
+def add_realistic_text_style(text, sender_name=""):
+    """Add realistic typos, slang, and style to messages"""
+    import random
+    
+    # Common female names that might add 'x' at the end
+    female_names = [
+        'luna', 'zara', 'maya', 'ava', 'ivy', 'ella', 'mia', 'lily', 'emma', 'olivia',
+        'sophia', 'isabella', 'charlotte', 'amelia', 'harper', 'evelyn', 'aria', 'chloe',
+        'camila', 'penelope', 'riley', 'layla', 'zoey', 'nora', 'lily', 'eleanor', 'hannah',
+        'lillian', 'addison', 'aubrey', 'ellie', 'stella', 'natalie', 'leah', 'hazel',
+        'violet', 'aurora', 'savannah', 'audrey', 'brooklyn', 'bella', 'claire', 'skylar',
+        'lucy', 'paisley', 'everly', 'anna', 'caroline', 'nova', 'genesis', 'emilia',
+        'kennedy', 'samantha', 'maya', 'willow', 'kinsley', 'naomi', 'aaliyah', 'elena',
+        'sarah', 'ariana', 'allison', 'gabriella', 'alice', 'madelyn', 'cora', 'ruby',
+        'eva', 'serenity', 'autumn', 'adeline', 'hailey', 'gianna', 'valentina', 'isla',
+        'eliana', 'quinn', 'nevaeh', 'ivy', 'sadie', 'piper', 'lydia', 'alexa', 'josephine',
+        'priya', 'ananya', 'aisha', 'fatima', 'yasmin', 'sara', 'leila', 'nina', 'rosa',
+        'maria', 'carmen', 'sofia', 'lucia', 'valentina', 'camila', 'nicole', 'jessica',
+        'ashley', 'emily', 'madison', 'elizabeth', 'megan', 'jennifer', 'amanda', 'rachel'
+    ]
+    
+    # Common typos/misspellings to randomly apply
+    typo_replacements = {
+        'the': ['teh', 'hte', 'the'],
+        'you': ['yuo', 'you', 'u'],
+        'your': ['yuor', 'your', 'ur'],
+        "you're": ["youre", "your", "you're", "ur"],
+        'have': ['ahve', 'have', 'hav'],
+        'that': ['taht', 'that', 'tht'],
+        'with': ['wiht', 'with', 'wth'],
+        'just': ['jsut', 'just', 'jst'],
+        'like': ['liek', 'like', 'lik'],
+        'know': ['knwo', 'know', 'kno'],
+        'think': ['thnk', 'think', 'thikn'],
+        'really': ['realy', 'really', 'rly', 'rlly'],
+        'people': ['poeple', 'people', 'ppl'],
+        'about': ['abuot', 'about', 'abt'],
+        'because': ['becuase', 'because', 'bc', 'cuz', 'cos'],
+        'something': ['somethign', 'something', 'smth'],
+        'though': ['tho', 'though', 'thouhg'],
+        'through': ['thru', 'through'],
+        'thought': ['thougt', 'thought', 'thot'],
+        'would': ['woudl', 'would', 'wld'],
+        'could': ['coudl', 'could', 'cld'],
+        'should': ['shoudl', 'should', 'shld'],
+        'going': ['goign', 'going', 'goin'],
+        'being': ['beign', 'being', 'bein'],
+        'probably': ['prolly', 'probably', 'prob'],
+        'definitely': ['definetly', 'definitely', 'def', 'deffo'],
+        'actually': ['actualy', 'actually', 'acc'],
+        'literally': ['literaly', 'literally', 'lit'],
+        'tonight': ['tonite', 'tonight', '2nite'],
+        'tomorrow': ['tmrw', 'tomorrow', 'tomoro'],
+        'okay': ['ok', 'okay', 'okayy', 'k'],
+        'right': ['rigth', 'right', 'rite'],
+        'want': ['wnat', 'want', 'wanna'],
+        'what': ['waht', 'what', 'wut'],
+        'before': ['befroe', 'before', 'b4'],
+        'please': ['plz', 'please', 'pls'],
+        'thanks': ['thx', 'thanks', 'thnks', 'ty'],
+        'sorry': ['sry', 'sorry', 'srry'],
+        'message': ['mesage', 'message', 'msg'],
+        'different': ['diferent', 'different', 'diff'],
+        'feeling': ['feelin', 'feeling', 'feelign'],
+        'amazing': ['amazign', 'amazing', 'amazin'],
+        'awesome': ['awsome', 'awesome', 'awsum'],
+        'weird': ['wierd', 'weird'],
+        'friend': ['freind', 'friend', 'frnd'],
+        'good': ['goood', 'good', 'gud'],
+        'great': ['greta', 'great', 'gr8'],
+        'never': ['nevr', 'never', 'nvr'],
+        'always': ['alwyas', 'always', 'alwys'],
+        'today': ['tday', 'today', '2day'],
+        'maybe': ['mabye', 'maybe', 'mayb'],
+        'same': ['saem', 'same', 'samee'],
+        'love': ['lvoe', 'love', 'luv'],
+        'pretty': ['prtty', 'pretty', 'prety'],
+        'anyone': ['anywone', 'anyone', 'any1'],
+        'someone': ['somewone', 'someone', 'some1'],
+        'everyone': ['evryone', 'everyone', 'every1'],
+    }
+    
+    # 30% chance to apply a typo
+    if random.random() < 0.30:
+        words = text.split()
+        for i, word in enumerate(words):
+            word_lower = word.lower().strip('.,!?')
+            if word_lower in typo_replacements and random.random() < 0.4:
+                replacement = random.choice(typo_replacements[word_lower])
+                # Preserve original case if it was capitalized
+                if word[0].isupper() and replacement[0].islower():
+                    replacement = replacement[0].upper() + replacement[1:]
+                # Preserve trailing punctuation
+                trailing = ''
+                for char in reversed(word):
+                    if char in '.,!?':
+                        trailing = char + trailing
+                    else:
+                        break
+                words[i] = replacement + trailing
+                break  # Only one typo per message
+        text = ' '.join(words)
+    
+    # 25% chance to add slang like "lol", "lmao", "tbh" if not already present
+    slang_additions = ['lol', 'lmao', 'tbh', 'ngl', 'fr', 'icl', 'istg']
+    text_lower = text.lower()
+    if random.random() < 0.25 and not any(s in text_lower for s in slang_additions):
+        slang = random.choice(slang_additions)
+        # Add at end or beginning
+        if random.random() < 0.7:
+            # End - remove period if present and add slang
+            text = text.rstrip('.') + ' ' + slang
+        else:
+            # Beginning
+            text = slang + ' ' + text[0].lower() + text[1:] if text else slang
+    
+    # 40% chance for female names to add 'x' at the end
+    if sender_name and sender_name.lower() in female_names and random.random() < 0.40:
+        text = text.rstrip('.!') + ' x'
+    
+    # 15% chance to double a letter for emphasis (like "soooo" or "yesss")
+    if random.random() < 0.15:
+        emphasis_words = ['so', 'yes', 'no', 'oh', 'aw', 'ah', 'ugh', 'wow', 'yay', 'hey', 'hi']
+        words = text.split()
+        for i, word in enumerate(words):
+            if word.lower().rstrip('.,!?') in emphasis_words and random.random() < 0.5:
+                clean_word = word.rstrip('.,!?')
+                trailing = word[len(clean_word):]
+                # Double the last letter 2-3 times
+                doubled = clean_word + clean_word[-1] * random.randint(1, 3)
+                words[i] = doubled + trailing
+                break
+        text = ' '.join(words)
+    
+    return text
 
 
 @app.route("/api/chat/reply", methods=["POST"])
@@ -2412,22 +2553,30 @@ def chat_reply():
         # Fallback responses when no API key is configured
         import random
         short_fallbacks = [
-            {"sender": "Peer", "role": "peer", "text": "hey! glad you're here 😊"},
+            {"sender": "Peer", "role": "peer", "text": "hey! glad ur here 😊"},
             {"sender": "Peer", "role": "peer", "text": "just sitting with my thoughts today"},
             {"sender": "Peer", "role": "peer", "text": "you've got this!! 💪"},
             {"sender": "Peer", "role": "peer", "text": "yeah same tbh"},
             {"sender": "Peer", "role": "peer", "text": "been a rough one ngl"},
-            {"sender": "Peer", "role": "peer", "text": "trying to stay focused"},
-            {"sender": "Peer", "role": "peer", "text": "feeling pretty low tonight"},
-            {"sender": "Peer", "role": "peer", "text": "anxiety's been hitting different lately"},
+            {"sender": "Peer", "role": "peer", "text": "trying to stay focused lol"},
+            {"sender": "Peer", "role": "peer", "text": "feeling pretty low tonite"},
+            {"sender": "Peer", "role": "peer", "text": "anxiety's been hitting diferent lately"},
             {"sender": "Peer", "role": "peer", "text": "we're all in this together ❤️"},
             {"sender": "Peer", "role": "peer", "text": "just vibing honestly"},
-            {"sender": "Peer", "role": "peer", "text": "lowkey struggling but im here"},
+            {"sender": "Peer", "role": "peer", "text": "lowkey strugglign but im here"},
             {"sender": "Peer", "role": "peer", "text": "anyone else procrastinating rn? 😅"},
-            {"sender": "Peer", "role": "peer", "text": "that's so real"},
-            {"sender": "Peer", "role": "peer", "text": "mood"},
+            {"sender": "Peer", "role": "peer", "text": "thats so real"},
+            {"sender": "Peer", "role": "peer", "text": "mood lmao"},
             {"sender": "Peer", "role": "peer", "text": "fr fr"},
-            {"sender": "Peer", "role": "peer", "text": "felt that"},
+            {"sender": "Peer", "role": "peer", "text": "felt that tbh"},
+            {"sender": "Peer", "role": "peer", "text": "omg sameee"},
+            {"sender": "Peer", "role": "peer", "text": "yesss exactly"},
+            {"sender": "Peer", "role": "peer", "text": "ughhh i feel u"},
+            {"sender": "Peer", "role": "peer", "text": "honestly tho"},
+            {"sender": "Peer", "role": "peer", "text": "sooo true lol"},
+            {"sender": "Peer", "role": "peer", "text": "wait what happend?"},
+            {"sender": "Peer", "role": "peer", "text": "oh nooo"},
+            {"sender": "Peer", "role": "peer", "text": "thats rough ngl"},
         ]
         return {"messages": [random.choice(short_fallbacks)]}
 
