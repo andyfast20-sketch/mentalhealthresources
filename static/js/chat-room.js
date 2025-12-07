@@ -584,30 +584,22 @@
     return Math.min(6000, Math.max(2000, readingTimeMs + 1000));
   }
 
-  // Fallback responses when API fails - these should feel natural with typos/slang
+  // Fallback responses when API fails - varied lengths and personalities
   const fallbackReplies = [
-    "yeah I feel that",
-    "honestly same lol",
-    "thats real",
-    "I get what u mean",
-    "felt that fr",
-    "yeah totaly",
-    "mood lmao",
-    "i hear u",
-    "that makes sense tbh",
-    "yeah for sure",
-    "I feel u on that",
-    "totally get it",
-    "yeah thats rough ngl",
-    "sending good vibes 💙",
-    "ur not alone in that",
-    "omg sameee",
-    "ughhh i know right",
-    "wait what happend?",
-    "oh nooo",
-    "thats so real tho",
-    "yesss exactly",
-    "honestly tho",
+    // 1 word
+    "same", "mood", "felt", "oof", "yep", "lol", "true", "facts",
+    // 2 words
+    "oh no", "wait what", "so true", "that's rough", "big mood", "fair enough",
+    // 3-4 words
+    "yeah I feel that", "ugh same here", "hope ur okay", "thats so real",
+    "honestly tho", "felt that fr", "oh that sucks",
+    // 5-7 words (caring/clever)
+    "sending u good vibes 💙", "that sounds really tough ngl",
+    "im here if u need", "hope things get easier soon",
+    "thats actually a good point", "never thought of it like that",
+    // 8+ words (occasional longer)
+    "yeah i totally get what u mean tbh",
+    "aw im sorry ur going thru that",
   ];
 
   // Female names that might add 'x' to messages
