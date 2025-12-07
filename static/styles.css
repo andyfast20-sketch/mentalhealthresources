@@ -2044,8 +2044,13 @@ body {
   grid-template-rows: auto 1fr auto;
   position: relative;
   overflow: hidden;
-  height: clamp(400px, 70vh, 640px);
-  min-height: clamp(360px, 60vh, 520px);
+  height: clamp(340px, 55vh, 520px);
+  min-height: clamp(300px, 45vh, 460px);
+}
+
+.chat-room-card.is-expanded {
+  height: clamp(560px, 78vh, 760px);
+  min-height: clamp(520px, 68vh, 680px);
 }
 
 .chat-room__header {
