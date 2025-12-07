@@ -14,6 +14,7 @@
 <div class="admin-page" data-admin-scroll-target="{{ active_section }}">
     <div class="admin-anchor-nav" aria-label="Admin shortcuts">
         <a class="btn tiny ghost" href="#site-banner">Site banner</a>
+        <a class="btn tiny ghost" href="#ai-tools">AI tools</a>
         <a class="btn tiny ghost" href="#data">Data</a>
         <a class="btn tiny ghost" href="#media-library">Media pot</a>
         <a class="btn tiny ghost" href="#did-you-know">Did you know?</a>
@@ -43,6 +44,27 @@
         <button class="btn" type="submit">
             {% if construction_banner_enabled %}Turn banner off{% else %}Turn banner on{% endif %}
         </button>
+    </form>
+    </section>
+
+    <section class="panel admin-panel" id="ai-tools" data-admin-section>
+    <div class="panel-header">
+        <p class="eyebrow">AI helpers</p>
+        <h2>Save a DeepSeek API key.</h2>
+        <p class="lede">Store a key securely in the database so you can enrich charity listings with one click.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('update_deepseek_api_key') }}" method="post">
+        <div class="form-grid">
+            <label>
+                <span>DeepSeek API key</span>
+                <input type="password" name="deepseek_api_key" placeholder="sk-..." value="{{ deepseek_api_key }}" />
+                <p class="body muted">Stored in the site settings table. Current key: {{ deepseek_api_key_masked or 'None' }}.</p>
+            </label>
+        </div>
+        <button class="btn" type="submit">Save key</button>
     </form>
     </section>
 
@@ -490,6 +512,9 @@
             <div class="charity-actions">
                 <a class="btn tiny" href="{{ charity.website_url }}" target="_blank" rel="noopener">Open link</a>
                 <div class="book-actions">
+                    <form action="{{ url_for('enrich_charity', charity_id=charity.id) }}" method="post">
+                        <button class="btn tiny" type="submit">AI enrich</button>
+                    </form>
                     <button
                         class="btn tiny secondary"
                         type="button"
