@@ -126,59 +126,56 @@
 
 <section class="panel chat-panel" id="chat-room">
     <div class="chat-shell">
-        <div class="chat-intro">
-            <p class="eyebrow">New · Softly moderated</p>
-            <h3>Community chat room</h3>
-            <p class="body">Drop into a gentle space to swap coping ideas, vent about the day, or sit quietly with others. Quick prompts help you start talking, and ModBot keeps things safe.</p>
-            <div class="chat-highlights">
-                <div class="chat-highlight">💬 Peer-to-peer support</div>
-                <div class="chat-highlight">🛡️ Safety reminders built-in</div>
-                <div class="chat-highlight">✨ Looks and feels like the rest of BrightMind</div>
+        <aside class="chat-sidebar" aria-label="Online users">
+            <div class="chat-sidebar__header">
+                <span class="sidebar-icon" aria-hidden="true"></span>
+                <span>Online</span>
             </div>
-            <div class="chat-guidelines">
-                <p class="microcopy">Community guidelines</p>
-                <ul>
-                    <li>Be kind, avoid personal contact info, and keep it non-clinical.</li>
-                    <li>This is not a crisis line—use the crisis info button anytime.</li>
-                    <li>Take breaks when you need to; the room keeps your place.</li>
-                </ul>
-            </div>
-        </div>
-        <div class="chat-room-card" aria-label="BrightMind chat room">
-            <div class="chat-room__header">
-                <div>
-                    <p class="eyebrow">Live now</p>
-                    <h4>Mental Health Support Chat</h4>
-                </div>
-                <div class="chat-room__status">
+            <ul class="chat-sidebar__list">
+                <li class="chat-sidebar__user">
                     <span class="status-dot" aria-hidden="true"></span>
-                    <span class="microcopy">ModBot is keeping the space respectful</span>
+                    <div>
+                        <div class="chat-sidebar__name">ddf (You)</div>
+                        <small>Available</small>
+                    </div>
+                </li>
+                <li class="chat-sidebar__user">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <div>
+                        <div class="chat-sidebar__name">ModBot (Admin)</div>
+                        <small>Watching the room</small>
+                    </div>
+                </li>
+                <li class="chat-sidebar__user">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <div>
+                        <div class="chat-sidebar__name">Rowan</div>
+                        <small>Peer supporter</small>
+                    </div>
+                </li>
+            </ul>
+        </aside>
+        <div class="chat-room-card" aria-label="Mental Health Support Chat">
+            <div class="chat-room__header">
+                <div class="chat-room__title">
+                    <span class="status-dot" aria-hidden="true"></span>
+                    <span>Mental Health Support Chat</span>
                 </div>
-            </div>
-            <div class="chat-room__notice" role="status">
-                <div class="notice-icon" aria-hidden="true">🛡️</div>
-                <div>
-                    <p class="body bold">ModBot reminder</p>
-                    <p class="microcopy">No personal contact info or medical advice. Crisis? Tap Crisis info in the corner.</p>
+                <div class="chat-room__actions">
+                    <button type="button" aria-label="Chat settings">Settings</button>
                 </div>
             </div>
             <div class="chat-room__log" data-chat-log aria-live="polite" aria-label="Chat messages"></div>
-            <div class="chat-room__typing" data-chat-typing hidden>
-                <span class="status-dot status-dot--pulse" aria-hidden="true"></span>
-                <span class="microcopy" data-chat-typing-copy>Someone is typing…</span>
-            </div>
             <div class="chat-room__footer">
-                <div class="chat-prompts" aria-label="Quick prompts">
-                    <button type="button" class="pill tiny ghost" data-chat-prompt="I could use some grounding tips today.">Grounding tips</button>
-                    <button type="button" class="pill tiny ghost" data-chat-prompt="Anyone else dealing with anxious Sundays?">Sunday scaries</button>
-                    <button type="button" class="pill tiny ghost" data-chat-prompt="Thank you for holding space, I really needed this.">Say thanks</button>
+                <div class="chat-room__typing" data-chat-typing hidden>
+                    <span class="status-dot status-dot--pulse" aria-hidden="true"></span>
+                    <span class="microcopy" data-chat-typing-copy>Someone is typing…</span>
                 </div>
                 <form class="chat-form" data-chat-form>
                     <label class="sr-only" for="chat-input">Type a message</label>
-                    <input id="chat-input" data-chat-input type="text" name="message" autocomplete="off" maxlength="280" placeholder="Share what's on your mind…" />
+                    <input id="chat-input" data-chat-input type="text" name="message" autocomplete="off" maxlength="280" placeholder="Type your message here" />
                     <button type="submit" class="btn tiny">Send</button>
                 </form>
-                <p class="microcopy muted">Bots share supportive replies using preset prompts—no personal data is sent anywhere.</p>
             </div>
         </div>
     </div>
