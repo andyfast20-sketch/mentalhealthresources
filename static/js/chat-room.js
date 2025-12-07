@@ -475,22 +475,60 @@
     return 2000 + Math.random() * 4000;
   }
 
+  // Calculate reading time based on message length (people need to read before responding)
+  function getReadingDelay(messageLength) {
+    // Average reading speed ~200 words per minute, assume ~5 chars per word
+    // Minimum 2 seconds, maximum 6 seconds to read
+    const wordsEstimate = messageLength / 5;
+    const readingTimeMs = (wordsEstimate / 200) * 60 * 1000;
+    return Math.min(6000, Math.max(2000, readingTimeMs + 1000));
+  }
+
+  // Fallback responses when API fails - these should feel natural
+  const fallbackReplies = [
+    "yeah I feel that",
+    "honestly same",
+    "that's real",
+    "I get what you mean",
+    "felt that fr",
+    "yeah totally",
+    "mood",
+    "I hear you",
+    "that makes sense",
+    "yeah for sure",
+    "I feel you on that",
+    "totally get it",
+    "yeah that's rough",
+    "sending good vibes 💙",
+    "you're not alone in that",
+  ];
+
+  function getRandomFallbackReply() {
+    return fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+  }
+
   async function requestReplies(userMessage, { warmup = false } = {}) {
     // Pause background chat while responding to user
     pauseBackgroundChat();
     
-    // Wait a natural amount of time before showing typing
-    const thinkDelay = 1000 + Math.random() * 2000;
+    // Calculate reading delay based on message length - someone needs to READ before responding
+    const readingDelay = getReadingDelay(userMessage.length);
+    
+    // Additional think delay before they start typing
+    const thinkDelay = 500 + Math.random() * 1500;
+    
+    const totalDelayBeforeTyping = readingDelay + thinkDelay;
     
     setTimeout(async () => {
       isWaitingForReply = true;
       const randomPeer = getRandomPeer();
       if (!randomPeer) {
+        // If no peers, use a fallback name
         resumeBackgroundChat();
         return;
       }
       
-      // Show typing for realistic duration
+      // Show typing for realistic duration (longer for longer responses)
       const typingDuration = 1500 + Math.random() * 2500;
       if (typingBar && typingCopy) {
         typingCopy.textContent = `${randomPeer.name} is typing…`;
@@ -515,35 +553,43 @@
 
         const messages = Array.isArray(result.messages) ? result.messages : [];
         
-        // If API failed or no messages, silently skip
-        if (!response.ok || result.error || messages.length === 0) {
-          hideTyping();
-          console.log('Reply unavailable, skipping');
-          resumeBackgroundChat();
-          return;
-        }
-        
         // Show typing then message after delay
         setTimeout(() => {
           hideTyping();
-          // Only show ONE message in response to user
-          if (messages.length > 0) {
-            // Use one of our actual peer names
+          
+          if (messages.length > 0 && !result.error) {
+            // Use the API response with our peer name
             const msg = messages[0];
             msg.sender = randomPeer.name;
             addMessage(msg);
+          } else {
+            // API failed - use a fallback reply so user isn't ignored
+            addMessage({
+              sender: randomPeer.name,
+              role: 'peer',
+              text: getRandomFallbackReply()
+            });
           }
+          
           // Resume background chat after responding
           resumeBackgroundChat();
         }, typingDuration);
         
       } catch (error) {
-        hideTyping();
-        // Silently handle - don't show error messages in chat
-        console.log('Chat reply error:', error.message);
-        resumeBackgroundChat();
+        // API error - still give a response so user isn't ignored
+        console.log('Chat reply error, using fallback:', error.message);
+        
+        setTimeout(() => {
+          hideTyping();
+          addMessage({
+            sender: randomPeer.name,
+            role: 'peer',
+            text: getRandomFallbackReply()
+          });
+          resumeBackgroundChat();
+        }, typingDuration);
       }
-    }, thinkDelay);
+    }, totalDelayBeforeTyping);
   }
 
   // ModBot welcome message
