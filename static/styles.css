@@ -1206,7 +1206,8 @@ body {
   box-shadow: 0 16px 40px rgba(107, 142, 198, 0.18);
 }
 
-.book-scroller {
+.book-scroller,
+.charity-scroller {
   position: relative;
   margin-top: 18px;
   padding: 8px 4px 2px;
@@ -1341,7 +1342,9 @@ body {
 }
 
 .book-scroller::before,
-.book-scroller::after {
+.book-scroller::after,
+.charity-scroller::before,
+.charity-scroller::after {
   content: "";
   position: absolute;
   top: 8px;
@@ -1356,12 +1359,23 @@ body {
   background: linear-gradient(90deg, rgba(255, 255, 255, 0.94), transparent);
 }
 
+.charity-scroller::before {
+  left: 0;
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.94), transparent);
+}
+
 .book-scroller::after {
   right: 0;
   background: linear-gradient(270deg, rgba(255, 255, 255, 0.94), transparent);
 }
 
-.book-track {
+.charity-scroller::after {
+  right: 0;
+  background: linear-gradient(270deg, rgba(255, 255, 255, 0.94), transparent);
+}
+
+.book-track,
+.charity-track {
   display: grid;
   grid-auto-flow: column;
   grid-auto-columns: minmax(260px, 320px);
@@ -1375,16 +1389,19 @@ body {
   justify-content: center;
 }
 
-.book-track::-webkit-scrollbar {
+.book-track::-webkit-scrollbar,
+.charity-track::-webkit-scrollbar {
   height: 8px;
 }
 
-.book-track::-webkit-scrollbar-thumb {
+.book-track::-webkit-scrollbar-thumb,
+.charity-track::-webkit-scrollbar-thumb {
   background: rgba(103, 132, 183, 0.45);
   border-radius: 999px;
 }
 
-.book-track::-webkit-scrollbar-track {
+.book-track::-webkit-scrollbar-track,
+.charity-track::-webkit-scrollbar-track {
   background: rgba(255, 255, 255, 0.9);
 }
 
@@ -1443,14 +1460,16 @@ body {
   color: var(--muted);
 }
 
-.book-track .book-card {
+.book-track .book-card,
+.charity-track .charity-card {
   min-width: 260px;
   max-width: 320px;
   scroll-snap-align: start;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
-.book-track .book-card:hover {
+.book-track .book-card:hover,
+.charity-track .charity-card:hover {
   transform: translateY(-4px);
   box-shadow: 0 16px 36px rgba(107, 142, 198, 0.25);
 }

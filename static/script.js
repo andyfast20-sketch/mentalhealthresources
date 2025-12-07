@@ -5,6 +5,9 @@ const dropdownTriggers = Array.from(document.querySelectorAll('[data-dropdown-to
 const bookTrack = document.querySelector('[data-book-track]');
 const bookPrev = document.querySelector('[data-book-prev]');
 const bookNext = document.querySelector('[data-book-next]');
+const charityTrack = document.querySelector('[data-charity-track]');
+const charityPrev = document.querySelector('[data-charity-prev]');
+const charityNext = document.querySelector('[data-charity-next]');
 const bookModal = document.querySelector('[data-book-modal]');
 const bookModalTitle = document.querySelector('[data-book-modal-title]');
 const bookModalAuthor = document.querySelector('[data-book-modal-author]');
@@ -115,17 +118,19 @@ document.addEventListener('click', (event) => {
   });
 });
 
-function scrollBooks(direction = 1) {
-  if (!bookTrack) return;
-  const card = bookTrack.querySelector('.book-card');
-  const gap = Number.parseFloat(getComputedStyle(bookTrack).columnGap || getComputedStyle(bookTrack).gap || 14);
+function scrollCarousel(track, direction = 1) {
+  if (!track) return;
+  const card = track.querySelector(':scope > *');
+  const gap = Number.parseFloat(getComputedStyle(track).columnGap || getComputedStyle(track).gap || 14);
   const cardWidth = card ? card.getBoundingClientRect().width : 280;
   const scrollAmount = (cardWidth + gap) * direction;
-  bookTrack.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+  track.scrollBy({ left: scrollAmount, behavior: 'smooth' });
 }
 
-bookPrev?.addEventListener('click', () => scrollBooks(-1));
-bookNext?.addEventListener('click', () => scrollBooks(1));
+bookPrev?.addEventListener('click', () => scrollCarousel(bookTrack, -1));
+bookNext?.addEventListener('click', () => scrollCarousel(bookTrack, 1));
+charityPrev?.addEventListener('click', () => scrollCarousel(charityTrack, -1));
+charityNext?.addEventListener('click', () => scrollCarousel(charityTrack, 1));
 
 function updateCrisisVolumeDisplay(volume) {
   if (crisisVolumeValue) {
