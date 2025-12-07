@@ -1400,8 +1400,8 @@ def validate_useful_contact_channels(telephone, text_number, contact_email):
     text_number = (text_number or "").strip()
     contact_email = (contact_email or "").strip()
 
-    if (text_number or contact_email) and not telephone:
-        return False, "Please include a telephone number when adding text or email contact details."
+    if not (telephone or text_number or contact_email):
+        return False, "Please include at least one contact method (phone, text, or email)."
 
     return True, None
 
