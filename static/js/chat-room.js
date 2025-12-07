@@ -34,6 +34,8 @@
 
   const chatHistory = [];
   let isWaitingForReply = false;
+  let backgroundChatActive = true;
+  let backgroundChatTimer = null;
 
   function createMessageElement({ sender, role = 'peer', text }) {
     const wrapper = document.createElement('div');
@@ -149,26 +151,51 @@
 
   // ModBot welcome message
   function showModBotWelcome() {
-    let welcomeText = 'Hey there! 👋 Welcome to our cozy corner. I\'m ModBot, here to keep things safe and friendly.';
+    let welcomeText = 'Hey! 👋 Welcome in. I\'m ModBot - here if you need anything.';
     if (chatTopic) {
-      welcomeText += ` Today we\'re chatting about "${chatTopic}".`;
+      welcomeText += ` Today\'s topic: "${chatTopic}".`;
     }
-    welcomeText += ' Feel free to join in whenever you\'re ready — no pressure!';
     
     addMessage({ sender: 'ModBot', role: 'mod', text: welcomeText }, false);
   }
 
-  // Request background conversation from API
-  async function requestBackgroundConversation() {
+  // Get random delay between messages (8-45 seconds for realistic pacing)
+  function getRandomDelay() {
+    return (8000 + Math.random() * 37000); // 8-45 seconds
+  }
+
+  // Show typing indicator for background chat
+  function showBackgroundTyping(name, duration) {
+    if (!typingBar || !typingCopy) return;
+    typingCopy.textContent = `${name} is typing…`;
+    typingBar.hidden = false;
+    
+    setTimeout(() => {
+      typingBar.hidden = true;
+    }, duration);
+  }
+
+  // Request a single background message from API
+  async function requestSingleBackgroundMessage() {
+    if (!backgroundChatActive) return;
+    
+    const peers = participants.filter(p => p.role === 'peer');
+    const randomPeer = peers[Math.floor(Math.random() * peers.length)];
+    
+    // Show typing for 1-3 seconds before message appears
+    const typingDuration = 1000 + Math.random() * 2000;
+    showBackgroundTyping(randomPeer.name, typingDuration);
+
     try {
       const response = await fetch('/api/chat/reply', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: 'Generate a brief, natural conversation between peers in a mental health support chat room. Make it feel like an ongoing discussion that a newcomer is walking into.',
-          history: [],
+          message: 'Continue the conversation naturally with ONE short message.',
+          history: chatHistory.slice(-8),
           warmup: true,
           topic: chatTopic,
+          singleMessage: true,
         }),
       });
 
@@ -176,22 +203,63 @@
 
       if (!response.ok || result.error) {
         console.log('Background chat unavailable:', result.error);
+        scheduleNextBackgroundMessage();
         return;
       }
 
       const messages = Array.isArray(result.messages) ? result.messages : [];
       
-      // Show messages with realistic delays
-      let delay = 0;
-      messages.forEach((msg, index) => {
-        setTimeout(() => {
-          addMessage(msg, false);
-        }, delay);
-        delay += 800 + Math.random() * 1200; // 0.8-2 second gaps
-      });
+      // Show the message after typing animation
+      setTimeout(() => {
+        if (messages.length > 0 && backgroundChatActive) {
+          // Only add ONE message
+          addMessage(messages[0], true);
+        }
+        scheduleNextBackgroundMessage();
+      }, typingDuration);
+      
     } catch (error) {
       console.log('Background chat error:', error.message);
+      scheduleNextBackgroundMessage();
     }
+  }
+
+  // Schedule the next background message
+  function scheduleNextBackgroundMessage() {
+    if (!backgroundChatActive) return;
+    
+    const delay = getRandomDelay();
+    backgroundChatTimer = setTimeout(() => {
+      requestSingleBackgroundMessage();
+    }, delay);
+  }
+
+  // Start continuous background chat
+  function startBackgroundChat() {
+    backgroundChatActive = true;
+    // Initial delay before first background message (3-8 seconds)
+    const initialDelay = 3000 + Math.random() * 5000;
+    backgroundChatTimer = setTimeout(() => {
+      requestSingleBackgroundMessage();
+    }, initialDelay);
+  }
+
+  // Stop background chat (e.g., when user is actively chatting)
+  function pauseBackgroundChat() {
+    if (backgroundChatTimer) {
+      clearTimeout(backgroundChatTimer);
+      backgroundChatTimer = null;
+    }
+  }
+
+  // Resume background chat after user interaction
+  function resumeBackgroundChat() {
+    if (!backgroundChatActive) return;
+    // Wait a bit after user message before resuming background chat
+    const resumeDelay = 15000 + Math.random() * 20000; // 15-35 seconds
+    backgroundChatTimer = setTimeout(() => {
+      requestSingleBackgroundMessage();
+    }, resumeDelay);
   }
 
   chatForm.addEventListener('submit', (event) => {
@@ -199,9 +267,15 @@
     const text = chatInput.value.trim();
     if (!text) return;
 
+    // Pause background chat while user is active
+    pauseBackgroundChat();
+
     addMessage({ sender: 'You', role: 'you', text });
     chatInput.value = '';
     requestReplies(text);
+
+    // Resume background chat after a delay
+    resumeBackgroundChat();
   });
 
   promptButtons.forEach((button) => {
@@ -277,8 +351,6 @@
   // Show ModBot welcome immediately
   showModBotWelcome();
   
-  // Request background conversation from API after a short delay
-  setTimeout(() => {
-    requestBackgroundConversation();
-  }, 2000);
+  // Start continuous background chat
+  startBackgroundChat();
 })();
