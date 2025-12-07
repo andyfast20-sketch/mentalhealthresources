@@ -901,9 +901,11 @@ def extract_json_object(text):
 def deepseek_charity_lookup(api_key, charity):
     prompt = (
         "Use web knowledge and general reasoning to return concise JSON about this charity. "
-        "Include fields: telephone (string), logo_url (string), has_helpline, has_volunteers, "
+        "Include fields: telephone (string), contact_email (string), text_number (string), "
+        "helpline_hours (string), logo_url (string), has_helpline, has_volunteers, "
         "has_crisis_info, has_text_support, has_email_support, has_live_chat as booleans. "
-        "If unknown, use null or false accordingly."
+        "If unknown, use null or false accordingly. Explore the charity's site (including helpline"
+        " pages) to surface helpline hours and any text or email contact details."
     )
 
     charity_summary = (
