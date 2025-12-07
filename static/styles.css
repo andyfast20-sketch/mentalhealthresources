@@ -2070,17 +2070,21 @@ body {
   margin-bottom: 8px;
 }
 
-.chat-message__meta {
+.chat-message__line {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   gap: 8px;
+  line-height: 1.45;
+  font-size: 0.95rem;
+}
+
+.chat-author {
   color: #9cb3ff;
   font-weight: 700;
-  font-size: 0.85rem;
 }
 
 .chat-message__text {
-  margin: 2px 0 0;
+  margin: 0;
   color: #d9e3ff;
   line-height: 1.45;
   font-size: 0.95rem;
