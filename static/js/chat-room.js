@@ -18,14 +18,14 @@
   if (!chatLog || !chatForm || !chatInput) return;
 
   const participants = [
-    { name: 'You', role: 'you', status: 'Active • Desktop', badge: 'You' },
-    { name: 'ModBot', role: 'mod', status: 'On duty • safety monitor', badge: 'Moderator' },
-    { name: 'Rowan', role: 'peer', status: 'Replying in resources', badge: 'Peer supporter' },
-    { name: 'Sage', role: 'peer', status: 'Typing…', badge: 'Night owl' },
-    { name: 'Mia', role: 'peer', status: 'On mobile', badge: 'She/they' },
-    { name: 'Alex', role: 'peer', status: 'Away • back in 5', badge: 'They/them' },
-    { name: 'Leah', role: 'peer', status: 'Listening quietly', badge: 'EU evening' },
-    { name: 'Priya', role: 'peer', status: 'Reviewing grounding list', badge: 'Student counsellor' },
+    { name: 'You', role: 'you' },
+    { name: 'ModBot', role: 'mod' },
+    { name: 'Rowan', role: 'peer' },
+    { name: 'Sage', role: 'peer' },
+    { name: 'Mia', role: 'peer' },
+    { name: 'Alex', role: 'peer' },
+    { name: 'Leah', role: 'peer' },
+    { name: 'Priya', role: 'peer' },
   ];
 
   const chatHistory = [];
@@ -90,39 +90,18 @@
       avatar.className = `chat-avatar chat-avatar--${person.role}`;
       avatar.textContent = person.name.charAt(0);
 
-      const body = document.createElement('div');
-      body.className = 'chat-sidebar__body';
-
-      const nameRow = document.createElement('div');
-      nameRow.className = 'chat-sidebar__meta';
-
-      const name = document.createElement('div');
+      const name = document.createElement('span');
       name.className = 'chat-sidebar__name';
       name.textContent = person.name;
 
-      nameRow.appendChild(name);
-
-      if (person.badge) {
-        const badge = document.createElement('span');
-        badge.className = 'chat-role-badge';
-        badge.textContent = person.badge;
-        nameRow.appendChild(badge);
-      }
-
-      const status = document.createElement('small');
-      status.textContent = person.status || 'Online';
-
-      body.appendChild(nameRow);
-      body.appendChild(status);
-
       item.appendChild(avatar);
-      item.appendChild(body);
+      item.appendChild(name);
 
       sidebarList.appendChild(item);
     });
 
     if (presenceCounter) {
-      presenceCounter.textContent = `${participants.length} online • live handles`;
+      presenceCounter.textContent = `${participants.length} online`;
     }
   }
 
