@@ -652,7 +652,7 @@ def migrate_charities_schema_remote():
         if contact_column not in columns:
             d1_query(
                 f"ALTER TABLE charities ADD COLUMN {contact_column} TEXT DEFAULT ''"
-            )
+        )
     for feature_column in [
         "has_helpline",
         "has_volunteers",
@@ -665,6 +665,63 @@ def migrate_charities_schema_remote():
             d1_query(
                 f"ALTER TABLE charities ADD COLUMN {feature_column} INTEGER NOT NULL DEFAULT 0"
             )
+
+
+def migrate_useful_contacts_schema_local(connection):
+    columns = get_table_columns(connection, "useful_contacts")
+
+    migrations = []
+    for optional_column in [
+        "telephone",
+        "contact_email",
+        "text_number",
+        "tags",
+        "description",
+    ]:
+        if optional_column not in columns:
+            migrations.append(
+                f"ALTER TABLE useful_contacts ADD COLUMN {optional_column} TEXT DEFAULT ''"
+            )
+
+    if "created_at" not in columns:
+        migrations.append("ALTER TABLE useful_contacts ADD COLUMN created_at DATETIME")
+
+    for statement in migrations:
+        connection.execute(statement)
+
+    if "created_at" not in columns:
+        connection.execute(
+            "UPDATE useful_contacts SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"
+        )
+
+
+def migrate_useful_contacts_schema_remote():
+    if not D1_CONFIGURED:
+        return
+
+    try:
+        columns = {row.get("name") for row in d1_query("PRAGMA table_info(useful_contacts)")}
+    except Exception as exc:  # pragma: no cover - best-effort logging
+        print(f"Skipping D1 useful contacts migration; unable to inspect schema. Details: {exc}")
+        return
+
+    for optional_column in [
+        "telephone",
+        "contact_email",
+        "text_number",
+        "tags",
+        "description",
+    ]:
+        if optional_column not in columns:
+            d1_query(
+                f"ALTER TABLE useful_contacts ADD COLUMN {optional_column} TEXT DEFAULT ''"
+            )
+
+    if "created_at" not in columns:
+        d1_query("ALTER TABLE useful_contacts ADD COLUMN created_at DATETIME")
+        d1_query(
+            "UPDATE useful_contacts SET created_at = CURRENT_TIMESTAMP WHERE created_at IS NULL"
+        )
 
 
 def normalize_result_set(result_payload):
@@ -814,12 +871,15 @@ def ensure_tables():
         for statement in table_statements:
             connection.execute(statement)
         ensure_calming_counts_schema(connection)
+        migrate_useful_contacts_schema_local(connection)
 
     # Apply schema migrations to keep legacy databases aligned with the current model.
     with open_local_db() as connection:
         migrate_charities_schema_local(connection)
+        migrate_useful_contacts_schema_local(connection)
 
     migrate_charities_schema_remote()
+    migrate_useful_contacts_schema_remote()
 
 
 def ensure_calming_counts_schema(connection=None):
@@ -1333,6 +1393,17 @@ def derive_contact_tags(contact):
 
 def normalize_contact_name(name):
     return re.sub(r"\s+", " ", (name or "").strip()).lower()
+
+
+def validate_useful_contact_channels(telephone, text_number, contact_email):
+    telephone = (telephone or "").strip()
+    text_number = (text_number or "").strip()
+    contact_email = (contact_email or "").strip()
+
+    if (text_number or contact_email) and not telephone:
+        return False, "Please include a telephone number when adding text or email contact details."
+
+    return True, None
 
 
 def load_useful_contacts():
@@ -2115,6 +2186,14 @@ def add_useful_contact_admin():
             url_for("admin", message="Please add a name for the contact.", section="useful-contacts")
         )
 
+    is_valid, error_message = validate_useful_contact_channels(
+        telephone, text_number, contact_email
+    )
+    if not is_valid:
+        return redirect(
+            url_for("admin", message=error_message, section="useful-contacts")
+        )
+
     if useful_contact_exists(name, telephone, contact_email):
         return redirect(
             url_for(
@@ -2150,6 +2229,14 @@ def update_useful_contact_admin(contact_id):
     if not name:
         return redirect(
             url_for("admin", message="Please add a name for the contact.", section="useful-contacts")
+        )
+
+    is_valid, error_message = validate_useful_contact_channels(
+        telephone, text_number, contact_email
+    )
+    if not is_valid:
+        return redirect(
+            url_for("admin", message=error_message, section="useful-contacts")
         )
 
     update_useful_contact(
@@ -2201,6 +2288,14 @@ def ai_useful_contact_admin():
                 message="The AI response was missing a name. Please try again.",
                 section="useful-contacts",
             )
+        )
+
+    is_valid, error_message = validate_useful_contact_channels(
+        ai_data.get("telephone"), ai_data.get("text_number"), ai_data.get("contact_email")
+    )
+    if not is_valid:
+        return redirect(
+            url_for("admin", message=error_message, section="useful-contacts")
         )
 
     if useful_contact_exists(ai_data.get("name"), ai_data.get("telephone"), ai_data.get("contact_email")):
