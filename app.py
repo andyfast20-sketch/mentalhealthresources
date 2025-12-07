@@ -1010,8 +1010,8 @@ def set_chat_block_action(value):
     save_site_setting(CHAT_BLOCK_ACTION_KEY, value)
 
 
-def check_message_content(message):
-    """Check if message contains blocked content. Returns (is_safe, warning_message)"""
+def check_message_content_basic(message):
+    """Basic keyword check for blocked content. Returns (is_safe, warning_message)"""
     if not message:
         return True, None
     
@@ -1026,11 +1026,96 @@ def check_message_content(message):
     
     for blocked in blocked_list:
         if blocked in message_lower:
-            action = get_chat_block_action()
-            if action == "hide":
-                return False, None  # Silently block
+            return False, "blocked_word"
+    
+    return True, None
+
+
+def ai_moderate_message(message, api_key):
+    """Use AI to check message for rule violations. Returns (is_safe, violation_type)"""
+    if not api_key or not message:
+        return True, None
+    
+    moderation_prompt = """You are a chat room moderator for a mental health support community. 
+Analyze this message and determine if it violates ANY of these rules:
+
+1. CONTACT INFO: Any phone numbers, emails, social media handles, addresses, or attempts to share contact info (even disguised like "my insta is..." or "add me on..." or using spaces/symbols to hide it like "1 2 3 4 5 6 7 8 9 0")
+2. MEETING REQUESTS: Asking to meet in person, suggesting meeting up, or trying to arrange offline contact
+3. SEXUAL CONTENT: Any sexual talk, innuendos, flirting, suggestive comments, or inappropriate content
+4. OFFENSIVE CONTENT: Slurs, hate speech, discriminatory language, bullying, or content that could offend
+5. HARMFUL CONTENT: Instructions for self-harm, dangerous activities, or encouraging harmful behavior
+
+Message to check: "{message}"
+
+Respond with ONLY a JSON object:
+{{"safe": true}} if the message is fine
+{{"safe": false, "reason": "contact_info"}} if sharing/requesting contact info
+{{"safe": false, "reason": "meeting_request"}} if trying to meet up
+{{"safe": false, "reason": "sexual_content"}} if sexual/inappropriate
+{{"safe": false, "reason": "offensive"}} if offensive/hateful
+{{"safe": false, "reason": "harmful"}} if harmful content
+
+Be strict. Even subtle attempts to bypass rules should be flagged."""
+
+    payload = {
+        "model": "deepseek-chat",
+        "messages": [
+            {"role": "system", "content": "You are a strict chat moderator. Respond only with JSON."},
+            {"role": "user", "content": moderation_prompt.format(message=message)},
+        ],
+        "temperature": 0.1,
+        "max_tokens": 50,
+    }
+
+    try:
+        request_data = json.dumps(payload).encode("utf-8")
+        request_headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}",
+        }
+        req = urlrequest.Request(
+            "https://api.deepseek.com/v1/chat/completions",
+            data=request_data,
+            headers=request_headers,
+        )
+        with urlrequest.urlopen(req, timeout=10) as response:
+            result = json.loads(response.read().decode("utf-8"))
+        
+        content = (result.get("choices") or [{}])[0].get("message", {}).get("content", "")
+        
+        # Parse the response
+        parsed = extract_json_object(content)
+        if parsed and isinstance(parsed, dict):
+            if parsed.get("safe") == True:
+                return True, None
             else:
-                return False, "This message was not sent. Please keep the conversation supportive and safe. If you're struggling, check our crisis resources."
+                return False, parsed.get("reason", "rule_violation")
+        
+        # If we can't parse, assume safe
+        return True, None
+        
+    except Exception as e:
+        print(f"AI moderation error: {e}")
+        # On error, fall back to basic check only
+        return True, None
+
+
+def check_message_content(message):
+    """Full message check combining basic and AI moderation. Returns (is_safe, violation_type)"""
+    if not message:
+        return True, None
+    
+    # First do basic keyword check
+    is_safe, reason = check_message_content_basic(message)
+    if not is_safe:
+        return False, reason
+    
+    # Then do AI check if API key is available
+    api_key = get_deepseek_api_key().strip()
+    if api_key:
+        is_safe, reason = ai_moderate_message(message, api_key)
+        if not is_safe:
+            return False, reason
     
     return True, None
 
@@ -2483,12 +2568,13 @@ def check_chat_message():
     data = request.get_json(silent=True) or {}
     message = (data.get("message") or "").strip()
     
-    is_safe, warning = check_message_content(message)
+    is_safe, violation_type = check_message_content(message)
     
     if is_safe:
         return {"allowed": True}
     else:
-        return {"allowed": False, "warning": warning}
+        # Return violation type so frontend can show appropriate message
+        return {"allowed": False, "violation": violation_type}
 
 
 @app.route("/admin/did-you-know", methods=["POST"])

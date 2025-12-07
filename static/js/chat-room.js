@@ -22,6 +22,197 @@
   const chatTopic = chatConfig.topic || '';
   const chatRules = chatConfig.rules || '';
 
+  // Warning and ban system
+  const WARNING_STORAGE_KEY = 'chat_warnings';
+  const BAN_STORAGE_KEY = 'chat_ban_until';
+  const MAX_WARNINGS = 2;
+  const BAN_DURATION_MS = 10 * 60 * 1000; // 10 minutes
+
+  // Get warning messages based on violation type
+  function getViolationMessage(violation) {
+    const messages = {
+      'contact_info': 'Your message appears to contain contact information (phone numbers, emails, social media). For everyone\'s safety, please don\'t share personal contact details.',
+      'meeting_request': 'Your message appears to be requesting to meet up in person. For safety reasons, meeting requests are not allowed in this chat.',
+      'sexual_content': 'Your message contains inappropriate sexual content. This is a safe space and such content is not permitted.',
+      'innuendo': 'Your message contains inappropriate innuendo. Please keep the conversation respectful and appropriate.',
+      'offensive_content': 'Your message contains offensive or harmful content. Please be respectful to all members.',
+      'blocked_word': 'Your message contains a word or phrase that isn\'t allowed in this chat.',
+      'rule_violation': 'Your message violates our community guidelines. Please review the rules.',
+    };
+    return messages[violation] || messages['rule_violation'];
+  }
+
+  // Get current warning count
+  function getWarningCount() {
+    try {
+      return parseInt(localStorage.getItem(WARNING_STORAGE_KEY) || '0', 10);
+    } catch {
+      return 0;
+    }
+  }
+
+  // Increment warning count
+  function incrementWarnings() {
+    const count = getWarningCount() + 1;
+    try {
+      localStorage.setItem(WARNING_STORAGE_KEY, count.toString());
+    } catch {}
+    return count;
+  }
+
+  // Reset warnings (after ban expires)
+  function resetWarnings() {
+    try {
+      localStorage.removeItem(WARNING_STORAGE_KEY);
+    } catch {}
+  }
+
+  // Check if user is currently banned
+  function isBanned() {
+    try {
+      const banUntil = localStorage.getItem(BAN_STORAGE_KEY);
+      if (!banUntil) return false;
+      const banTime = parseInt(banUntil, 10);
+      if (Date.now() < banTime) {
+        return true;
+      } else {
+        // Ban expired, clear it and reset warnings
+        localStorage.removeItem(BAN_STORAGE_KEY);
+        resetWarnings();
+        return false;
+      }
+    } catch {
+      return false;
+    }
+  }
+
+  // Get remaining ban time in minutes
+  function getBanRemainingMinutes() {
+    try {
+      const banUntil = localStorage.getItem(BAN_STORAGE_KEY);
+      if (!banUntil) return 0;
+      const remaining = parseInt(banUntil, 10) - Date.now();
+      return Math.max(0, Math.ceil(remaining / 60000));
+    } catch {
+      return 0;
+    }
+  }
+
+  // Set ban
+  function setBan() {
+    try {
+      const banUntil = Date.now() + BAN_DURATION_MS;
+      localStorage.setItem(BAN_STORAGE_KEY, banUntil.toString());
+    } catch {}
+  }
+
+  // Create and show violation popup modal
+  function showViolationPopup(violation, isBanNotice = false, remainingMins = 0) {
+    // Remove any existing violation popup
+    const existing = document.querySelector('.chat-violation-popup');
+    if (existing) existing.remove();
+
+    const warningCount = getWarningCount();
+    let title, message, footerText;
+
+    if (isBanNotice) {
+      title = '🚫 Temporarily Removed';
+      message = 'You have been temporarily removed from the chat due to multiple rule violations. Please take this time to review our community guidelines.';
+      footerText = `You can rejoin in ${remainingMins} minute${remainingMins !== 1 ? 's' : ''}.`;
+    } else {
+      title = '⚠️ Message Not Sent';
+      message = getViolationMessage(violation);
+      const warningsLeft = MAX_WARNINGS - warningCount;
+      if (warningsLeft > 0) {
+        footerText = `Warning ${warningCount} of ${MAX_WARNINGS}. ${warningsLeft} more warning${warningsLeft !== 1 ? 's' : ''} will result in a 10-minute timeout.`;
+      } else {
+        footerText = 'This is your final warning.';
+      }
+    }
+
+    const popup = document.createElement('div');
+    popup.className = 'chat-violation-popup';
+    popup.innerHTML = `
+      <div class="chat-violation-popup__backdrop"></div>
+      <div class="chat-violation-popup__content">
+        <h3 class="chat-violation-popup__title">${title}</h3>
+        <p class="chat-violation-popup__message">${message}</p>
+        <p class="chat-violation-popup__footer">${footerText}</p>
+        <button class="chat-violation-popup__close" type="button">I Understand</button>
+      </div>
+    `;
+
+    document.body.appendChild(popup);
+
+    // Close handlers
+    const closeBtn = popup.querySelector('.chat-violation-popup__close');
+    const backdrop = popup.querySelector('.chat-violation-popup__backdrop');
+
+    function closePopup() {
+      popup.classList.add('is-closing');
+      setTimeout(() => popup.remove(), 200);
+    }
+
+    closeBtn.addEventListener('click', closePopup);
+    backdrop.addEventListener('click', closePopup);
+
+    // Animate in
+    requestAnimationFrame(() => {
+      popup.classList.add('is-open');
+    });
+  }
+
+  // Show ban notice on page load if banned
+  function checkAndShowBanNotice() {
+    if (isBanned()) {
+      const mins = getBanRemainingMinutes();
+      showViolationPopup(null, true, mins);
+      disableChatInput(mins);
+      return true;
+    }
+    return false;
+  }
+
+  // Disable chat input during ban
+  function disableChatInput(minutes) {
+    if (chatInput) {
+      chatInput.disabled = true;
+      chatInput.placeholder = `Chat disabled for ${minutes} minute${minutes !== 1 ? 's' : ''}...`;
+    }
+    const submitBtn = chatForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = true;
+
+    // Check every minute to update
+    const checkInterval = setInterval(() => {
+      if (!isBanned()) {
+        enableChatInput();
+        clearInterval(checkInterval);
+      } else {
+        const remaining = getBanRemainingMinutes();
+        if (chatInput) {
+          chatInput.placeholder = `Chat disabled for ${remaining} minute${remaining !== 1 ? 's' : ''}...`;
+        }
+      }
+    }, 60000);
+  }
+
+  // Re-enable chat input after ban
+  function enableChatInput() {
+    if (chatInput) {
+      chatInput.disabled = false;
+      chatInput.placeholder = 'Type a message...';
+    }
+    const submitBtn = chatForm.querySelector('button[type="submit"]');
+    if (submitBtn) submitBtn.disabled = false;
+
+    // Show welcome back message
+    addMessage({ 
+      sender: 'ModBot', 
+      role: 'mod', 
+      text: 'Welcome back! Your timeout has ended. Please remember to follow our community guidelines. 💙' 
+    }, false);
+  }
+
   const participants = [
     { name: 'You', role: 'you' },
     { name: 'ModBot', role: 'mod' },
@@ -351,6 +542,14 @@
 
   chatForm.addEventListener('submit', async (event) => {
     event.preventDefault();
+    
+    // Check if user is banned
+    if (isBanned()) {
+      const mins = getBanRemainingMinutes();
+      showViolationPopup(null, true, mins);
+      return;
+    }
+    
     const text = chatInput.value.trim();
     if (!text) return;
 
@@ -358,10 +557,19 @@
     const check = await checkMessageAllowed(text);
     
     if (!check.allowed) {
-      // Message was blocked
-      if (check.warning) {
-        showModerationWarning(check.warning);
+      // Message was blocked - increment warning
+      const warningCount = incrementWarnings();
+      
+      if (warningCount > MAX_WARNINGS) {
+        // User has exceeded warnings, apply ban
+        setBan();
+        showViolationPopup(check.violation, true, 10);
+        disableChatInput(10);
+      } else {
+        // Show warning popup
+        showViolationPopup(check.violation);
       }
+      
       // Clear the input but don't send the message
       chatInput.value = '';
       return;
@@ -445,6 +653,9 @@
 
   // Initialize chat
   renderSidebar();
+  
+  // Check if user is banned before starting
+  const wasBanned = checkAndShowBanNotice();
   
   // Show ModBot welcome immediately
   showModBotWelcome();
