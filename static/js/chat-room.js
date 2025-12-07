@@ -113,6 +113,11 @@
   function seedRoom() {
     const introMessages = [
       {
+        sender: 'System',
+        role: 'system',
+        text: '* Welcome to the chat, ddf',
+      },
+      {
         sender: 'ModBot',
         role: 'mod',
         text: 'Friendly reminder: be kind, skip contact details, and use Crisis info for emergencies.',
