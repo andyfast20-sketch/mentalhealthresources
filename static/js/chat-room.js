@@ -36,24 +36,25 @@
 
   let lastBotLine = '';
 
-  function formatTime(date) {
-    return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
-  }
-
-  function createMessageElement({ sender, role = 'peer', text, timestamp = new Date() }) {
+  function createMessageElement({ sender, role = 'peer', text }) {
     const wrapper = document.createElement('div');
     wrapper.className = `chat-message chat-message--${role}`;
 
-    const header = document.createElement('div');
-    header.className = 'chat-message__meta';
-    header.innerHTML = `<span class="chat-author">${sender}</span><span class="chat-time">${formatTime(timestamp)}</span>`;
+    const line = document.createElement('div');
+    line.className = 'chat-message__line';
 
-    const body = document.createElement('p');
-    body.className = 'chat-message__text';
-    body.textContent = text;
+    const author = document.createElement('span');
+    author.className = 'chat-author';
+    author.textContent = `${sender}:`;
 
-    wrapper.appendChild(header);
-    wrapper.appendChild(body);
+    const textContent = document.createElement('span');
+    textContent.className = 'chat-message__text';
+    textContent.textContent = text;
+
+    line.appendChild(author);
+    line.appendChild(textContent);
+
+    wrapper.appendChild(line);
 
     return wrapper;
   }
