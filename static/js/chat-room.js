@@ -271,11 +271,22 @@
     return shuffled.slice(0, 10);
   }
 
-  // Get a random peer from current participants
+  // Track who sent the last message to avoid same person twice
+  let lastSpeaker = null;
+
+  // Get a random peer from current participants (different from last speaker)
   function getRandomPeer() {
     const peers = participants.filter(p => p.role === 'peer');
     if (peers.length === 0) return null;
-    return peers[Math.floor(Math.random() * peers.length)];
+    
+    // Filter out the last speaker so someone different responds
+    const availablePeers = peers.filter(p => p.name !== lastSpeaker);
+    
+    // If only one peer or all filtered out, just pick any peer
+    const poolToUse = availablePeers.length > 0 ? availablePeers : peers;
+    const chosen = poolToUse[Math.floor(Math.random() * poolToUse.length)];
+    
+    return chosen;
   }
 
   // Get all current peer names for API calls
@@ -412,6 +423,11 @@
         role: message.role,
         text: message.text,
       });
+      
+      // Track who just spoke (for peers only)
+      if (message.role === 'peer') {
+        lastSpeaker = message.sender;
+      }
     }
   }
 
@@ -637,12 +653,13 @@
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          message: 'Continue the conversation naturally with ONE short message.',
+          message: 'Continue the conversation naturally - respond to what was just said or add to the discussion.',
           history: chatHistory.slice(-8),
           warmup: true,
           topic: chatTopic,
           singleMessage: true,
           peerNames: getCurrentPeerNames(),
+          lastSpeaker: lastSpeaker, // Tell backend who spoke last
           uniqueSession: Date.now(), // Force unique responses
         }),
       });

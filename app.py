@@ -2189,111 +2189,111 @@ def chat_room():
     )
 
 
-def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", single_message=False, reply_to_user=False):
+def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", single_message=False, reply_to_user=False, last_speaker=""):
     history_lines = []
+    last_message_in_history = ""
 
     for item in history[-12:]:
         sender = (item.get("sender") or "Someone").strip() or "Someone"
         text = (item.get("text") or "").strip()
         if text:
             history_lines.append(f"{sender}: {text}")
+            last_message_in_history = f"{sender} said: \"{text}\""
 
     conversation_block = "\n".join(history_lines) if history_lines else "(quiet room - be the first to say something)"
 
     topic_context = f" Today's vibe/topic: '{topic}'." if topic else ""
 
-    # Dynamic personality based on random seed for variety
+    # Dynamic conversation directions - emphasize responding to each other
     import random
-    mood_seed = random.random()
     
-    # Generate unique conversation starters/directions
-    conversation_starters = [
-        "talk about something that happened today",
-        "share a random thought or observation",
-        "mention something you're looking forward to",
-        "talk about music, a show, or something creative",
-        "share how you're actually feeling right now",
-        "ask the room a casual question",
-        "react to something someone said earlier",
-        "share a small win or struggle from the day",
-        "mention something you're working through",
-        "talk about self-care or what helps you cope",
-    ]
-    random_direction = random.choice(conversation_starters)
-
-    # Build roster string from provided names
-    roster_str = ", ".join(roster) if roster else "someone"
+    # If there's recent chat, encourage responding to it
+    if last_message_in_history and random.random() > 0.3:  # 70% chance to respond to previous
+        conversation_directions = [
+            f"respond to what {last_speaker or 'they'} just said",
+            "react to the last message",
+            "add to what someone just shared",
+            "respond supportively to the previous message",
+            "acknowledge what was just said and share your take",
+        ]
+    else:
+        conversation_directions = [
+            "share something about your day",
+            "ask the group a casual question",
+            "share how you're feeling right now",
+            "mention something random that's on your mind",
+        ]
+    
+    random_direction = random.choice(conversation_directions)
 
     personalities = f"""
-IMPORTANT RULES FOR REALISTIC CHAT:
-1. NEVER repeat exact phrases from previous messages - every message must be completely unique
-2. Use casual internet/texting style - lowercase ok, abbreviations like "ngl", "tbh", "lowkey", "fr", "imo" sometimes
-3. Vary message length - sometimes just "same" or "mood", other times a full thought
-4. React naturally - "omg yes", "wait what", "that's so real", "felt that"
-5. Don't be overly positive - real support groups have ups AND downs
-6. Sometimes just vibe, don't always give advice
-7. Reference things like: work stress, school, relationships, sleep issues, anxiety, family stuff, hobbies
-8. Use emojis sparingly and naturally - not every message needs them
-9. Sometimes trail off or use "..." or "idk"
-10. This is gen-z/millennial style chatting - keep it authentic
+CRITICAL RULES FOR REALISTIC GROUP CHAT:
+1. This is a CONVERSATION - people RESPOND to each other, not just share random thoughts
+2. If someone just said something, acknowledge it or react to it naturally
+3. DON'T just share standalone thoughts - respond to the chat flow
+4. Use short reactions: "oh same", "felt that", "wait really?", "that's rough"
+5. Sometimes ask follow-up questions: "what happened?", "how long has that been going on?"
+6. Vary your energy - sometimes supportive, sometimes just vibing, sometimes sharing your own stuff
+7. Keep messages SHORT - most real texts are under 15 words
+8. Use casual style: lowercase, "ngl", "tbh", "fr", "lowkey", sometimes emojis
+9. NOT every message needs to be deep - "lol", "mood", "same" are valid responses
+10. This should feel like friends texting, not therapy speak
 
-MOOD MIX (vary this naturally):
-- Some messages are upbeat: "yo anyone else having a good day for once lol"
-- Some are struggling: "having a rough one ngl" or "anxiety's been hitting different"
-- Some are just casual: "what's everyone up to" or "procrastinating so hard rn"
-- Some are supportive: "that sounds tough, im here tho" or "sending good vibes"
+GOOD EXAMPLES OF RESPONDING:
+- If someone says they're stressed: "ugh yeah same, work?" or "felt that, hope it eases up"
+- If someone shares a win: "ayy that's awesome!" or "proud of u fr"
+- If someone asks a question: actually answer it briefly
+- Natural reactions: "oh no", "wait what", "lmaooo", "honestly tho"
 
-Current vibe direction: {random_direction}"""
+BAD (don't do this):
+- Sharing random standalone thoughts that ignore what others said
+- Multiple sentences of advice
+- Being overly positive/supportive
+- Therapy language like "that's valid" or "I hear you"
+
+Last message in chat: {last_message_in_history or '(none yet)'}
+Your task: {random_direction}"""
 
     if reply_to_user:
-        # Single natural reply to something the user said
         guidance = (
             f"A real person just said: \"{latest_message}\"\n"
-            "Reply with ONE short, natural message. React like a real friend would in a group chat - "
-            "brief, genuine, casual. Don't be preachy or give unsolicited advice unless asked. "
-            "Match the energy of what they said. Sometimes a simple reaction is enough."
+            "Reply naturally like a friend would. Keep it brief and genuine. Match their energy."
         )
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            "Keep under 25 words. Be real, not performative."
+            "Keep under 20 words. Sound like a real person texting."
         )
     elif single_message:
-        # Single message for continuous background chat
         guidance = (
-            f"Generate ONE casual message for the chat.{topic_context} "
-            f"Direction for variety: {random_direction}. "
-            "Make it feel like a real person just decided to say something - not forced, not generic. "
-            "Can be about anything: how they're feeling, random thought, reaction to room vibe, life stuff. "
-            "MUST be different from anything in the chat history - no recycled content!"
+            f"Generate ONE message that continues this conversation naturally.{topic_context}\n"
+            f"Task: {random_direction}\n"
+            "This should feel like someone naturally responding in a group chat, NOT a random standalone thought."
         )
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            "Keep under 20 words. Make it unique and natural."
+            "Keep under 15 words. Must fit the conversation flow."
         )
     elif warmup:
         guidance = (
-            f"Someone just entered the room.{topic_context} Show the chat is already active with 1-2 quick messages. "
-            "Make it feel like walking into an ongoing conversation between friends."
+            f"Show a brief exchange between 2 people - one says something, another responds.{topic_context}"
         )
         request_block = (
-            "Return JSON array with 1-2 objects: "
+            "Return JSON array with 2 objects showing a mini back-and-forth: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            "Keep each under 15 words. Natural group chat energy."
+            "Keep each under 12 words. Make it feel like an ongoing conversation."
         )
     else:
-        guidance = "Reply naturally to the newest message with one genuine peer response."
+        guidance = "Reply naturally to the most recent message."
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            "Keep under 25 words. Real chat vibes."
+            "Keep under 20 words."
         )
 
     return (
-        f"You generate realistic peer-support chat messages for a mental health community. "
-        f"This is like a discord server or group chat - casual, supportive, real. "
-        f"Use sender name 'Peer' - the system will assign the actual name.\n\n"
+        f"You generate realistic group chat messages. People RESPOND to each other here.\n\n"
         f"{personalities}\n\n"
         f"Recent chat:\n{conversation_block}\n\n"
         f"{guidance}\n"
@@ -2301,7 +2301,7 @@ Current vibe direction: {random_direction}"""
     )
 
 
-def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", single_message=False, reply_to_user=False):
+def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", single_message=False, reply_to_user=False, last_speaker=""):
     history = history or []
 
     payload = {
@@ -2310,23 +2310,24 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
             {
                 "role": "system",
                 "content": (
-                    "You are ONE person in a support chat. Be brief and natural - like real texting. Only one person responds at a time."
+                    "You generate realistic group chat messages. People respond to each other naturally. Keep it brief like real texting."
                 ),
             },
             {
                 "role": "user",
                 "content": build_chat_prompt(
-                    ["Rowan", "Sage", "Mia", "Alex", "Leah", "Priya"],
+                    [],  # Roster not used anymore
                     history,
                     message,
                     warmup=warmup,
                     topic=topic,
                     single_message=single_message,
                     reply_to_user=reply_to_user,
+                    last_speaker=last_speaker,
                 ),
             },
         ],
-        "temperature": 0.8,
+        "temperature": 0.9,  # Higher for more variety
         "max_tokens": 100,
     }
 
@@ -2401,6 +2402,7 @@ def chat_reply():
     single_message = bool(data.get("singleMessage"))
     reply_to_user = bool(data.get("replyToUser"))
     topic = (data.get("topic") or get_chat_topic() or "").strip()
+    last_speaker = (data.get("lastSpeaker") or "").strip()
 
     if not message and not warmup:
         return {"error": "Please share a message so the room can reply."}, 400
@@ -2434,7 +2436,8 @@ def chat_reply():
         warmup=warmup, 
         topic=topic, 
         single_message=single_message,
-        reply_to_user=reply_to_user
+        reply_to_user=reply_to_user,
+        last_speaker=last_speaker
     )
     if error:
         # Return error flag so frontend can handle silently
