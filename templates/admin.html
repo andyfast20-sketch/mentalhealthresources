@@ -18,6 +18,7 @@
         <a class="btn tiny ghost" href="#data">Data</a>
         <a class="btn tiny ghost" href="#media-library">Media pot</a>
         <a class="btn tiny ghost" href="#did-you-know">Did you know?</a>
+        <a class="btn tiny ghost" href="#useful-contacts">Useful contacts</a>
         <a class="btn tiny ghost" href="#activities">Activities</a>
         <a class="btn tiny ghost" href="#charities">Charities</a>
         <a class="btn tiny ghost" href="#books">Books</a>
@@ -363,6 +364,152 @@
         </article>
         {% else %}
         <p class="body">No “Did you know?” cards yet. Add a few to brighten the homepage.</p>
+        {% endfor %}
+    </div>
+    </section>
+
+    <section class="panel admin-panel" id="useful-contacts" data-admin-section>
+    <div class="panel-header">
+        <p class="eyebrow">Useful contacts</p>
+        <h2>Keep helplines and text numbers current.</h2>
+        <p class="lede">Add trusted services manually or ask the AI to suggest a new one. We’ll skip duplicates to keep the list tidy.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('add_useful_contact_admin') }}" method="post">
+        <div class="form-grid">
+            <label>
+                <span>Service name</span>
+                <input type="text" name="name" placeholder="Example Helpline" required />
+            </label>
+            <label>
+                <span>Telephone</span>
+                <input type="text" name="telephone" placeholder="111, 0800..." />
+            </label>
+        </div>
+        <div class="form-grid">
+            <label>
+                <span>Email (optional)</span>
+                <input type="email" name="contact_email" placeholder="support@example.org" />
+            </label>
+            <label>
+                <span>Text number (optional)</span>
+                <input type="text" name="text_number" placeholder="Text code or SMS number" />
+            </label>
+        </div>
+        <div class="form-grid">
+            <label>
+                <span>Tags (comma separated)</span>
+                <input type="text" name="tags" placeholder="crisis, youth, uk" />
+            </label>
+            <label>
+                <span>Description (optional)</span>
+                <input type="text" name="description" placeholder="Hours, audience, or speciality" />
+            </label>
+        </div>
+        <button class="btn" type="submit">Add contact</button>
+    </form>
+    <div class="admin-inline-actions">
+        <form class="admin-form compact" action="{{ url_for('ai_useful_contact_admin') }}" method="post">
+            <div class="form-grid">
+                <label>
+                    <span>Ask AI for a new contact</span>
+                    <input type="text" name="topic" placeholder="e.g., text-based crisis line in the UK" />
+                    <p class="microcopy">Requires a DeepSeek key. AI will avoid duplicates and only return one strong match.</p>
+                </label>
+            </div>
+            <button class="btn secondary" type="submit">Request contact</button>
+        </form>
+    </div>
+    <div class="charity-admin-grid">
+        {% for contact in useful_contacts %}
+        <article class="charity-card admin-card">
+            <div class="charity-header">
+                <div>
+                    <p class="eyebrow">Useful contact</p>
+                    <h3>{{ contact.name }}</h3>
+                </div>
+                <div class="chip-row">
+                    {% for tag in contact.all_tags %}
+                    <span class="chip">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <dl class="contact-dl">
+                <div>
+                    <dt>Call</dt>
+                    <dd>{{ contact.telephone or '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Text</dt>
+                    <dd>{{ contact.text_number or '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Email</dt>
+                    <dd>{{ contact.contact_email or '—' }}</dd>
+                </div>
+            </dl>
+            <p class="body">{{ contact.description or 'No description added yet.' }}</p>
+            <div class="book-actions">
+                <button
+                    class="btn tiny secondary"
+                    type="button"
+                    data-contact-edit-toggle
+                    data-target="contact-{{ contact.id }}"
+                    aria-expanded="false"
+                >
+                    Edit
+                </button>
+                <form action="{{ url_for('delete_useful_contact_admin', contact_id=contact.id) }}" method="post" onsubmit="return confirm('Delete this contact?');">
+                    <button class="btn tiny ghost" type="submit">Delete</button>
+                </form>
+                <div class="halo"></div>
+            </div>
+            <form
+                class="admin-inline-form hidden"
+                data-contact-form="contact-{{ contact.id }}"
+                action="{{ url_for('update_useful_contact_admin', contact_id=contact.id) }}"
+                method="post"
+            >
+                <div class="form-grid">
+                    <label>
+                        <span>Service name</span>
+                        <input type="text" name="name" value="{{ contact.name }}" required />
+                    </label>
+                    <label>
+                        <span>Telephone</span>
+                        <input type="text" name="telephone" value="{{ contact.telephone }}" />
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <label>
+                        <span>Email</span>
+                        <input type="email" name="contact_email" value="{{ contact.contact_email }}" />
+                    </label>
+                    <label>
+                        <span>Text number</span>
+                        <input type="text" name="text_number" value="{{ contact.text_number }}" />
+                    </label>
+                </div>
+                <div class="form-grid">
+                    <label>
+                        <span>Tags</span>
+                        <input type="text" name="tags" value="{{ contact.tags }}" />
+                    </label>
+                    <label>
+                        <span>Description</span>
+                        <input type="text" name="description" value="{{ contact.description }}" />
+                    </label>
+                </div>
+                <div class="book-actions">
+                    <button class="btn tiny" type="submit">Save changes</button>
+                    <button class="btn tiny ghost" type="button" data-contact-edit-toggle data-target="contact-{{ contact.id }}">Cancel</button>
+                </div>
+            </form>
+        </article>
+        {% else %}
+        <p class="body">No contacts yet. Add a helpline or ask the AI for a suggestion.</p>
         {% endfor %}
     </div>
     </section>

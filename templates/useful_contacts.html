@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid compact">
+    <div class="hero-copy">
+        <p class="eyebrow">Useful numbers</p>
+        <h1>Helplines and text lines you can trust.</h1>
+        <p class="lede">Browse crisis lines, text services, and specialist teams. Filter by how you want to reach out or search by name.</p>
+        <div class="cta-row">
+            <a class="btn" href="#contact-list">See contacts</a>
+            <button class="pill" id="contact-filter-reset" aria-label="Reset contact filters">Reset filters</button>
+        </div>
+    </div>
+    <div class="hero-visual resources-visual" aria-hidden="true">
+        <div class="visual-backdrop"></div>
+        <img src="https://files.catbox.moe/9m5s4c.png" alt="Soft collage of phones and envelopes" loading="lazy" />
+        <div class="visual-caption glassy">Numbers you can keep handy for tough moments.</div>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="panel resource-panel">
+    <div class="filters-card">
+        <div class="filters-copy">
+            <h3>Filter by how you want to reach out</h3>
+            <p class="body">Tap a tag to show services with that channel or focus. Use search to quickly find a name.</p>
+            <button class="pill" id="contact-filter-reset-bottom" aria-label="Reset contact filters">Reset filters</button>
+        </div>
+        <div class="tag-rail" aria-label="Contact filters">
+            <div class="tag-row" id="contact-tag-row">
+                {% for tag in contact_tags %}
+                <button class="tag" data-contact-filter="{{ tag }}">{{ tag }}</button>
+                {% endfor %}
+            </div>
+            <div class="search-field">
+                <label class="sr-only" for="contact-search">Search contacts</label>
+                <input id="contact-search" type="search" placeholder="Search by name" data-contact-search />
+            </div>
+            <p class="microcopy">Tags include built-in channels like phone, text, or email plus anything you add in admin.</p>
+        </div>
+    </div>
+</section>
+
+<section id="contact-list" class="useful-grid-shell">
+    <div class="useful-grid">
+        {% for contact in contacts %}
+        <article class="useful-card" data-contact-card data-tags="{{ contact.all_tags|join(' ') }}" data-name="{{ contact.name | lower }}">
+            <div class="card-header">
+                <div>
+                    <p class="eyebrow">Support line</p>
+                    <h3>{{ contact.name }}</h3>
+                </div>
+                <div class="chip-row">
+                    {% for tag in contact.all_tags %}
+                    <span class="chip">{{ tag }}</span>
+                    {% endfor %}
+                </div>
+            </div>
+            <p class="body">{{ contact.description or 'Reliable mental health support when you need it.' }}</p>
+            <dl class="contact-dl">
+                <div>
+                    <dt>Call</dt>
+                    <dd>{% if contact.telephone %}<a href="tel:{{ contact.telephone }}">{{ contact.telephone }}</a>{% else %}—{% endif %}</dd>
+                </div>
+                <div>
+                    <dt>Text</dt>
+                    <dd>{% if contact.text_number %}<a href="sms:{{ contact.text_number }}">{{ contact.text_number }}</a>{% else %}—{% endif %}</dd>
+                </div>
+                <div>
+                    <dt>Email</dt>
+                    <dd>{% if contact.contact_email %}<a href="mailto:{{ contact.contact_email }}">{{ contact.contact_email }}</a>{% else %}—{% endif %}</dd>
+                </div>
+            </dl>
+        </article>
+        {% else %}
+        <p class="body">No contacts have been added yet. Check back soon for phone, text, and email options.</p>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}
