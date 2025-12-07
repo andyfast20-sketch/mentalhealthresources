@@ -1033,10 +1033,18 @@ def deepseek_useful_contact_lookup(api_key, topic, forbidden_names=None):
     forbidden_names = forbidden_names or []
     avoidance = ""
 
-    if forbidden_names:
+    normalized_forbidden = sorted(
+        {
+            normalize_contact_name(name)
+            for name in forbidden_names
+            if isinstance(name, str) and normalize_contact_name(name)
+        }
+    )
+
+    if normalized_forbidden:
         avoidance = (
             "Avoid returning any of these names or numbers to prevent duplicates: "
-            + ", ".join(sorted(forbidden_names))
+            + ", ".join(normalized_forbidden)
             + "."
         )
 
