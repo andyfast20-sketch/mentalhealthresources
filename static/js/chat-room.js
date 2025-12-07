@@ -584,20 +584,23 @@
     return Math.min(6000, Math.max(2000, readingTimeMs + 1000));
   }
 
-  // Fallback responses when API fails - short, reactive, engaging
+  // Fallback responses when API fails - more varied and interesting
   const fallbackReplies = [
     // 1 word reactions
-    "same", "mood", "felt", "oof", "yep", "lol", "true", "facts", "omg", "wait", "nah", "yea",
+    "same", "mood", "felt", "oof", "yep", "lol", "true", "facts", "omg", "wait", "nah", "yea", "lmaooo",
     // 2 word reactions
-    "oh no", "wait what", "so true", "that's rough", "big mood", "fair enough", "felt that",
-    "omg same", "literally me", "oh damn", "ur right", "good point", "thats rough",
-    // 3-4 word responses  
-    "yeah I feel that", "hope ur okay", "thats so real", "honestly tho", "felt that fr",
-    "omg thats crazy", "wait really tho", "same here tbh", "aw u ok?", "that sucks ngl",
-    "lol so true", "me too tbh", "how come?", "wait what happened",
-    // 5-6 word supportive/engaging
-    "sending u good vibes 💙", "hope things get better", "im here if u need",
-    "thats actually a good point", "oh no what happened?", "aww that sounds tough"
+    "oh no", "wait what", "so true", "big mood", "fair enough", "felt that",
+    "omg same", "literally me", "oh damn", "ur right", "good point", "no way",
+    // Questions / engagement
+    "wait why?", "how come?", "wait what happened", "u good?", "whos asking lol",
+    // Topic changers / tangents
+    "ok but random thought", "anyone else hungry", "wait off topic but", "ngl i zoned out",
+    "ok but anyway", "lowkey bored ngl", "wait i just thought of smth",
+    // Jokes / playful
+    "lol ur so dramatic", "says u 😂", "no bc same", "stop calling me out",
+    "why is that so accurate", "felt that in my soul", "dont expose me like that",
+    // Short supportive
+    "aw hope ur ok", "thats rough ngl", "sending hugs 💙", "im here if u need",
   ];
 
   // Female names that might add 'x' to messages
@@ -614,6 +617,20 @@
 
   function getRandomFallbackReply(senderName) {
     let reply = fallbackReplies[Math.floor(Math.random() * fallbackReplies.length)];
+    
+    // 30% chance to add @mention of someone in chat
+    if (Math.random() < 0.3) {
+      const names = getCurrentPeerNames().filter(n => n !== senderName);
+      if (names.length > 0) {
+        const randomName = names[Math.floor(Math.random() * names.length)];
+        // Prefix with @name sometimes
+        if (Math.random() < 0.5) {
+          reply = `@${randomName} ${reply}`;
+        } else {
+          reply = `${randomName} ${reply}`;
+        }
+      }
+    }
     
     // 40% chance for female names to add 'x' at the end
     if (senderName && femaleNames.includes(senderName.toLowerCase()) && Math.random() < 0.4) {
@@ -661,6 +678,7 @@
             warmup,
             replyToUser: true,
             peerNames: getCurrentPeerNames(),
+            participants: getCurrentPeerNames(), // Send participant names for @mentions
             uniqueSession: Date.now(), // Force unique responses
           }),
         });
@@ -759,6 +777,7 @@
           topic: chatTopic,
           singleMessage: true,
           peerNames: getCurrentPeerNames(),
+          participants: getCurrentPeerNames(), // Send participant names for @mentions
           lastSpeaker: lastSpeaker, // Tell backend who spoke last
           uniqueSession: Date.now(), // Force unique responses
         }),

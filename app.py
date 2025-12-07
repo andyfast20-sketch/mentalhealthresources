@@ -2189,9 +2189,10 @@ def chat_room():
     )
 
 
-def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", single_message=False, reply_to_user=False, last_speaker=""):
+def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", single_message=False, reply_to_user=False, last_speaker="", all_participants=None):
     history_lines = []
     last_message_in_history = ""
+    last_few_speakers = []
 
     for item in history[-12:]:
         sender = (item.get("sender") or "Someone").strip() or "Someone"
@@ -2199,7 +2200,12 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
         if text:
             history_lines.append(f"{sender}: {text}")
             last_message_in_history = f"{sender} said: \"{text}\""
+            if sender not in last_few_speakers:
+                last_few_speakers.append(sender)
 
+    # Keep track of recent speakers to sometimes address them by name
+    recent_names = last_few_speakers[-4:] if last_few_speakers else []
+    
     conversation_block = "\n".join(history_lines) if history_lines else "(quiet room - be the first to say something)"
 
     topic_context = f" Today's vibe/topic: '{topic}'." if topic else ""
@@ -2208,63 +2214,97 @@ def build_chat_prompt(roster, history, latest_message, warmup=False, topic="", s
     
     # Random personality type for this message
     personality_types = [
-        ("clever", "You're articulate and insightful. Use interesting observations or thoughtful responses. Still casual but smart."),
-        ("clever", "You're articulate and insightful. Use interesting observations or thoughtful responses. Still casual but smart."),
-        ("average", "You're a regular person. Normal everyday responses, nothing fancy. Just chatting."),
-        ("average", "You're a regular person. Normal everyday responses, nothing fancy. Just chatting."),
-        ("average", "You're a regular person. Normal everyday responses, nothing fancy. Just chatting."),
-        ("simple", "You keep it simple. Short words, basic responses. Not dumb, just straightforward. 'same', 'mood', 'that sucks'."),
-        ("simple", "You keep it simple. Short words, basic responses. Not dumb, just straightforward. 'same', 'mood', 'that sucks'."),
-        ("caring", "You're warm and supportive. Check in on people, offer comfort. Genuine care without being preachy."),
+        ("joker", "You're funny and playful. Make jokes, tease people gently, use humor. Light-hearted."),
+        ("joker", "You're funny and playful. Make jokes, tease people gently, use humor. Light-hearted."),
+        ("curious", "You ask questions and are interested in others. 'wait what?' 'how come?' 'tell me more'"),
+        ("curious", "You ask questions and are interested in others. 'wait what?' 'how come?' 'tell me more'"),
+        ("chill", "You're laid back. Short responses, unbothered. 'lol nice' 'fair' 'mood'"),
+        ("chill", "You're laid back. Short responses, unbothered. 'lol nice' 'fair' 'mood'"),
+        ("chill", "You're laid back. Short responses, unbothered. 'lol nice' 'fair' 'mood'"),
+        ("caring", "You're warm and check on people. 'u ok?' 'hope ur good' 'thats rough sending hugs'"),
+        ("random", "You go off on tangents or bring up random stuff. Change the subject sometimes."),
     ]
     personality_name, personality_desc = random.choice(personality_types)
     
-    # Random target message length (1-8 words, heavily weighted toward very short)
-    length_options = [1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 4, 4, 5, 6, 7, 8]
+    # Random target message length (1-7 words, heavily weighted toward very short)
+    length_options = [1, 1, 1, 2, 2, 2, 3, 3, 4, 5, 6, 7]
     target_length = random.choice(length_options)
     
-    # ALWAYS try to respond/engage with what was said - this is key for realistic chat
-    if last_message_in_history:
+    # Pick someone to potentially address by name (50% chance)
+    address_someone = ""
+    if recent_names and random.random() < 0.5:
+        address_someone = random.choice(recent_names)
+    
+    # Varied conversation behaviors - NOT always responding to the last message
+    behavior_roll = random.random()
+    if behavior_roll < 0.25 and len(history_lines) > 3:
+        # Start a new topic / tangent
         conversation_directions = [
-            f"reply directly to what {last_speaker or 'they'} said - react to THEIR message",
-            f"respond to {last_speaker or 'them'} - agree, disagree, or ask a follow-up",
-            "react to the last message with emotion or opinion",
-            "ask a follow-up question about what they just said",
-            f"show you heard {last_speaker or 'them'} - relate to it briefly",
+            "change the subject - bring up something random but interesting",
+            "start a new topic - ask about something unrelated",
+            "go off on a tangent - mention something random thats on your mind",
+            "ignore the current convo and say something funny or random",
+        ]
+    elif behavior_roll < 0.45 and address_someone:
+        # Address someone specific
+        conversation_directions = [
+            f"talk directly TO {address_someone} - use their name, ask them something or react to them",
+            f"reply to {address_someone} specifically - mention their name",
+            f"check in with {address_someone} - '@' them basically",
+        ]
+    elif behavior_roll < 0.65 and last_speaker:
+        # React to last speaker
+        conversation_directions = [
+            f"react to what {last_speaker} just said",
+            f"respond to {last_speaker}'s message",
+            f"agree or disagree with {last_speaker}",
         ]
     else:
+        # General chat vibes
         conversation_directions = [
-            "ask a casual question to the group",
-            "say hi or check in briefly",
+            "say something funny or make a joke",
+            "share a quick thought or reaction",
+            "ask a random question to anyone",
+            "react with just an emoji response or very short text",
+            "say something relatable",
         ]
     
     random_direction = random.choice(conversation_directions)
 
+    # Build list of who's in the chat for @mentions
+    participants_list = ", ".join(all_participants[:6]) if all_participants else "various people"
+
     personalities = f"""
-PERSONALITY FOR THIS MESSAGE: {personality_name.upper()}
+PERSONALITY: {personality_name.upper()}
 {personality_desc}
 
-TARGET LENGTH: Around {target_length} words (MAX {target_length + 2} words - shorter is better!)
+PEOPLE IN CHAT: {participants_list}
 
-VERY SHORT RESPONSE EXAMPLES (use these styles):
-- 1 word: "same" / "mood" / "lol" / "oof" / "felt" / "yea" / "nah" / "true"
-- 2 words: "oh no" / "wait what" / "that's rough" / "so true" / "felt that"
-- 3-4 words: "yeah I feel that" / "ugh same" / "hope ur okay" / "omg same tho"
-- 5-8 words: one short sentence max, casual like texting
+TARGET LENGTH: {target_length} words max (shorter = better)
 
-CRITICAL RULES:
-1. **RESPOND TO THE LAST MESSAGE** - Don't ignore what was said! React to it!
-2. NO random statements about YOUR day unless asked - RESPOND to THEM
-3. NEVER say things like "I can't wait to..." or "counting down until..." - those ignore the conversation
-4. Max 1 sentence. NO multiple sentences ever.
-5. If someone shares something, react to THAT - "omg really?" / "wait same" / "that sucks" / "how come?"
-6. Use casual style: lowercase, "u", "ur", "ngl", "tbh", "lol"
-7. Questions are good - "wait why?" / "how?" / "u ok?" / "same u?"
+MAKING CHAT INTERESTING:
+- Use @names sometimes: "@{address_someone or 'name'} lol what" or "{address_someone or 'name'} u ok?"
+- Start NEW topics sometimes - dont just answer the same question forever
+- Make jokes, be playful, tease people (nicely)
+- Go off on tangents - real chats arent linear
+- NOT everyone needs to answer every question - sometimes ignore it
 
-BAD (ignoring conversation): "cant wait for the weekend" / "thinking about what to eat later"
-GOOD (engaging): "omg same" / "wait really?" / "that's rough ngl" / "how come?" / "felt that"
+EXAMPLE GOOD MESSAGES:
+- "@maya wait that reminds me"
+- "lol james ur so dramatic"
+- "ok but random thought"
+- "anyone else hungry or just me"
+- "ngl i zoned out what we talking about"
+- "@sarah u good?"
+- "lmaooo"
+- "wait can we talk about something else"
 
-Last message: {last_message_in_history or '(none yet)'}
+BAD (boring): "im doing okay" "just hanging in there" "surviving" [everyone saying the same thing]
+GOOD (interesting): jokes, tangents, @mentions, questions, random thoughts, teasing
+
+Recent chat:
+{conversation_block}
+
 Your task: {random_direction}"""
 
     if reply_to_user:
@@ -2279,43 +2319,43 @@ Your task: {random_direction}"""
         )
     elif single_message:
         guidance = (
-            f"Generate ONE brief response, max {target_length} words.{topic_context}\n"
+            f"Generate ONE message, max {target_length} words.{topic_context}\n"
             f"Task: {random_direction}\n"
-            f"REMEMBER: Respond to what was said. No random statements about your day."
+            f"Be interesting - jokes, @mentions, tangents, questions. Not boring answers."
         )
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            f"Max {target_length} words. Must engage with conversation."
+            f"Max {target_length} words. Be interesting not boring."
         )
     elif warmup:
         guidance = (
-            f"Show a brief 2-message exchange where people RESPOND to each other.{topic_context}"
+            f"Show 2 messages - someone says something, someone else reacts.{topic_context} Keep short and fun."
         )
         request_block = (
             "Return JSON array with 2 objects: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            "Keep each 2-5 words. Second person should reply to first."
+            "Keep each 2-5 words. Make it interesting - joke, question, or @mention."
         )
     else:
-        guidance = f"Reply to the last message as a {personality_name} person. Max {target_length} words."
+        guidance = f"Be a {personality_name} person. Max {target_length} words. Do: {random_direction}"
         request_block = (
             "Return JSON array with exactly 1 object: "
             "{\"sender\": \"Peer\", \"role\": \"peer\", \"text\": string}. "
-            f"Max {target_length} words. MUST respond to conversation, not random statement."
+            f"Max {target_length} words. Be interesting - use @names, jokes, or tangents."
         )
 
     return (
-        f"You generate realistic group chat messages. Brief is better.\n\n"
+        f"Generate realistic group chat. Be INTERESTING - jokes, @mentions, tangents, not everyone answering same question.\n\n"
         f"{personalities}\n\n"
-        f"Recent chat:\n{conversation_block}\n\n"
         f"{guidance}\n"
         f"{request_block}"
     )
 
 
-def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", single_message=False, reply_to_user=False, last_speaker=""):
+def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", single_message=False, reply_to_user=False, last_speaker="", all_participants=None):
     history = history or []
+    all_participants = all_participants or []
 
     payload = {
         "model": "deepseek-chat",
@@ -2323,8 +2363,8 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
             {
                 "role": "system",
                 "content": (
-                    "Generate brief chat messages. ALWAYS respond to what was said - react, agree, disagree, or ask follow-ups. "
-                    "Never ignore the conversation to make random statements. Max 8 words. Be reactive like real texting."
+                    "Generate brief group chat messages. Be INTERESTING: use @names, jokes, tangents, change topics. "
+                    "NOT everyone answers every question. Max 7 words. Real chat energy."
                 ),
             },
             {
@@ -2338,6 +2378,7 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic="", 
                     single_message=single_message,
                     reply_to_user=reply_to_user,
                     last_speaker=last_speaker,
+                    all_participants=all_participants,
                 ),
             },
         ],
@@ -2558,6 +2599,7 @@ def chat_reply():
     reply_to_user = bool(data.get("replyToUser"))
     topic = (data.get("topic") or get_chat_topic() or "").strip()
     last_speaker = (data.get("lastSpeaker") or "").strip()
+    all_participants = data.get("participants") or []
 
     if not message and not warmup:
         return {"error": "Please share a message so the room can reply."}, 400
@@ -2600,7 +2642,8 @@ def chat_reply():
         topic=topic, 
         single_message=single_message,
         reply_to_user=reply_to_user,
-        last_speaker=last_speaker
+        last_speaker=last_speaker,
+        all_participants=all_participants
     )
     if error:
         # Return error flag so frontend can handle silently
