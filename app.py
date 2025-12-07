@@ -71,6 +71,9 @@ LOCAL_FALLBACK_DB = LOCAL_DATA_DIR / "d1_fallback.sqlite"
 SQLITE_TIMEOUT = 30
 CONSTRUCTION_BANNER_KEY = "construction_banner"
 DEEPSEEK_SETTING_KEY = "deepseek_api_key"
+CHAT_ENABLED_KEY = "chat_enabled"
+CHAT_NEXT_SESSION_KEY = "chat_next_session"
+CHAT_TOPIC_KEY = "chat_topic"
 
 
 DEFAULT_BOOKS = [
@@ -945,6 +948,31 @@ def set_construction_banner(enabled):
 
 def get_deepseek_api_key():
     return load_site_settings().get(DEEPSEEK_SETTING_KEY, "")
+
+
+def chat_enabled():
+    value = load_site_settings().get(CHAT_ENABLED_KEY, "1")
+    return str(value).strip().lower() in {"1", "true", "yes", "on"}
+
+
+def set_chat_enabled(enabled):
+    save_site_setting(CHAT_ENABLED_KEY, "1" if enabled else "0")
+
+
+def get_chat_next_session():
+    return load_site_settings().get(CHAT_NEXT_SESSION_KEY, "")
+
+
+def set_chat_next_session(value):
+    save_site_setting(CHAT_NEXT_SESSION_KEY, value)
+
+
+def get_chat_topic():
+    return load_site_settings().get(CHAT_TOPIC_KEY, "General mental health support")
+
+
+def set_chat_topic(value):
+    save_site_setting(CHAT_TOPIC_KEY, value)
 
 
 def extract_json_object(text):
@@ -2007,10 +2035,15 @@ def resources():
 
 @app.route("/chat")
 def chat_room():
-    return render_template("chat.html")
+    return render_template(
+        "chat.html",
+        chat_enabled=chat_enabled(),
+        chat_topic=get_chat_topic(),
+        chat_next_session=get_chat_next_session(),
+    )
 
 
-def build_chat_prompt(roster, history, latest_message, warmup=False):
+def build_chat_prompt(roster, history, latest_message, warmup=False, topic=""):
     history_lines = []
 
     for item in history[-12:]:
@@ -2021,9 +2054,12 @@ def build_chat_prompt(roster, history, latest_message, warmup=False):
 
     conversation_block = "\n".join(history_lines) if history_lines else "(quiet room)"
 
+    topic_context = f" The current chat topic is '{topic}'." if topic else ""
+
     guidance = (
-        "A new person just joined the room. Show a quick welcome and a snippet of back-and-forth "
-        "between two peers so it feels alive."
+        f"A new person just joined the room.{topic_context} Show a snippet of ongoing back-and-forth "
+        "between 2-3 peers that feels natural and in-progress, as if they walked into a live conversation. "
+        "Make it warm and relatable."
         if warmup
         else "Reply naturally to the newest message with up to two short, human peer responses."
     )
@@ -2034,7 +2070,7 @@ def build_chat_prompt(roster, history, latest_message, warmup=False):
     )
 
     request_block = (
-        "Return JSON array named messages, with 1-2 objects each shaped as"
+        "Return JSON array named messages, with 2-3 objects each shaped as"
         " {\"sender\": string, \"role\": \"peer\"|\"mod\", \"text\": string}. "
         "Avoid canned lines, vary phrasing, and keep texts under 50 words."
     )
@@ -2050,7 +2086,7 @@ def build_chat_prompt(roster, history, latest_message, warmup=False):
     )
 
 
-def deepseek_chat_reply(api_key, message, history=None, warmup=False):
+def deepseek_chat_reply(api_key, message, history=None, warmup=False, topic=""):
     history = history or []
 
     payload = {
@@ -2069,6 +2105,7 @@ def deepseek_chat_reply(api_key, message, history=None, warmup=False):
                     history,
                     message,
                     warmup=warmup,
+                    topic=topic,
                 ),
             },
         ],
@@ -2144,6 +2181,7 @@ def chat_reply():
     message = (data.get("message") or "").strip()
     history = data.get("history") or []
     warmup = bool(data.get("warmup"))
+    topic = (data.get("topic") or get_chat_topic() or "").strip()
 
     if not message and not warmup:
         return {"error": "Please share a message so the room can reply."}, 400
@@ -2161,7 +2199,7 @@ def chat_reply():
             ]
         return {"messages": fallback_messages}
 
-    replies, error = deepseek_chat_reply(api_key, message, history, warmup=warmup)
+    replies, error = deepseek_chat_reply(api_key, message, history, warmup=warmup, topic=topic)
     if error:
         # Provide a friendly fallback instead of showing the error
         fallback_messages = [
@@ -2266,6 +2304,9 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
         active_section=section,
         deepseek_api_key=get_deepseek_api_key(),
         deepseek_api_key_masked=mask_secret(get_deepseek_api_key()),
+        chat_enabled=chat_enabled(),
+        chat_topic=get_chat_topic(),
+        chat_next_session=get_chat_next_session(),
     )
 
 
@@ -2296,6 +2337,20 @@ def update_deepseek_api_key():
         message = "DeepSeek API key cleared."
 
     return redirect(url_for("admin", message=message, section="ai-tools"))
+
+
+@app.route("/admin/chat-settings", methods=["POST"])
+def update_chat_settings():
+    enabled = request.form.get("chat_enabled") == "on"
+    topic = request.form.get("chat_topic", "").strip()
+    next_session = request.form.get("chat_next_session", "").strip()
+
+    set_chat_enabled(enabled)
+    set_chat_topic(topic)
+    set_chat_next_session(next_session)
+
+    message = "Chat room settings saved."
+    return redirect(url_for("admin", message=message, section="chat-room"))
 
 
 @app.route("/admin/did-you-know", methods=["POST"])

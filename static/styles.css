@@ -1884,6 +1884,86 @@ body {
   margin-top: clamp(1.5rem, 3vw, 2.25rem);
 }
 
+/* Chat topic and schedule banner styles */
+.chat-topic-banner {
+  background: linear-gradient(135deg, rgba(245, 163, 181, 0.2), rgba(247, 192, 106, 0.15));
+  border: 1px solid rgba(245, 163, 181, 0.3);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.chat-next-session {
+  background: linear-gradient(135deg, rgba(108, 77, 92, 0.1), rgba(245, 163, 181, 0.15));
+  border: 1px solid rgba(108, 77, 92, 0.2);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.75rem;
+  font-size: 1rem;
+  color: var(--text);
+}
+
+.btn.disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Chat closed panel */
+.chat-closed-panel {
+  margin-top: clamp(1.5rem, 3vw, 2.25rem);
+}
+
+.chat-closed-info {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.8), rgba(255, 247, 243, 0.7));
+  border: 1px solid rgba(108, 77, 92, 0.15);
+  border-radius: 18px;
+  padding: clamp(2rem, 4vw, 3rem);
+  text-align: center;
+  max-width: 600px;
+  margin: 0 auto;
+  box-shadow: 0 16px 48px rgba(182, 129, 126, 0.12);
+}
+
+.chat-closed-icon {
+  margin-bottom: 1.5rem;
+}
+
+.chat-closed-icon svg {
+  color: var(--muted);
+}
+
+.chat-closed-info h3 {
+  color: var(--text);
+  margin-bottom: 0.75rem;
+}
+
+.chat-closed-info .body {
+  color: var(--muted);
+  margin-bottom: 1rem;
+}
+
+.next-session-card {
+  background: linear-gradient(135deg, rgba(245, 163, 181, 0.15), rgba(247, 192, 106, 0.1));
+  border: 1px solid rgba(245, 163, 181, 0.25);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin: 1.5rem 0;
+}
+
+.next-session-card .eyebrow {
+  color: var(--accent);
+  margin-bottom: 0.25rem;
+}
+
+.session-time {
+  font-size: 1.15rem;
+  font-weight: 600;
+  color: var(--text);
+}
+
 .chat-guidelines {
   background: linear-gradient(120deg, rgba(255, 255, 255, 0.7), rgba(255, 247, 243, 0.6));
   border: 1px solid rgba(245, 163, 181, 0.2);

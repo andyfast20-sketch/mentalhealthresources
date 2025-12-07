@@ -4,8 +4,12 @@
 <div class="hero-grid compact chat-hero">
     <div class="hero-copy">
         <p class="eyebrow">Community Chat</p>
+        {% if chat_enabled %}
         <h1>Join the room and talk with peers in real-time.</h1>
         <p class="lede">A cozy, moderated corner for quick check-ins, late-night worries, and celebrating the small wins. Usernames you see are active right now.</p>
+        {% if chat_topic %}
+        <p class="chat-topic-banner"><strong>Today's topic:</strong> {{ chat_topic }}</p>
+        {% endif %}
         <div class="cta-row">
             <button class="btn" data-open-chat-modal>
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -13,6 +17,19 @@
             </button>
             <span class="pill ghost">Moderated by ModBot + 2 humans</span>
         </div>
+        {% else %}
+        <h1>The chat room is currently closed.</h1>
+        <p class="lede">Our moderated chat sessions run at scheduled times. Check back soon to connect with the community.</p>
+        {% if chat_next_session %}
+        <p class="chat-next-session"><strong>Next session:</strong> {{ chat_next_session }}</p>
+        {% endif %}
+        <div class="cta-row">
+            <span class="btn disabled" aria-disabled="true">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                Chat Room Closed
+            </span>
+        </div>
+        {% endif %}
     </div>
     <div class="hero-visual resources-visual" aria-hidden="true">
         <div class="visual-backdrop"></div>
@@ -24,10 +41,19 @@
 
 {% block scripts %}
 {{ super() }}
+{% if chat_enabled %}
+<script>
+    window.CHAT_CONFIG = {
+        topic: {{ chat_topic|tojson }},
+        enabled: true
+    };
+</script>
 <script src="{{ url_for('static', filename='js/chat-room.js') }}"></script>
+{% endif %}
 {% endblock %}
 
 {% block content %}
+{% if chat_enabled %}
 <section class="panel chat-intro-panel">
     <div class="chat-guidelines">
         <div>
@@ -46,7 +72,11 @@
 <section class="panel chat-panel has-modal-mode" id="live-chat">
     <!-- Preview section when modal is closed -->
     <div class="chat-inline-preview">
+        {% if chat_topic %}
+        <h3>Today's topic: {{ chat_topic }}</h3>
+        {% else %}
         <h3>Ready to connect?</h3>
+        {% endif %}
         <p>Click the button below to open the chat room in a popup window where you can see everything at once.</p>
         <button class="chat-popup-trigger" data-open-chat-modal>
             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
@@ -54,14 +84,33 @@
         </button>
     </div>
 </section>
+{% else %}
+<section class="panel chat-closed-panel">
+    <div class="chat-closed-info">
+        <div class="chat-closed-icon" aria-hidden="true">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+        </div>
+        <h3>Chat sessions are scheduled</h3>
+        <p class="body">Our chat room opens at specific times with trained moderators present. This helps us keep the space safe and supportive for everyone.</p>
+        {% if chat_next_session %}
+        <div class="next-session-card">
+            <p class="eyebrow">Next session</p>
+            <p class="session-time">{{ chat_next_session }}</p>
+        </div>
+        {% endif %}
+        <p class="body muted">In the meantime, explore our <a href="{{ url_for('calming_tools') }}">calming tools</a> or <a href="{{ url_for('crisis_resources') }}">crisis resources</a> if you need support.</p>
+    </div>
+</section>
+{% endif %}
 
+{% if chat_enabled %}
 <!-- Chat Modal Popup -->
 <div class="chat-modal-backdrop" data-chat-modal>
     <div class="chat-modal" role="dialog" aria-labelledby="chat-modal-title" aria-modal="true">
         <div class="chat-modal-header">
             <h2 id="chat-modal-title">
                 <span class="status-dot" aria-hidden="true"></span>
-                Mental Health Support Chat
+                {% if chat_topic %}{{ chat_topic }}{% else %}Mental Health Support Chat{% endif %}
             </h2>
             <button class="chat-modal-close" data-close-chat-modal aria-label="Close chat">
                 ×
@@ -89,7 +138,7 @@
                             <div class="chat-room__title">
                                 <span class="status-dot" aria-hidden="true"></span>
                                 <div>
-                                    <span>Live Chat</span>
+                                    <span>{% if chat_topic %}{{ chat_topic }}{% else %}Live Chat{% endif %}</span>
                                     <p class="microcopy">Peer-to-peer | Typing indicators, live roster, cozy vibes</p>
                                 </div>
                             </div>
@@ -115,4 +164,5 @@
         </div>
     </div>
 </div>
+{% endif %}
 {% endblock %}

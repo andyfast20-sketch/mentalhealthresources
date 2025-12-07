@@ -15,6 +15,7 @@
     <div class="admin-anchor-nav" aria-label="Admin shortcuts">
         <a class="btn tiny ghost" href="#site-banner">Site banner</a>
         <a class="btn tiny ghost" href="#ai-tools">AI tools</a>
+        <a class="btn tiny ghost" href="#chat-room">Chat room</a>
         <a class="btn tiny ghost" href="#data">Data</a>
         <a class="btn tiny ghost" href="#media-library">Media pot</a>
         <a class="btn tiny ghost" href="#did-you-know">Did you know?</a>
@@ -66,6 +67,39 @@
             </label>
         </div>
         <button class="btn" type="submit">Save key</button>
+    </form>
+    </section>
+
+    <section class="panel admin-panel" id="chat-room" data-admin-section>
+    <div class="panel-header">
+        <p class="eyebrow">Chat Room</p>
+        <h2>Manage the community chat.</h2>
+        <p class="lede">Control when the chat room is open and set the topic for each session.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('update_chat_settings') }}" method="post">
+        <div class="checkbox-grid">
+            <label class="checkbox-field">
+                <input type="checkbox" name="chat_enabled" {% if chat_enabled %}checked{% endif %} />
+                <span>Chat room is open</span>
+            </label>
+        </div>
+        <p class="form-hint">When off, visitors will see when the next session is scheduled.</p>
+        <div class="form-grid">
+            <label>
+                <span>Current topic</span>
+                <input type="text" name="chat_topic" placeholder="e.g. Coping with anxiety" value="{{ chat_topic }}" />
+                <p class="body muted">Displayed to visitors when they enter the chat room.</p>
+            </label>
+            <label>
+                <span>Next session</span>
+                <input type="text" name="chat_next_session" placeholder="e.g. Tuesday 7pm GMT - Managing stress" value="{{ chat_next_session }}" />
+                <p class="body muted">Shown when chat is closed. Include date, time and topic.</p>
+            </label>
+        </div>
+        <button class="btn" type="submit">Save chat settings</button>
     </form>
     </section>
 

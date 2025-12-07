@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid compact">
+  <div class="hero-copy">
+    <p class="eyebrow">Guide</p>
+    <h1>{{ guide.title }}</h1>
+    <p class="lede">{{ guide.lede }}</p>
+    <div class="cta-row">
+      <a class="btn" href="{{ url_for('resources') }}">Back to resources</a>
+    </div>
+  </div>
+  <div class="hero-visual resources-visual" aria-hidden="true">
+    <div class="visual-backdrop"></div>
+    <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=1400&q=80&auto=format&fit=crop" alt="Soothing abstract artwork" loading="lazy" />
+    <div class="visual-caption glassy">A short, kind explanation to make sense of what you're feeling.</div>
+  </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="panel guide-panel">
+  <div class="panel-header">
+    <p class="eyebrow">{{ guide.title }}</p>
+    <h2>Understanding anxiety — clear, compassionate, practical.</h2>
+  </div>
+
+  <div class="guide-body">
+    {% for section in guide.sections %}
+    <article class="guide-section">
+      <h3>{{ section.heading }}</h3>
+      <p class="body">{{ section.body }}</p>
+    </article>
+    {% endfor %}
+
+    {% if guide.links %}
+    <aside class="guide-links card">
+      <p class="eyebrow muted">Helpful reading</p>
+      <ul>
+        {% for link in guide.links %}
+        <li><a href="{{ link.url }}" target="_blank" rel="noopener">{{ link.label }}</a></li>
+        {% endfor %}
+      </ul>
+    </aside>
+    {% endif %}
+
+    <div class="guide-actions">
+      <a class="btn" href="{{ url_for('resources') }}">Back to resources</a>
+      <a class="btn ghost" href="{{ url_for('crisis_info') }}">Crisis info</a>
+    </div>
+  </div>
+</section>
+{% endblock %}

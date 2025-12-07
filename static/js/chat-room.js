@@ -17,6 +17,10 @@
 
   if (!chatLog || !chatForm || !chatInput) return;
 
+  // Get chat config from page (topic, etc.)
+  const chatConfig = window.CHAT_CONFIG || {};
+  const chatTopic = chatConfig.topic || '';
+
   const participants = [
     { name: 'You', role: 'you' },
     { name: 'ModBot', role: 'mod' },
@@ -29,6 +33,7 @@
   ];
 
   const chatHistory = [];
+  let isWaitingForReply = false;
 
   function createMessageElement({ sender, role = 'peer', text }) {
     const wrapper = document.createElement('div');
@@ -67,14 +72,15 @@
     }
   }
 
-  function showTyping(bot) {
-    if (!typingBar || !typingCopy) return;
-    typingCopy.textContent = `${bot} is typing…`;
+  function showTyping(name) {
+    if (!typingBar || !typingCopy || !isWaitingForReply) return;
+    typingCopy.textContent = `${name} is typing…`;
     typingBar.hidden = false;
   }
 
   function hideTyping() {
     if (typingBar) typingBar.hidden = true;
+    isWaitingForReply = false;
   }
 
   function renderSidebar() {
@@ -110,7 +116,10 @@
   }
 
   async function requestReplies(userMessage, { warmup = false } = {}) {
-    showTyping('Someone');
+    isWaitingForReply = true;
+    const peers = participants.filter(p => p.role === 'peer');
+    const randomPeer = peers[Math.floor(Math.random() * peers.length)];
+    showTyping(randomPeer.name);
 
     try {
       const response = await fetch('/api/chat/reply', {
@@ -135,6 +144,53 @@
       showError(error.message || 'Unable to reach the chat service.');
     } finally {
       hideTyping();
+    }
+  }
+
+  // ModBot welcome message
+  function showModBotWelcome() {
+    let welcomeText = 'Hey there! 👋 Welcome to our cozy corner. I\'m ModBot, here to keep things safe and friendly.';
+    if (chatTopic) {
+      welcomeText += ` Today we\'re chatting about "${chatTopic}".`;
+    }
+    welcomeText += ' Feel free to join in whenever you\'re ready — no pressure!';
+    
+    addMessage({ sender: 'ModBot', role: 'mod', text: welcomeText }, false);
+  }
+
+  // Request background conversation from API
+  async function requestBackgroundConversation() {
+    try {
+      const response = await fetch('/api/chat/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: 'Generate a brief, natural conversation between peers in a mental health support chat room. Make it feel like an ongoing discussion that a newcomer is walking into.',
+          history: [],
+          warmup: true,
+          topic: chatTopic,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        console.log('Background chat unavailable:', result.error);
+        return;
+      }
+
+      const messages = Array.isArray(result.messages) ? result.messages : [];
+      
+      // Show messages with realistic delays
+      let delay = 0;
+      messages.forEach((msg, index) => {
+        setTimeout(() => {
+          addMessage(msg, false);
+        }, delay);
+        delay += 800 + Math.random() * 1200; // 0.8-2 second gaps
+      });
+    } catch (error) {
+      console.log('Background chat error:', error.message);
     }
   }
 
@@ -215,8 +271,14 @@
     }
   });
 
+  // Initialize chat
   renderSidebar();
-  requestReplies('A new person quietly joined. Welcome them and show a bit of live back-and-forth.', {
-    warmup: true,
-  });
+  
+  // Show ModBot welcome immediately
+  showModBotWelcome();
+  
+  // Request background conversation from API after a short delay
+  setTimeout(() => {
+    requestBackgroundConversation();
+  }, 2000);
 })();
