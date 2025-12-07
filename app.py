@@ -2010,6 +2010,143 @@ def chat_room():
     return render_template("chat.html")
 
 
+def build_chat_prompt(roster, history, latest_message, warmup=False):
+    history_lines = []
+
+    for item in history[-12:]:
+        sender = (item.get("sender") or "Someone").strip() or "Someone"
+        text = (item.get("text") or "").strip()
+        if text:
+            history_lines.append(f"{sender}: {text}")
+
+    conversation_block = "\n".join(history_lines) if history_lines else "(quiet room)"
+
+    guidance = (
+        "A new person just joined the room. Show a quick welcome and a snippet of back-and-forth "
+        "between two peers so it feels alive."
+        if warmup
+        else "Reply naturally to the newest message with up to two short, human peer responses."
+    )
+
+    roster_block = (
+        "Peers available: " + ", ".join(roster) + ". Use only these names for senders. "
+        "Use role 'peer' for everyone except 'mod' if you decide ModBot should speak."
+    )
+
+    request_block = (
+        "Return JSON array named messages, with 1-2 objects each shaped as"
+        " {\"sender\": string, \"role\": \"peer\"|\"mod\", \"text\": string}. "
+        "Avoid canned lines, vary phrasing, and keep texts under 50 words."
+    )
+
+    return (
+        f"You are drafting realistic, caring peer-support chat replies. "
+        f"Stay gentle, avoid therapy claims, and steer away from crisis advice; point people to professional help gently if needed. "
+        f"{roster_block}\n\n"
+        f"Recent conversation:\n{conversation_block}\n\n"
+        f"Latest message: {latest_message or 'New arrival'}\n"
+        f"{guidance}\n"
+        f"{request_block}"
+    )
+
+
+def deepseek_chat_reply(api_key, message, history=None, warmup=False):
+    history = history or []
+
+    payload = {
+        "model": "deepseek-chat",
+        "messages": [
+            {
+                "role": "system",
+                "content": (
+                    "You are a team of empathetic peers in a support chat. Stay concise, kind, and human-sounding."
+                ),
+            },
+            {
+                "role": "user",
+                "content": build_chat_prompt(
+                    ["Rowan", "Sage", "Mia", "Alex", "Leah", "Priya", "ModBot"],
+                    history,
+                    message,
+                    warmup=warmup,
+                ),
+            },
+        ],
+        "temperature": 0.65,
+        "max_tokens": 280,
+    }
+
+    request_data = json.dumps(payload).encode("utf-8")
+    request_headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}",
+    }
+
+    try:
+        req = urlrequest.Request(
+            "https://api.deepseek.com/chat/completions",
+            data=request_data,
+            headers=request_headers,
+        )
+        with urlrequest.urlopen(req, timeout=30) as response:
+            result = json.loads(response.read().decode("utf-8"))
+    except HTTPError as exc:  # pragma: no cover - external dependency
+        return None, f"DeepSeek request failed: {exc.reason or exc.code}"
+    except URLError as exc:  # pragma: no cover - external dependency
+        return None, f"DeepSeek request failed: {getattr(exc, 'reason', exc)}"
+    except Exception as exc:  # pragma: no cover - network variability
+        return None, f"DeepSeek lookup error: {exc}"
+
+    content = (
+        (result.get("choices") or [{}])[0]
+        .get("message", {})
+        .get("content", "")
+    )
+
+    parsed = extract_json_object(content)
+    if not isinstance(parsed, list):
+        return None, "Unable to parse DeepSeek response."
+
+    messages = []
+
+    for item in parsed:
+        if not isinstance(item, dict):
+            continue
+        sender = (item.get("sender") or "Peer").strip() or "Peer"
+        role = (item.get("role") or "peer").strip().lower()
+        role = "mod" if role == "mod" else "peer"
+        text = (item.get("text") or "").strip()
+        if not text:
+            continue
+        messages.append({"sender": sender[:40], "role": role, "text": text[:500]})
+
+    if not messages:
+        return None, "DeepSeek returned no usable messages."
+
+    return messages, None
+
+
+@app.route("/api/chat/reply", methods=["POST"])
+def chat_reply():
+    data = request.get_json(silent=True) or {}
+    message = (data.get("message") or "").strip()
+    history = data.get("history") or []
+    warmup = bool(data.get("warmup"))
+
+    if not message and not warmup:
+        return {"error": "Please share a message so the room can reply."}, 400
+
+    api_key = load_site_settings().get(DEEPSEEK_SETTING_KEY, "").strip()
+    if not api_key:
+        return {"error": "DeepSeek API key is not configured yet."}, 400
+
+    replies, error = deepseek_chat_reply(api_key, message, history, warmup=warmup)
+    if error:
+        return {"error": error}, 502
+
+    return {"messages": replies}
+
+
 @app.route("/useful-contacts")
 def useful_contacts():
     contacts = load_useful_contacts()

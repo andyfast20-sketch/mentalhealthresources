@@ -7,11 +7,13 @@
   const promptButtons = Array.from(document.querySelectorAll('[data-chat-prompt]'));
   const sidebarList = document.querySelector('[data-chat-sidebar]');
   const presenceCounter = document.querySelector('[data-chat-presence]');
+  const chatCard = document.querySelector('[data-chat-card]');
+  const chatSizeToggle = document.querySelector('[data-chat-size-toggle]');
 
   if (!chatLog || !chatForm || !chatInput) return;
 
   const participants = [
-    { name: 'ddf', role: 'you', status: 'Active • Desktop', badge: 'You' },
+    { name: 'You', role: 'you', status: 'Active • Desktop', badge: 'You' },
     { name: 'ModBot', role: 'mod', status: 'On duty • safety monitor', badge: 'Moderator' },
     { name: 'Rowan', role: 'peer', status: 'Replying in resources', badge: 'Peer supporter' },
     { name: 'Sage', role: 'peer', status: 'Typing…', badge: 'Night owl' },
@@ -21,33 +23,7 @@
     { name: 'Priya', role: 'peer', status: 'Reviewing grounding list', badge: 'Student counsellor' },
   ];
 
-  const peers = participants.filter((person) => person.role === 'peer').map((person) => person.name);
-  const supportReplies = [
-    "You're not alone in this, even if it feels that way tonight.",
-    "Breathing slow can help—shoulders down, jaw unclench, gentle breaths in and out.",
-    "That sounds really heavy. Thanks for trusting us with it.",
-    "Proud of you for naming this. It takes courage to say it out loud.",
-    "Maybe a tiny step? Water, stretch, or a quick walk if you can.",
-    "It's okay to log off and rest if you need to. We'll be here.",
-    "Journaling a few lines can park the thoughts somewhere safe for the night.",
-    "Weekends can be weirdly loud for the mind—totally valid to feel wobbly.",
-    "Therapy talk is welcome, but this space is peer-to-peer and gentle.",
-    "Small joys count: warm tea, a cozy show, a favourite playlist on low.",
-  ];
-
-  const gratitudeReplies = [
-    "Glad we could sit with you for a bit 💛",
-    "No worries—take what helps and leave the rest.",
-    "Happy to hold space. Keep leaning on what feels steady tonight.",
-  ];
-
-  const copingReplies = [
-    "Grounding ideas: five things you see, four you can touch, three you can hear.",
-    "Box breathing can steady the nervous system—4 in, 4 hold, 4 out, 4 hold.",
-    "Name one thing that feels safe right now. Let your body notice it.",
-  ];
-
-  let lastBotLine = '';
+  const chatHistory = [];
 
   function createMessageElement({ sender, role = 'peer', text }) {
     const wrapper = document.createElement('div');
@@ -72,10 +48,18 @@
     return wrapper;
   }
 
-  function addMessage(message) {
+  function addMessage(message, trackHistory = true) {
     const element = createMessageElement(message);
     chatLog.appendChild(element);
     chatLog.scrollTop = chatLog.scrollHeight;
+
+    if (trackHistory) {
+      chatHistory.push({
+        sender: message.sender,
+        role: message.role,
+        text: message.text,
+      });
+    }
   }
 
   function showTyping(bot) {
@@ -86,10 +70,6 @@
 
   function hideTyping() {
     if (typingBar) typingBar.hidden = true;
-  }
-
-  function randomFrom(list) {
-    return list[Math.floor(Math.random() * list.length)];
   }
 
   function renderSidebar() {
@@ -141,68 +121,37 @@
     }
   }
 
-  function craftReply(message) {
-    const text = message.toLowerCase();
-    const suggestions = [...supportReplies];
-
-    if (text.includes('thank')) {
-      suggestions.push(...gratitudeReplies);
-    }
-
-    if (text.includes('ground') || text.includes('anxious') || text.includes('panic')) {
-      suggestions.push(...copingReplies);
-    }
-
-    let pick = randomFrom(suggestions);
-    if (pick === lastBotLine) {
-      pick = randomFrom(suggestions.filter((reply) => reply !== lastBotLine));
-    }
-
-    lastBotLine = pick;
-    return pick;
+  function showError(message) {
+    addMessage({ sender: 'System', role: 'system', text: message }, false);
   }
 
-  function queueBotReply(userMessage) {
-    const botName = randomFrom(peers);
-    showTyping(botName);
+  async function requestReplies(userMessage, { warmup = false } = {}) {
+    showTyping('Someone');
 
-    setTimeout(() => {
-      const reply = craftReply(userMessage);
+    try {
+      const response = await fetch('/api/chat/reply', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          message: userMessage,
+          history: chatHistory,
+          warmup,
+        }),
+      });
+
+      const result = await response.json();
+
+      if (!response.ok || result.error) {
+        throw new Error(result.error || 'Something went wrong while chatting.');
+      }
+
+      const messages = Array.isArray(result.messages) ? result.messages : [];
+      messages.forEach((msg) => addMessage(msg));
+    } catch (error) {
+      showError(error.message || 'Unable to reach the chat service.');
+    } finally {
       hideTyping();
-      addMessage({ sender: botName, role: 'peer', text: reply, timestamp: new Date() });
-    }, 900 + Math.random() * 900);
-  }
-
-  function seedRoom() {
-    const introMessages = [
-      {
-        sender: 'System',
-        role: 'system',
-        text: '* Welcome to the chat, ddf',
-      },
-      {
-        sender: 'ModBot',
-        role: 'mod',
-        text: 'Friendly reminder: be kind, skip contact details, and use Crisis info for emergencies.',
-      },
-      {
-        sender: 'Rowan',
-        role: 'peer',
-        text: 'Welcome in! Grab a seat—no rush to talk if you just want to listen.',
-      },
-      {
-        sender: 'Leah',
-        role: 'peer',
-        text: 'I just made chamomile tea if anyone wants to settle in together.',
-      },
-      {
-        sender: 'Priya',
-        role: 'peer',
-        text: 'Taking a 3-minute breathing break—join me if you want a soft start.',
-      },
-    ];
-
-    introMessages.forEach((message) => addMessage(message));
+    }
   }
 
   chatForm.addEventListener('submit', (event) => {
@@ -212,7 +161,7 @@
 
     addMessage({ sender: 'You', role: 'you', text });
     chatInput.value = '';
-    queueBotReply(text);
+    requestReplies(text);
   });
 
   promptButtons.forEach((button) => {
@@ -222,6 +171,20 @@
     });
   });
 
+  if (chatSizeToggle && chatCard) {
+    chatSizeToggle.addEventListener('click', () => {
+      const expanded = chatCard.classList.toggle('is-expanded');
+      chatCard.classList.toggle('is-condensed', !expanded);
+      chatSizeToggle.textContent = expanded ? '⤡ Condense' : '⤢ Expand';
+      chatSizeToggle.setAttribute(
+        'aria-label',
+        expanded ? 'Condense chat height' : 'Expand chat height'
+      );
+    });
+  }
+
   renderSidebar();
-  seedRoom();
+  requestReplies('A new person quietly joined. Welcome them and show a bit of live back-and-forth.', {
+    warmup: true,
+  });
 })();
