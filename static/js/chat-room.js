@@ -10,6 +10,11 @@
   const chatCard = document.querySelector('[data-chat-card]');
   const chatSizeToggle = document.querySelector('[data-chat-size-toggle]');
 
+  // Modal elements
+  const chatModal = document.querySelector('[data-chat-modal]');
+  const openModalButtons = Array.from(document.querySelectorAll('[data-open-chat-modal]'));
+  const closeModalButton = document.querySelector('[data-close-chat-modal]');
+
   if (!chatLog || !chatForm || !chatInput) return;
 
   const participants = [
@@ -182,6 +187,54 @@
       );
     });
   }
+
+  // Modal functionality
+  function openChatModal() {
+    if (chatModal) {
+      chatModal.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+      // Focus the chat input when modal opens
+      setTimeout(() => {
+        if (chatInput) chatInput.focus();
+      }, 300);
+    }
+  }
+
+  function closeChatModal() {
+    if (chatModal) {
+      chatModal.classList.remove('is-open');
+      document.body.style.overflow = '';
+    }
+  }
+
+  // Open modal button handlers
+  openModalButtons.forEach((button) => {
+    button.addEventListener('click', (e) => {
+      e.preventDefault();
+      openChatModal();
+    });
+  });
+
+  // Close modal button handler
+  if (closeModalButton) {
+    closeModalButton.addEventListener('click', closeChatModal);
+  }
+
+  // Close modal when clicking backdrop
+  if (chatModal) {
+    chatModal.addEventListener('click', (e) => {
+      if (e.target === chatModal) {
+        closeChatModal();
+      }
+    });
+  }
+
+  // Close modal with Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && chatModal && chatModal.classList.contains('is-open')) {
+      closeChatModal();
+    }
+  });
 
   renderSidebar();
   requestReplies('A new person quietly joined. Welcome them and show a bit of live back-and-forth.', {
