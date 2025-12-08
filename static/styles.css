@@ -1329,6 +1329,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  height: 220px;
+  min-height: 220px;
+  max-height: 220px;
 }
 
 .charity-card.admin-card {
@@ -1371,6 +1374,34 @@ body {
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  margin-top: auto;
+  padding-top: 8px;
+}
+
+.charity-description {
+  flex: 1;
+  overflow-y: auto;
+  padding-right: 6px;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(122, 178, 203, 0.4) rgba(255, 255, 255, 0.5);
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+  max-height: 85px;
+}
+
+.charity-description::-webkit-scrollbar {
+  width: 5px;
+}
+
+.charity-description::-webkit-scrollbar-thumb {
+  background: rgba(122, 178, 203, 0.4);
+  border-radius: 10px;
+}
+
+.charity-description::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.5);
+  border-radius: 10px;
 }
 
 .charity-footer {
