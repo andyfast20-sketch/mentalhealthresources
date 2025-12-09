@@ -1,7 +1,7 @@
 import json
 import os
 import sqlite3
-from datetime import datetime
+from datetime import datetime, timedelta
 from html.parser import HTMLParser
 import re
 from pathlib import Path
@@ -868,6 +868,18 @@ def ensure_tables():
             created_at DATETIME DEFAULT CURRENT_TIMESTAMP
         );
         """,
+        """
+        CREATE TABLE IF NOT EXISTS contact_messages (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            name TEXT NOT NULL,
+            email TEXT NOT NULL,
+            subject TEXT DEFAULT '',
+            body TEXT NOT NULL,
+            is_complete INTEGER DEFAULT 0,
+            created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+            completed_at DATETIME
+        );
+        """,
     ]
 
     for statement in table_statements:
@@ -906,6 +918,102 @@ def ensure_calming_counts_schema(connection=None):
 
     if "view_count" not in columns:
         d1_query("ALTER TABLE calming_counts ADD COLUMN view_count INTEGER DEFAULT 0")
+
+
+def parse_timestamp(value):
+    if isinstance(value, datetime):
+        return value
+
+    if not value:
+        return None
+
+    if isinstance(value, (int, float)):
+        try:
+            return datetime.fromtimestamp(value)
+        except (ValueError, OSError):
+            return None
+
+    for fmt in ("%Y-%m-%d %H:%M:%S", "%Y-%m-%dT%H:%M:%S", "%Y-%m-%dT%H:%M:%S.%fZ", "%Y-%m-%dT%H:%M:%S.%f"):
+        try:
+            return datetime.strptime(str(value), fmt)
+        except ValueError:
+            continue
+
+    try:
+        return datetime.fromisoformat(str(value))
+    except ValueError:
+        return None
+
+
+def save_contact_message(name, email, subject, body):
+    ensure_tables()
+
+    d1_query(
+        """
+        INSERT INTO contact_messages (name, email, subject, body)
+        VALUES (?, ?, ?, ?)
+        """,
+        [name, email, subject, body],
+    )
+
+
+def load_contact_messages():
+    ensure_tables()
+
+    rows = d1_query(
+        """
+        SELECT id, name, email, subject, body, is_complete, created_at, completed_at
+        FROM contact_messages
+        ORDER BY created_at DESC
+        """
+    )
+
+    messages = []
+    now = datetime.utcnow()
+
+    for row in rows:
+        created_at = parse_timestamp(row.get("created_at")) if isinstance(row, dict) else None
+        is_complete = bool(row.get("is_complete", 0)) if isinstance(row, dict) else False
+
+        overdue = False
+        if created_at and not is_complete:
+            overdue = now - created_at > timedelta(days=4)
+
+        messages.append(
+            {
+                "id": row.get("id"),
+                "name": row.get("name", ""),
+                "email": row.get("email", ""),
+                "subject": row.get("subject", ""),
+                "body": row.get("body", ""),
+                "is_complete": is_complete,
+                "created_at": created_at,
+                "created_at_raw": row.get("created_at"),
+                "completed_at": parse_timestamp(row.get("completed_at")) if isinstance(row, dict) else None,
+                "overdue": overdue,
+            }
+        )
+
+    return messages
+
+
+def mark_contact_message_complete(message_id):
+    ensure_tables()
+
+    d1_query(
+        """
+        UPDATE contact_messages
+        SET is_complete = 1, completed_at = CURRENT_TIMESTAMP
+        WHERE id = ?
+        """,
+        [message_id],
+    )
+
+
+def delete_contact_message(message_id):
+    ensure_tables()
+
+    d1_query("DELETE FROM contact_messages WHERE id = ?", [message_id])
 
 
 def normalize_calming_entry(entry):
@@ -2204,6 +2312,31 @@ def resources():
     return render_template("resources.html", resources=RESOURCES)
 
 
+@app.route("/contact", methods=["GET", "POST"])
+def contact_page():
+    message = request.args.get("message")
+    error = None
+
+    if request.method == "POST":
+        name = request.form.get("name", "").strip()
+        email = request.form.get("email", "").strip()
+        subject = request.form.get("subject", "").strip()
+        body = request.form.get("message", "").strip()
+
+        if not name or not email or not body:
+            error = "Please include your name, email, and a short note so we can respond."
+        else:
+            save_contact_message(name, email, subject, body)
+            return redirect(
+                url_for(
+                    "contact_page",
+                    message="Thanks for reaching out. We’ll respond with signposts and next steps.",
+                )
+            )
+
+    return render_template("contact.html", message=message, error=error)
+
+
 @app.route("/sleep-support")
 def sleep_support():
     sleep_steps = [
@@ -2867,6 +3000,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
     media_assets = load_media_assets()
     calming_tools = calming_tools_with_counts()
     useful_contacts = load_useful_contacts()
+    contact_messages = load_contact_messages()
     books_with_covers = sum(1 for book in books if book.get("cover_url"))
     books_without_covers = len(books) - books_with_covers
     books_per_row = 4
@@ -2885,6 +3019,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
         did_you_know_items=did_you_know_items,
         media_assets=media_assets,
         useful_contacts=useful_contacts,
+        contact_messages=contact_messages,
         save_summary=save_summary,
         load_summary=load_summary,
         construction_banner_enabled=construction_banner_enabled(),
@@ -2906,6 +3041,30 @@ def admin():
     message = request.args.get("message")
     section = request.args.get("section")
     return render_admin_page(message=message, section=section)
+
+
+@app.route("/admin/contact-messages/<int:message_id>/complete", methods=["POST"])
+def complete_contact_message_admin(message_id):
+    mark_contact_message_complete(message_id)
+    return redirect(
+        url_for(
+            "admin",
+            message="Message marked as complete.",
+            section="contact-messages",
+        )
+    )
+
+
+@app.route("/admin/contact-messages/<int:message_id>/delete", methods=["POST"])
+def delete_contact_message_admin(message_id):
+    delete_contact_message(message_id)
+    return redirect(
+        url_for(
+            "admin",
+            message="Message removed from the inbox.",
+            section="contact-messages",
+        )
+    )
 
 
 @app.route("/admin/site-banner", methods=["POST"])

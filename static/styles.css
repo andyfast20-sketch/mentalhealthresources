@@ -6083,3 +6083,142 @@ body {
     order: -1;
   }
 }
+
+/* Contact page */
+.contact-hero {
+  align-items: stretch;
+}
+
+.contact-hero-card {
+  padding: 22px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 38px rgba(113, 64, 77, 0.15);
+}
+
+.contact-list {
+  margin: 14px 0 0;
+  padding-left: 18px;
+  display: grid;
+  gap: 6px;
+  color: #4a2d3b;
+}
+
+.contact-section {
+  padding: 20px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 18px 48px rgba(113, 64, 77, 0.16);
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.contact-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-faqs {
+  margin-top: 22px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.faq-card {
+  padding: 16px;
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 12px 34px rgba(113, 64, 77, 0.12);
+}
+
+.safety-note {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: 12px;
+  background: rgba(244, 67, 54, 0.08);
+  border: 1px solid rgba(244, 67, 54, 0.15);
+  color: #7c1b1b;
+}
+
+/* Admin contact inbox */
+.contact-message-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 14px;
+}
+
+.contact-message-card {
+  position: relative;
+  padding: 16px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 14px 36px rgba(113, 64, 77, 0.14);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.contact-message-card--overdue {
+  animation: pulseOverdue 1.4s infinite;
+  border: 2px solid rgba(221, 44, 0, 0.4);
+}
+
+@keyframes pulseOverdue {
+  0% { box-shadow: 0 0 0 0 rgba(221, 44, 0, 0.35); }
+  50% { box-shadow: 0 0 0 10px rgba(221, 44, 0, 0.1); }
+  100% { box-shadow: 0 0 0 0 rgba(221, 44, 0, 0.08); }
+}
+
+.contact-message-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.status-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 14px;
+  font-weight: 700;
+  font-size: 14px;
+}
+
+.status-chip--open {
+  background: rgba(255, 215, 0, 0.2);
+  color: #8a6d00;
+}
+
+.status-chip--complete {
+  background: rgba(46, 191, 107, 0.2);
+  color: #1f7a4b;
+}
+
+.contact-message-meta {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  align-items: center;
+}
+
+.attention-note {
+  padding: 8px 10px;
+  border-radius: 12px;
+  background: rgba(221, 44, 0, 0.16);
+  color: #7c1b1b;
+  font-weight: 700;
+}
+
+.contact-message-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.contact-message-actions form {
+  flex: 1;
+}
