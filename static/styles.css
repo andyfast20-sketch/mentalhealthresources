@@ -1458,13 +1458,14 @@ body {
   overflow-y: auto;
   overflow-x: hidden;
   padding-right: 8px;
+  min-height: 120px;
+  max-height: 150px;
   margin: 0;
   scrollbar-width: thin;
   scrollbar-color: rgba(122, 178, 203, 0.5) transparent;
   color: var(--muted);
   font-size: 0.92rem;
   line-height: 1.5;
-  min-height: 0;
 }
 
 .charity-description strong {
