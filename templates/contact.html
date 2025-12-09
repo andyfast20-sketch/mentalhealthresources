@@ -27,42 +27,46 @@
 
 {% block content %}
 <section class="contact-section">
-    <div class="contact-copy">
-        <h2>Share your message</h2>
-        <p class="body">Your note will go directly to our small admin team. We handle every message thoughtfully, but we do not offer
-            any form of mental health advice. If you’re in crisis, please go to the crisis information page in the navigation for
-            immediate options.</p>
-    </div>
-
-    {% if message %}
-    <div class="flash success">{{ message }}</div>
-    {% endif %}
-    {% if error %}
-    <div class="flash">{{ error }}</div>
-    {% endif %}
-
-    <form class="contact-form" action="{{ url_for('contact_page') }}" method="post">
-        <div class="form-grid">
-            <label>
-                <span>Your name</span>
-                <input type="text" name="name" placeholder="Alex Rivers" required />
-            </label>
-            <label>
-                <span>Email</span>
-                <input type="email" name="email" placeholder="you@example.com" required />
-            </label>
+    <div class="contact-grid">
+        <div class="contact-copy">
+            <h2>Share your message</h2>
+            <p class="body">Your note will go directly to our small admin team. We handle every message thoughtfully, but we do not
+                offer any form of mental health advice. If you’re in crisis, please go to the crisis information page in the
+                navigation for immediate options.</p>
         </div>
-        <label>
-            <span>Subject</span>
-            <input type="text" name="subject" placeholder="Partnership idea, feedback, or request" />
-        </label>
-        <label>
-            <span>Message</span>
-            <textarea name="message" rows="6" placeholder="Tell us what you need or how we can help you find resources." required></textarea>
-            <p class="form-hint">Please don’t share personal health details. We’ll reply with signposts and resource suggestions.</p>
-        </label>
-        <button class="btn" type="submit">Send to the team</button>
-    </form>
+
+        <div class="contact-form-card glassy">
+            {% if message %}
+            <div class="flash success">{{ message }}</div>
+            {% endif %}
+            {% if error %}
+            <div class="flash">{{ error }}</div>
+            {% endif %}
+
+            <form class="contact-form" action="{{ url_for('contact_page') }}" method="post">
+                <div class="form-grid">
+                    <label>
+                        <span>Your name</span>
+                        <input type="text" name="name" placeholder="Alex Rivers" required />
+                    </label>
+                    <label>
+                        <span>Email</span>
+                        <input type="email" name="email" placeholder="you@example.com" required />
+                    </label>
+                </div>
+                <label>
+                    <span>Subject</span>
+                    <input type="text" name="subject" placeholder="Partnership idea, feedback, or request" />
+                </label>
+                <label>
+                    <span>Message</span>
+                    <textarea name="message" rows="6" placeholder="Tell us what you need or how we can help you find resources." required></textarea>
+                    <p class="form-hint">Please don’t share personal health details. We’ll reply with signposts and resource suggestions.</p>
+                </label>
+                <button class="btn" type="submit">Send to the team</button>
+            </form>
+        </div>
+    </div>
 </section>
 
 <section class="contact-faqs">
