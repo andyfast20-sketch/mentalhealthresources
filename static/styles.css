@@ -138,6 +138,14 @@ body {
   position: relative;
   isolation: isolate;
   overflow: hidden;
+  font-size: 15px;
+  line-height: 1.2;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 10px 12px;
+  border-radius: 12px;
+  text-decoration: none;
+  outline: none;
   border: 1px solid transparent;
   background: linear-gradient(145deg, rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.18));
   box-shadow: 0 8px 18px rgba(90, 46, 105, 0.08);
