@@ -68,6 +68,7 @@ const anxietyVideoTriggers = Array.from(document.querySelectorAll('[data-anxiety
 const anxietyVideoCloseButtons = Array.from(document.querySelectorAll('[data-anxiety-video-close]'));
 const anxietyVideoFrame = document.querySelector('[data-anxiety-video]');
 const adminScrollContainer = document.querySelector('[data-admin-scroll-target]');
+const adminNavButtons = Array.from(document.querySelectorAll('[data-admin-nav-target]'));
 let crisisPlayer;
 let activeBookTrigger = null;
 let activeAdminTrigger = null;
@@ -808,6 +809,10 @@ if (adminScrollContainer?.dataset.adminScrollTarget) {
   const targetSection = adminScrollContainer.dataset.adminScrollTarget;
   window.requestAnimationFrame(() => focusAdminSection(targetSection));
 }
+
+adminNavButtons.forEach((button) => {
+  button.addEventListener('click', () => focusAdminSection(button.dataset.adminNavTarget));
+});
 
 // Smooth scroll for in-page anchors
 document.querySelectorAll('a[href^="#"]').forEach((anchor) => {

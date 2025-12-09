@@ -12,6 +12,113 @@
 
 {% block content %}
 <div class="admin-page" data-admin-scroll-target="{{ active_section }}">
+    <div class="admin-quick-nav" aria-label="Jump to admin areas">
+        <button class="admin-quick-card" type="button" data-admin-nav-target="site-banner">
+            <div class="admin-quick-icon">🚀</div>
+            <div>
+                <p class="eyebrow">Announcements</p>
+                <h3>Site banner</h3>
+                <p class="body muted">Toggle notices that appear above every page.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="ai-tools">
+            <div class="admin-quick-icon">🤖</div>
+            <div>
+                <p class="eyebrow">AI helpers</p>
+                <h3>Tools</h3>
+                <p class="body muted">Manage DeepSeek keys for smarter workflows.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="chat-room">
+            <div class="admin-quick-icon">💬</div>
+            <div>
+                <p class="eyebrow">Community</p>
+                <h3>Chat room</h3>
+                <p class="body muted">Open or close chat, set topics, and rules.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="sleep-support">
+            <div class="admin-quick-icon">🌙</div>
+            <div>
+                <p class="eyebrow">Night support</p>
+                <h3>Sleep page</h3>
+                <p class="body muted">Refresh the late-night video playlist.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="contact-messages">
+            <div class="admin-quick-icon">📥</div>
+            <div>
+                <p class="eyebrow">Inbox</p>
+                <h3>Contact</h3>
+                <p class="body muted">Review enquiries and track responses.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="data">
+            <div class="admin-quick-icon">📊</div>
+            <div>
+                <p class="eyebrow">Data</p>
+                <h3>Reports</h3>
+                <p class="body muted">Download CSVs and view engagement stats.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="media-library">
+            <div class="admin-quick-icon">🖼️</div>
+            <div>
+                <p class="eyebrow">Assets</p>
+                <h3>Media pot</h3>
+                <p class="body muted">Reuse uploaded images across the site.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="did-you-know">
+            <div class="admin-quick-icon">✨</div>
+            <div>
+                <p class="eyebrow">Microcopy</p>
+                <h3>Did you know?</h3>
+                <p class="body muted">Rotate bite-size facts and positive notes.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="useful-contacts">
+            <div class="admin-quick-icon">☎️</div>
+            <div>
+                <p class="eyebrow">Support</p>
+                <h3>Useful contacts</h3>
+                <p class="body muted">Keep helplines and services updated.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="activities">
+            <div class="admin-quick-icon">🧠</div>
+            <div>
+                <p class="eyebrow">Engagement</p>
+                <h3>Activities</h3>
+                <p class="body muted">Curate exercises and calming prompts.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="charities">
+            <div class="admin-quick-icon">🤝</div>
+            <div>
+                <p class="eyebrow">Partners</p>
+                <h3>Charities</h3>
+                <p class="body muted">Add or edit partner organisations.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="books">
+            <div class="admin-quick-icon">📚</div>
+            <div>
+                <p class="eyebrow">Library</p>
+                <h3>Books</h3>
+                <p class="body muted">Manage recommendations and covers.</p>
+            </div>
+        </button>
+        <button class="admin-quick-card" type="button" data-admin-nav-target="book-shelf">
+            <div class="admin-quick-icon">🛒</div>
+            <div>
+                <p class="eyebrow">Live shelf</p>
+                <h3>Shop links</h3>
+                <p class="body muted">Control what visitors can purchase.</p>
+            </div>
+        </button>
+    </div>
+
     <div class="admin-anchor-nav" aria-label="Admin shortcuts">
         <a class="btn tiny ghost" href="#site-banner">Site banner</a>
         <a class="btn tiny ghost" href="#ai-tools">AI tools</a>
