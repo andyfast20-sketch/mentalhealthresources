@@ -17,6 +17,7 @@
         <a class="btn tiny ghost" href="#ai-tools">AI tools</a>
         <a class="btn tiny ghost" href="#chat-room">Chat room</a>
         <a class="btn tiny ghost" href="#sleep-support">Sleep support</a>
+        <a class="btn tiny ghost" href="#contact-messages">Contact messages</a>
         <a class="btn tiny ghost" href="#data">Data</a>
         <a class="btn tiny ghost" href="#media-library">Media pot</a>
         <a class="btn tiny ghost" href="#did-you-know">Did you know?</a>
@@ -155,6 +156,61 @@
         </div>
         <button class="btn" type="submit">Save sleep videos</button>
     </form>
+    </section>
+
+    <section class="panel admin-panel" id="contact-messages" data-admin-section>
+    <div class="panel-header">
+        <p class="eyebrow">Inbox</p>
+        <h2>Contact messages.</h2>
+        <p class="lede">Review enquiries from the contact page. We don’t offer mental health advice—reply with signposts only.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+
+    {% if contact_messages %}
+    <div class="contact-message-grid">
+        {% for item in contact_messages %}
+        <article class="contact-message-card {% if item.overdue %}contact-message-card--overdue{% endif %}">
+            <div class="contact-message-top">
+                <div class="status-chip {% if item.is_complete %}status-chip--complete{% else %}status-chip--open{% endif %}">
+                    {% if item.is_complete %}Complete{% else %}Awaiting response{% endif %}
+                </div>
+                <p class="microcopy">
+                    Received {{ item.created_at.strftime('%d %b %Y, %H:%M') if item.created_at else item.created_at_raw }}
+                </p>
+            </div>
+
+            <h3>{{ item.subject or "General enquiry" }}</h3>
+            <p class="body">{{ item.body | replace('\n', '<br>') | safe }}</p>
+
+            <div class="contact-message-meta">
+                <div>
+                    <p class="eyebrow">From</p>
+                    <p class="body">{{ item.name }}</p>
+                    <a class="pill tiny ghost" href="mailto:{{ item.email }}?subject={{ item.subject or 'BrightMind enquiry' }}">Reply via email</a>
+                </div>
+                {% if not item.is_complete %}
+                <div class="attention-note">Unresolved</div>
+                {% else %}
+                <div class="microcopy">Closed {{ item.completed_at.strftime('%d %b %Y, %H:%M') if item.completed_at }}</div>
+                {% endif %}
+            </div>
+
+            <div class="contact-message-actions">
+                <form action="{{ url_for('complete_contact_message_admin', message_id=item.id) }}" method="post">
+                    <button class="btn secondary" type="submit" {% if item.is_complete %}disabled{% endif %}>Mark complete</button>
+                </form>
+                <form action="{{ url_for('delete_contact_message_admin', message_id=item.id) }}" method="post" onsubmit="return confirm('Delete this message?');">
+                    <button class="btn ghost" type="submit">Delete</button>
+                </form>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="body muted">No messages yet. They’ll appear here when visitors use the contact page.</p>
+    {% endif %}
     </section>
 
     <section class="panel admin-panel" id="data" data-admin-section>

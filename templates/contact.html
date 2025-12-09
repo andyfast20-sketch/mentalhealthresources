@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid contact-hero">
+    <div class="hero-copy">
+        <p class="eyebrow">Reach out</p>
+        <h1>Contact our team</h1>
+        <p class="lede">We love hearing from you. Tell us how we can improve BrightMind or what resources you need next.</p>
+        <div class="safety-note">
+            <strong>Important:</strong> We cannot provide medical or mental health advice. If you need urgent support, please use
+            the crisis options in the navigation.
+        </div>
+    </div>
+    <div class="contact-hero-card glassy">
+        <p class="eyebrow">Response style</p>
+        <h3>Warm, practical, and signpost-first.</h3>
+        <p class="body">We respond with resource suggestions, product feedback follow-ups, or partnership notes. We never offer
+            clinical guidance.</p>
+        <ul class="contact-list">
+            <li>Average reply within 2 business days.</li>
+            <li>Direct replies go straight to the admin inbox.</li>
+            <li>We’ll share next steps and trusted links only.</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="contact-section">
+    <div class="contact-copy">
+        <h2>Share your message</h2>
+        <p class="body">Your note will go directly to our small admin team. We handle every message thoughtfully, but we do not offer
+            any form of mental health advice. If you’re in crisis, please go to the crisis information page in the navigation for
+            immediate options.</p>
+    </div>
+
+    {% if message %}
+    <div class="flash success">{{ message }}</div>
+    {% endif %}
+    {% if error %}
+    <div class="flash">{{ error }}</div>
+    {% endif %}
+
+    <form class="contact-form" action="{{ url_for('contact_page') }}" method="post">
+        <div class="form-grid">
+            <label>
+                <span>Your name</span>
+                <input type="text" name="name" placeholder="Alex Rivers" required />
+            </label>
+            <label>
+                <span>Email</span>
+                <input type="email" name="email" placeholder="you@example.com" required />
+            </label>
+        </div>
+        <label>
+            <span>Subject</span>
+            <input type="text" name="subject" placeholder="Partnership idea, feedback, or request" />
+        </label>
+        <label>
+            <span>Message</span>
+            <textarea name="message" rows="6" placeholder="Tell us what you need or how we can help you find resources." required></textarea>
+            <p class="form-hint">Please don’t share personal health details. We’ll reply with signposts and resource suggestions.</p>
+        </label>
+        <button class="btn" type="submit">Send to the team</button>
+    </form>
+</section>
+
+<section class="contact-faqs">
+    <div class="faq-card glassy">
+        <p class="eyebrow">If you need urgent help</p>
+        <h3>Use the crisis support in the navigation.</h3>
+        <p class="body">BrightMind is a resource hub. We’re not able to offer clinical advice or counselling. If you’re struggling, click
+            “Crisis info” in the corner for immediate options.</p>
+    </div>
+    <div class="faq-card glassy">
+        <p class="eyebrow">How we reply</p>
+        <h3>Admin responds via email.</h3>
+        <p class="body">Every contact goes straight to the admin area where the team can reply to your email, mark the conversation
+            as complete, or remove it if it was sent in error.</p>
+    </div>
+    <div class="faq-card glassy">
+        <p class="eyebrow">What to include</p>
+        <h3>Share context, not medical details.</h3>
+        <p class="body">Ideas for features, accessibility feedback, or requests for resource topics help us serve you better.</p>
+    </div>
+</section>
+{% endblock %}
