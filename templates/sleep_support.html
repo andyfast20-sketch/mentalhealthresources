@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+
+{% block hero %}
+<div class="hero-grid">
+    <div class="hero-copy">
+        <p class="eyebrow">Can't sleep?</p>
+        <h1>Gentle steps to help you drift.</h1>
+        <p class="lede">Use this page to soften racing thoughts, try a short wind-down, or watch a calming video picked just for nights like this.</p>
+        <div class="cta-row">
+            <a class="btn" href="#sleep-steps">Try a wind-down</a>
+            <a class="btn ghost" href="#sleep-videos">Watch a calming video</a>
+        </div>
+        <div class="trust">No account needed • Ads free • Updates via the admin dashboard</div>
+    </div>
+    <div class="hero-panel hero-image">
+        <img src="https://images.unsplash.com/photo-1505480449763-3b1b79da4a13?w=700&q=80" alt="Soft night sky with stars" loading="lazy" />
+    </div>
+</div>
+{% endblock %}
+
+{% block content %}
+<section class="panel info-panel" id="sleep-steps">
+    <div class="panel-header">
+        <p class="eyebrow">Wind down</p>
+        <h2>Small steps that cue your body for rest.</h2>
+        <p class="lede">Pick one card to start. You can stay on this page, repeat steps, or move between them at your own pace.</p>
+    </div>
+    <div class="info-grid">
+        {% for step in sleep_steps %}
+        <article class="info-card">
+            <h3>{{ step.title }}</h3>
+            <p class="body">{{ step.description }}</p>
+            <div class="chip-row">
+                {% for chip in step.chips %}
+                <span class="chip">{{ chip }}</span>
+                {% endfor %}
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+
+<section class="panel crisis-panel info-panel" id="sleep-videos">
+    <div class="panel-header">
+        <p class="eyebrow">Press play</p>
+        <h2>Videos you can swap anytime.</h2>
+        <p class="body">These videos come straight from the admin dashboard so you can change them whenever you find something that helps.</p>
+    </div>
+    {% if sleep_videos %}
+    <div class="crisis-grid calming">
+        {% for video in sleep_videos %}
+        <article class="crisis-card grounding-video-card">
+            <h3>Calming video {{ loop.index }}</h3>
+            <p class="body">Play this clip while you follow the steps above or settle in for sleep.</p>
+            <div class="grounding-video" role="region" aria-label="Sleep support video {{ loop.index }}">
+                <div class="grounding-video__frame">
+                    <div class="grounding-video__glow" aria-hidden="true"></div>
+                    <iframe
+                        src="{{ video.url }}"
+                        title="Sleep support video {{ loop.index }}"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                        allowfullscreen
+                        loading="lazy"
+                    ></iframe>
+                    <div class="grounding-video__badge">Press play</div>
+                </div>
+                <p class="microcopy">Prefer a new tab? <a href="{{ video.url }}" target="_blank" rel="noopener">Open this video</a>.</p>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% else %}
+    <p class="body">Add a video link in the admin panel to feature it here. You can add up to three and swap them whenever you like.</p>
+    {% endif %}
+</section>
+{% endblock %}

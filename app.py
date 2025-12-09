@@ -77,6 +77,11 @@ CHAT_TOPIC_KEY = "chat_topic"
 CHAT_RULES_KEY = "chat_rules"
 CHAT_BLOCKED_WORDS_KEY = "chat_blocked_words"
 CHAT_BLOCK_ACTION_KEY = "chat_block_action"
+SLEEP_VIDEO_SETTING_KEYS = [
+    "sleep_video_url_1",
+    "sleep_video_url_2",
+    "sleep_video_url_3",
+]
 
 
 DEFAULT_BOOKS = [
@@ -1008,6 +1013,27 @@ def get_chat_block_action():
 
 def set_chat_block_action(value):
     save_site_setting(CHAT_BLOCK_ACTION_KEY, value)
+
+
+def get_sleep_video_urls():
+    settings = load_site_settings()
+    return [settings.get(key, "") for key in SLEEP_VIDEO_SETTING_KEYS]
+
+
+def get_sleep_videos():
+    videos = []
+
+    for index, url in enumerate(get_sleep_video_urls(), start=1):
+        normalized_url = normalize_url(url)
+        if normalized_url:
+            videos.append({"index": index, "url": normalized_url})
+
+    return videos
+
+
+def set_sleep_video_urls(urls):
+    for key, url in zip(SLEEP_VIDEO_SETTING_KEYS, urls):
+        save_site_setting(key, normalize_url(url))
 
 
 def check_message_content_basic(message):
@@ -2178,6 +2204,33 @@ def resources():
     return render_template("resources.html", resources=RESOURCES)
 
 
+@app.route("/sleep-support")
+def sleep_support():
+    sleep_steps = [
+        {
+            "title": "Set up a wind-down corner",
+            "description": "Dim the lights, lower the volume on notifications, and grab something cosy like a blanket or warm drink.",
+            "chips": ["Dim the lights", "Sip something warm", "Stretch your back"],
+        },
+        {
+            "title": "Calm your body cues",
+            "description": "Try a slow breathing pattern or a short muscle release. Let your exhales be longer than your inhales.",
+            "chips": ["4-7-8 breath", "Unclench your jaw", "Shoulder roll"],
+        },
+        {
+            "title": "Park looping thoughts",
+            "description": "Keep a nearby note for “overnight worries.” Jot them down, decide one tiny step for tomorrow, then close the list.",
+            "chips": ["1-minute brain dump", "Name one next step", "Close the notebook"],
+        },
+    ]
+
+    return render_template(
+        "sleep_support.html",
+        sleep_steps=sleep_steps,
+        sleep_videos=get_sleep_videos(),
+    )
+
+
 @app.route("/chat")
 def chat_room():
     return render_template(
@@ -2817,6 +2870,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
     books_with_covers = sum(1 for book in books if book.get("cover_url"))
     books_without_covers = len(books) - books_with_covers
     books_per_row = 4
+    sleep_video_urls = get_sleep_video_urls()
 
     return render_template(
         "admin.html",
@@ -2843,6 +2897,7 @@ def render_admin_page(message=None, save_summary=None, load_summary=None, sectio
         chat_rules=get_chat_rules(),
         chat_blocked_words=get_chat_blocked_words(),
         chat_block_action=get_chat_block_action(),
+        sleep_video_urls=sleep_video_urls,
     )
 
 
@@ -2893,6 +2948,20 @@ def update_chat_settings():
 
     message = "Chat room settings saved."
     return redirect(url_for("admin", message=message, section="chat-room"))
+
+
+@app.route("/admin/sleep-support", methods=["POST"])
+def update_sleep_support():
+    urls = [
+        request.form.get("sleep_video_url_1", "").strip(),
+        request.form.get("sleep_video_url_2", "").strip(),
+        request.form.get("sleep_video_url_3", "").strip(),
+    ]
+
+    set_sleep_video_urls(urls)
+
+    message = "Sleep support videos updated."
+    return redirect(url_for("admin", message=message, section="sleep-support"))
 
 
 @app.route("/api/chat/check-message", methods=["POST"])
