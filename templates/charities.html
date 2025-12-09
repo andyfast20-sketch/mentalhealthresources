@@ -39,6 +39,7 @@
                     <h3>{{ charity.name }}</h3>
                 </div>
             </div>
+            <div class="section-label" aria-hidden="true">Support options</div>
             <div class="charity-meta">
                 {% if charity.has_helpline %}
                 <span class="chip">Helpline</span>
@@ -60,6 +61,7 @@
                 {% endif %}
             </div>
             <p class="charity-description">{{ charity.description }}</p>
+            <div class="section-label" aria-hidden="true">Contact details</div>
             <dl class="charity-contact-list">
                 {% if charity.telephone %}
                 <div class="contact-row">

@@ -1382,28 +1382,28 @@ body {
 }
 
 .charity-panel {
-  background: linear-gradient(160deg, rgba(255, 255, 255, 0.9), rgba(202, 245, 255, 0.65));
-  border: 1px solid rgba(122, 178, 203, 0.2);
-  box-shadow: 0 18px 36px rgba(89, 144, 167, 0.18);
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.98), rgba(211, 238, 248, 0.85));
+  border: 1px solid rgba(122, 178, 203, 0.18);
+  box-shadow: 0 18px 38px rgba(89, 144, 167, 0.18);
 }
 
 .charity-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-  gap: 16px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 18px;
   margin-top: 18px;
 }
 
 .charity-card {
-  background: rgba(255, 255, 255, 0.92);
-  border: 1px solid rgba(122, 178, 203, 0.3);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(236, 245, 249, 0.95));
+  border: 1px solid rgba(122, 178, 203, 0.22);
   border-radius: 18px;
-  padding: 16px;
-  box-shadow: 0 12px 28px rgba(89, 144, 167, 0.14);
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  height: 360px;
+  padding: 18px 18px 16px;
+  box-shadow: 0 16px 32px rgba(89, 144, 167, 0.16);
+  display: grid;
+  grid-template-rows: auto auto 1fr auto;
+  gap: 12px;
+  min-height: 420px;
 }
 
 .charity-card.admin-card {
@@ -1467,10 +1467,18 @@ body {
   min-height: 0;
 }
 
+.charity-description strong {
+  color: #20384b;
+}
+
 .charity-meta {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
+  padding: 10px 12px;
+  background: rgba(255, 255, 255, 0.9);
+  border: 1px solid rgba(122, 178, 203, 0.16);
+  border-radius: 14px;
 }
 
 .chip {
@@ -1492,12 +1500,14 @@ body {
   display: grid;
   gap: 6px;
   color: #32566a;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .contact-row {
   display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 10px;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+  gap: 12px;
   padding: 8px 10px;
   border-radius: 12px;
   background: rgba(255, 255, 255, 0.65);
@@ -1509,6 +1519,9 @@ body {
   font-weight: 700;
   color: #28546a;
   font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
 }
 
 .contact-row dd {
@@ -1517,6 +1530,26 @@ body {
   font-weight: 600;
   font-size: 13px;
   word-break: break-word;
+}
+
+.section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: #21405a;
+  font-size: 13px;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+.section-label::before {
+  content: "";
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #7bb5d2, #4f87af);
+  box-shadow: 0 0 0 6px rgba(122, 178, 203, 0.18);
 }
 
 .charity-description::-webkit-scrollbar {
