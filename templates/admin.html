@@ -16,6 +16,7 @@
         <a class="btn tiny ghost" href="#site-banner">Site banner</a>
         <a class="btn tiny ghost" href="#ai-tools">AI tools</a>
         <a class="btn tiny ghost" href="#chat-room">Chat room</a>
+        <a class="btn tiny ghost" href="#sleep-support">Sleep support</a>
         <a class="btn tiny ghost" href="#data">Data</a>
         <a class="btn tiny ghost" href="#media-library">Media pot</a>
         <a class="btn tiny ghost" href="#did-you-know">Did you know?</a>
@@ -128,6 +129,31 @@
             </label>
         </div>
         <button class="btn" type="submit">Save chat settings</button>
+    </form>
+    </section>
+
+    <section class="panel admin-panel" id="sleep-support" data-admin-section>
+    <div class="panel-header">
+        <p class="eyebrow">Night support</p>
+        <h2>Keep the "Can't sleep" page fresh.</h2>
+        <p class="lede">Add up to three calming video URLs. They'll show on the dedicated sleep support page without appearing in the main navigation.</p>
+        {% if message %}
+        <div class="flash">{{ message }}</div>
+        {% endif %}
+    </div>
+    <form class="admin-form" action="{{ url_for('update_sleep_support') }}" method="post">
+        <div class="form-grid">
+            {% for url in sleep_video_urls %}
+            <label>
+                <span>Video {{ loop.index }} URL</span>
+                <input type="url" name="sleep_video_url_{{ loop.index }}" placeholder="https://www.youtube.com/embed/..." value="{{ url }}" />
+                {% if loop.first %}
+                <p class="body muted">Use an embeddable link (YouTube, Vimeo, etc.) so visitors can watch directly on the sleep support page.</p>
+                {% endif %}
+            </label>
+            {% endfor %}
+        </div>
+        <button class="btn" type="submit">Save sleep videos</button>
     </form>
     </section>
 
