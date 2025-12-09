@@ -39,7 +39,53 @@
                     <h3>{{ charity.name }}</h3>
                 </div>
             </div>
-            <p class="body">{{ charity.description }}</p>
+            <div class="charity-meta">
+                {% if charity.has_helpline %}
+                <span class="chip">Helpline</span>
+                {% endif %}
+                {% if charity.has_live_chat %}
+                <span class="chip">Live chat</span>
+                {% endif %}
+                {% if charity.has_text_support %}
+                <span class="chip">Text support</span>
+                {% endif %}
+                {% if charity.has_email_support %}
+                <span class="chip">Email support</span>
+                {% endif %}
+                {% if charity.has_volunteers %}
+                <span class="chip">Volunteers</span>
+                {% endif %}
+                {% if charity.has_crisis_info %}
+                <span class="chip">Crisis info</span>
+                {% endif %}
+            </div>
+            <p class="charity-description">{{ charity.description }}</p>
+            <dl class="charity-contact-list">
+                {% if charity.telephone %}
+                <div class="contact-row">
+                    <dt>Phone</dt>
+                    <dd>{{ charity.telephone }}</dd>
+                </div>
+                {% endif %}
+                {% if charity.text_number %}
+                <div class="contact-row">
+                    <dt>Text</dt>
+                    <dd>{{ charity.text_number }}</dd>
+                </div>
+                {% endif %}
+                {% if charity.contact_email %}
+                <div class="contact-row">
+                    <dt>Email</dt>
+                    <dd>{{ charity.contact_email }}</dd>
+                </div>
+                {% endif %}
+                {% if charity.helpline_hours %}
+                <div class="contact-row">
+                    <dt>Hours</dt>
+                    <dd>{{ charity.helpline_hours }}</dd>
+                </div>
+                {% endif %}
+            </dl>
             <div class="charity-actions">
                 <button
                     class="btn tiny"
