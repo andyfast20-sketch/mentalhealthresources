@@ -26,12 +26,12 @@
             data-book-title="{{ book.title }}"
             data-book-author="{{ book.author }}"
             data-book-description="{{ book.description }}"
-            data-book-cover="{{ book.cover_url }}"
+            data-book-cover="{% if book.cover_url %}/cover-proxy?url={{ book.cover_url | urlencode }}{% endif %}"
             data-book-link="{{ book.affiliate_url }}"
         >
             <div class="book-cover" aria-hidden="true">
                 {% if book.cover_url %}
-                <img src="{{ book.cover_url }}" alt="{{ book.title }} cover" loading="lazy" />
+                <img src="/cover-proxy?url={{ book.cover_url | urlencode }}" alt="{{ book.title }} cover" loading="lazy" />
                 {% else %}
                 <div class="cover-placeholder">📖</div>
                 {% endif %}

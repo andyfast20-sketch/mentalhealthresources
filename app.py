@@ -25,7 +25,7 @@ except ModuleNotFoundError:  # pragma: no cover - fallback loader
                 continue
             key, value = stripped.split("=", 1)
             os.environ.setdefault(key.strip(), value.strip())
-from flask import Flask, redirect, render_template, request, url_for
+from flask import Flask, redirect, render_template, request, url_for, Response, send_file
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -2275,6 +2275,45 @@ def index():
 def books():
     book_list = books_with_indices(load_books())
     return render_template("books.html", books=book_list)
+
+
+COVERS_CACHE_DIR = BASE_DIR / "static" / "covers_cache"
+
+@app.route("/cover-proxy")
+def cover_proxy():
+    """Fetch an external book cover image server-side, cache it locally, return it."""
+    import hashlib, mimetypes
+    import requests as req_lib
+    url = request.args.get("url", "").strip()
+    if not url or not url.startswith("http"):
+        return Response(status=400)
+    # Use a hash of the URL as the cache filename
+    ext = ".jpg"
+    for candidate in (".png", ".gif", ".webp", ".jpg", ".jpeg"):
+        if candidate in url.lower():
+            ext = candidate
+            break
+    cache_name = hashlib.md5(url.encode()).hexdigest() + ext
+    COVERS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
+    cache_path = COVERS_CACHE_DIR / cache_name
+    if not cache_path.exists():
+        try:
+            headers = {
+                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+                              "AppleWebKit/537.36 (KHTML, like Gecko) "
+                              "Chrome/122.0.0.0 Safari/537.36",
+                "Referer": "https://www.google.com/",
+                "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+            }
+            r = req_lib.get(url, headers=headers, timeout=10, stream=True)
+            r.raise_for_status()
+            with open(cache_path, "wb") as f:
+                for chunk in r.iter_content(8192):
+                    f.write(chunk)
+        except Exception:
+            return Response(status=502)
+    mime = mimetypes.guess_type(str(cache_path))[0] or "image/jpeg"
+    return send_file(cache_path, mimetype=mime, max_age=86400 * 7)
 
 
 @app.route("/books/<slug>/view", methods=["POST"])
