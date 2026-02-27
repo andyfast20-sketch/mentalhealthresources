@@ -2281,37 +2281,94 @@ COVERS_CACHE_DIR = BASE_DIR / "static" / "covers_cache"
 
 @app.route("/cover-proxy")
 def cover_proxy():
-    """Fetch an external book cover image server-side, cache it locally, return it."""
-    import hashlib, mimetypes
+    """Fetch a book cover server-side with fallbacks, cache it, and return it."""
+    import hashlib
+    import mimetypes
+    from urllib.parse import quote_plus
     import requests as req_lib
-    url = request.args.get("url", "").strip()
-    if not url or not url.startswith("http"):
-        return Response(status=400)
-    # Use a hash of the URL as the cache filename
+
+    def fetch_image(target_url, destination_path):
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/122.0.0.0 Safari/537.36",
+            "Referer": "https://www.google.com/",
+            "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
+        }
+        response = req_lib.get(target_url, headers=headers, timeout=12, stream=True)
+        response.raise_for_status()
+        with open(destination_path, "wb") as handle:
+            for chunk in response.iter_content(8192):
+                if chunk:
+                    handle.write(chunk)
+
+    def placeholder_svg(book_title):
+        safe_title = (book_title or "Book cover unavailable").replace("<", "").replace(">", "")
+        svg = f"""<svg xmlns='http://www.w3.org/2000/svg' width='320' height='480' viewBox='0 0 320 480'>
+<rect width='320' height='480' fill='#1f2937'/>
+<rect x='24' y='24' width='272' height='432' rx='18' fill='#111827' stroke='#334155' stroke-width='2'/>
+<text x='160' y='220' text-anchor='middle' fill='#cbd5e1' font-size='20' font-family='Arial'>📖</text>
+<text x='160' y='260' text-anchor='middle' fill='#cbd5e1' font-size='15' font-family='Arial'>Cover unavailable</text>
+<text x='160' y='292' text-anchor='middle' fill='#94a3b8' font-size='12' font-family='Arial'>{safe_title[:36]}</text>
+</svg>"""
+        return Response(svg, mimetype="image/svg+xml")
+
+    original_url = request.args.get("url", "").strip()
+    title = request.args.get("title", "").strip()
+    author = request.args.get("author", "").strip()
+
+    candidate_urls = []
+    if original_url.startswith("http"):
+        candidate_urls.append(original_url)
+
+    if title:
+        query_bits = [title]
+        if author:
+            query_bits.append(author)
+        query = " ".join(query_bits)
+        google_api = f"https://www.googleapis.com/books/v1/volumes?q={quote_plus(query)}&maxResults=1"
+        try:
+            api_response = req_lib.get(google_api, timeout=8)
+            api_response.raise_for_status()
+            payload = api_response.json()
+            items = payload.get("items") or []
+            if items:
+                image_links = (items[0].get("volumeInfo") or {}).get("imageLinks") or {}
+                thumbnail = image_links.get("large") or image_links.get("medium") or image_links.get("thumbnail")
+                if thumbnail:
+                    candidate_urls.append(thumbnail.replace("http://", "https://"))
+        except Exception:
+            pass
+
+    if not candidate_urls:
+        return placeholder_svg(title)
+
+    # Use all candidate URLs in hash so cache key is stable for same inputs.
+    cache_key = "|".join(candidate_urls)
     ext = ".jpg"
-    for candidate in (".png", ".gif", ".webp", ".jpg", ".jpeg"):
-        if candidate in url.lower():
-            ext = candidate
-            break
-    cache_name = hashlib.md5(url.encode()).hexdigest() + ext
+    for candidate in candidate_urls:
+        lower = candidate.lower()
+        for suffix in (".png", ".gif", ".webp", ".jpg", ".jpeg"):
+            if suffix in lower:
+                ext = suffix
+                break
+
+    cache_name = hashlib.md5(cache_key.encode()).hexdigest() + ext
     COVERS_CACHE_DIR.mkdir(parents=True, exist_ok=True)
     cache_path = COVERS_CACHE_DIR / cache_name
+
     if not cache_path.exists():
-        try:
-            headers = {
-                "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) "
-                              "AppleWebKit/537.36 (KHTML, like Gecko) "
-                              "Chrome/122.0.0.0 Safari/537.36",
-                "Referer": "https://www.google.com/",
-                "Accept": "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-            }
-            r = req_lib.get(url, headers=headers, timeout=10, stream=True)
-            r.raise_for_status()
-            with open(cache_path, "wb") as f:
-                for chunk in r.iter_content(8192):
-                    f.write(chunk)
-        except Exception:
-            return Response(status=502)
+        fetched = False
+        for candidate in candidate_urls:
+            try:
+                fetch_image(candidate, cache_path)
+                fetched = True
+                break
+            except Exception:
+                continue
+        if not fetched:
+            return placeholder_svg(title)
+
     mime = mimetypes.guess_type(str(cache_path))[0] or "image/jpeg"
     return send_file(cache_path, mimetype=mime, max_age=86400 * 7)
 
